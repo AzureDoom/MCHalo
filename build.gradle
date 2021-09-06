@@ -1,0 +1,133 @@
+buildscript {
+    repositories {
+    	maven { url  = 'https://plugins.gradle.org/m2/' }
+    }
+}
+
+plugins {
+	id 'fabric-loom' version '0.8-SNAPSHOT'
+	id 'maven-publish'
+    id 'com.matthewprenger.cursegradle' version '1.4.0'
+}
+
+import groovy.json.JsonSlurper
+import groovy.json.JsonOutput
+
+sourceCompatibility = JavaVersion.VERSION_16
+targetCompatibility = JavaVersion.VERSION_16
+
+archivesBaseName = project.archives_base_name
+version = project.mod_version
+group = project.maven_group
+
+repositories {
+	maven { url 'https://www.cursemaven.com' }
+    maven { url  = 'https://plugins.gradle.org/m2/' }
+    maven { url 'https://dl.cloudsmith.io/public/geckolib3/geckolib/maven/' }
+    maven { url "https://maven.shedaniel.me/" }
+}
+
+dependencies {
+	minecraft "com.mojang:minecraft:${project.minecraft_version}"
+	mappings "net.fabricmc:yarn:${project.yarn_mappings}:v2"
+	modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
+	modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
+    modImplementation "software.bernie.geckolib:geckolib-fabric-1.17:3.0.13:dev"
+	modImplementation 'curse.maven:TDI-245733:3358651'
+	modImplementation 'curse.maven:modmenu-308702:3431313'
+	modImplementation 'curse.maven:REI-310111:3424130'
+	modImplementation 'curse.maven:architectury-fabric-419697:3427341'
+	modApi("me.shedaniel.cloth:cloth-config-fabric:5.0.38") {
+        exclude(group: "net.fabricmc.fabric-api")
+    }
+}
+
+processResources {
+	inputs.property "version", project.version
+
+	filesMatching("fabric.mod.json") {
+		expand "version": project.version
+	}
+}
+
+processResources {
+	doLast {
+        def jsonMinifyStart = System.currentTimeMillis()
+        def jsonMinified = 0
+        def jsonBytesSaved = 0
+        fileTree(dir: outputs.files.asPath, include: '**/*.json').each { 
+            File file = it
+            jsonMinified++
+            def oldLength = file.length()
+            file.text = JsonOutput.toJson(new JsonSlurper().parse(file))
+            jsonBytesSaved += oldLength - file.length()
+        }
+        println('Minified ' + jsonMinified + ' json files. Saved ' + jsonBytesSaved + ' bytes. Took ' + (System.currentTimeMillis() - jsonMinifyStart) + 'ms.')
+    }
+}
+
+tasks.withType(JavaCompile).configureEach {
+	it.options.encoding = "UTF-8"
+	it.options.release = 16
+}
+
+java {
+	withSourcesJar()
+}
+
+jar {
+	from("LICENSE") {
+		rename { "${it}_${project.archivesBaseName}"}
+	}
+}
+
+publishing {
+	publications {
+		mavenJava(MavenPublication) {
+			// add all the jars that should be included when publishing to maven
+			artifact(remapJar) {
+				builtBy remapJar
+			}
+			artifact(sourcesJar) {
+				builtBy remapSourcesJar
+			}
+		}
+	}
+	repositories {
+	}
+}
+
+if (file('key.properties').exists()) {
+    curseforge {
+
+    	def curseProp = new Properties()
+    	File secretPropsFile = file("key.properties")
+    	curseProp.load(secretPropsFile.newInputStream())
+
+    	project {
+        	apiKey = curseProp.getProperty('curseKey')
+        	id = "504271"
+        	releaseType = "alpha"
+        	changelogType = 'text'
+        	changelog = file('CHANGELOG.txt')
+			addGameVersion("1.17.1")
+			addGameVersion("Fabric")
+			addGameVersion("Java 16")
+
+        	relations {
+            	requiredDependency 'fabric-api'  
+            	requiredDependency 'geckolib' 
+            	requiredDependency 'cloth-config'  
+        	}
+        	mainArtifact(remapJar)
+
+        	afterEvaluate {
+            	uploadTask.dependsOn("remapJar")
+        	}
+    	}
+    	options {
+    		//debug = true
+        	forgeGradleIntegration = false
+    	}
+    }
+}

@@ -1,0 +1,21 @@
+{
+	"type": "mchalo:gun_table",
+	"pattern": "abc",
+	"key": {
+		"a": {
+			"item": "minecraft:iron_nugget",
+			"count": 2
+		},
+		"b": {
+			"item": "minecraft:gunpowder",
+			"count": 1
+		},
+		"c": {
+			"item": "minecraft:gold_nugget",
+			"count": 2
+		}
+	},
+	"result": {
+		"item": "mchalo:shotgun_clip"
+	}
+}

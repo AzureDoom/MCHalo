@@ -1,0 +1,4 @@
+v.0.0.2
+
+THIS IS A HEAVY WIP VERSION, FOR TESTING NOW
+- Fixed Sniper Rifle and Battle Rifle not respecting players FOV when held and scoping. 

@@ -1,0 +1,142 @@
+{
+	"mchalo.sniper_fire_h3": {
+		"sounds": [
+			{
+				"name": "mchalo:sniper_fire_h3"
+			}
+		]
+	},
+	"mchalo.sniper_reload": {
+		"sounds": [
+			{
+				"name": "mchalo:sniper_reload"
+			}
+		]
+	},
+	"mchalo.shotgun": {
+		"sounds": [
+			{
+				"name": "mchalo:shotgun"
+			}
+		]
+	},
+	"mchalo.shotgunreload": {
+		"sounds": [
+			{
+				"name": "mchalo:shotgunreload"
+			}
+		]
+	},
+	"mchalo.pistol": {
+		"sounds": [
+			{
+				"name": "mchalo:pistol"
+			}
+		]
+	},
+	"mchalo.pistolreload": {
+		"sounds": [
+			{
+				"name": "mchalo:pistolreload"
+			}
+		]
+	},
+	"mchalo.battle_rifle": {
+		"sounds": [
+			{
+				"name": "mchalo:battle_rifle"
+			}
+		]
+	},
+	"mchalo.battle_rifle_reload": {
+		"sounds": [
+			{
+				"name": "mchalo:battle_rifle_reload"
+			}
+		]
+	},
+	"mchalo.rocket_h3_1": {
+		"sounds": [
+			{
+				"name": "mchalo:rocket_h3_1"
+			}
+		]
+	},
+	"mchalo.rocket_reload": {
+		"sounds": [
+			{
+				"name": "mchalo:rocket_reload"
+			}
+		]
+	},
+	"mchalo.plasmapistol": {
+		"sounds": [
+			{
+				"name": "mchalo:plasmapistol"
+			}
+		]
+	},
+	"mchalo.plasmapistol_reload": {
+		"sounds": [
+			{
+				"name": "mchalo:plasmapistol_reload"
+			}
+		]
+	},
+	"mchalo.plasmarifle": {
+		"sounds": [
+			{
+				"name": "mchalo:plasmarifle"
+			}
+		]
+	},
+	"mchalo.plasmarifle_reload": {
+		"sounds": [
+			{
+				"name": "mchalo:plasmarifle_reload"
+			}
+		]
+	},
+	"mchalo.needler": {
+		"sounds": [
+			{
+				"name": "mchalo:needler"
+			}
+		]
+	},
+	"mchalo.needler_reload": {
+		"sounds": [
+			{
+				"name": "mchalo:needler_reload"
+			}
+		]
+	},
+	"mchalo.mauler": {
+		"sounds": [
+			{
+				"name": "mchalo:mauler"
+			}
+		]
+	},
+	"mchalo.mauler_reload": {
+		"sounds": [
+			{
+				"name": "mchalo:mauler_reload"
+			}
+		]
+	},
+	"mchalo.bruteshot": {
+		"sounds": [
+			{
+				"name": "mchalo:bruteshot"
+			}
+		]
+	},
+	"mchalo.bruteshot_reload": {
+		"sounds": [
+			{
+				"name": "mchalo:bruteshot_reload"
+			}
+		]
+	}
+}

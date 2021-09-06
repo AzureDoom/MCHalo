@@ -1,0 +1,38 @@
+{
+	"schemaVersion": 1,
+	"id": "mchalo",
+	"version": "${version}",
+	"name": "MCHalo",
+	"description": "Adds weapons from the Halo franchise to Minecraft!",
+	"authors": [
+		"AzureDoom, yanasakana"
+	],
+	"contact": {
+		"homepage": "https://www.curseforge.com/minecraft/mc-mods/mchalo",
+		"sources": "https://github.com/AzureDoom/mchalo"
+	},
+	"license": "CC-BY-NC-4.0",
+	"icon": "assets/mchalo/icon.png",
+	"environment": "*",
+	"entrypoints": {
+		"main": [
+			"mod.azure.mchalo.MCHaloMod"
+		],
+		"client": [
+			"mod.azure.mchalo.client.ClientInit"
+		]
+	},
+	"mixins": [
+		"mchalo.mixins.json"
+	],
+	"depends": {
+		"fabricloader": ">=0.11.3",
+		"fabric": "*",
+		"minecraft": "1.17.x",
+		"java": ">=16",
+		"geckolib3": ">=3.0.9"
+	},
+	"suggests": {
+		"another-mod": "*"
+	}
+}

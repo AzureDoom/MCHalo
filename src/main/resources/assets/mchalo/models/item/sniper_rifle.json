@@ -1,0 +1,104 @@
+{
+	"credit": "Made with Blockbench",
+	"parent": "builtin/entity",
+	"texture_size": [
+		64,
+		64
+	],
+	"display": {
+		"thirdperson_righthand": {
+			"translation": [
+				0,
+				-1.5,
+				-3.75
+			],
+			"scale": [
+				0.4,
+				0.4,
+				0.4
+			]
+		},
+		"thirdperson_lefthand": {
+			"translation": [
+				0,
+				-1.5,
+				-3.75
+			],
+			"scale": [
+				0.4,
+				0.4,
+				0.4
+			]
+		},
+		"firstperson_righthand": {
+			"translation": [
+				1.5,
+				-8.75,
+				-11.25
+			]
+		},
+		"firstperson_lefthand": {
+			"translation": [
+				1.5,
+				-8.75,
+				-11.25
+			]
+		},
+		"ground": {
+			"scale": [
+				0.4,
+				0.4,
+				0.4
+			]
+		},
+		"gui": {
+			"rotation": [
+				49,
+				-38,
+				19
+			],
+			"translation": [
+				-0.75,
+				-2,
+				0
+			],
+			"scale": [
+				0.24,
+				0.24,
+				0.24
+			]
+		},
+		"head": {
+			"scale": [
+				0,
+				0,
+				0
+			]
+		},
+		"fixed": {
+			"rotation": [
+				0,
+				-90,
+				0
+			],
+			"translation": [
+				-2,
+				0,
+				0
+			],
+			"scale": [
+				0.24,
+				0.24,
+				0.24
+			]
+		}
+	},
+	"overrides": [
+		{
+			"predicate": {
+				"scoped": 1
+			},
+			"model": "mchalo:item/sniper_rifle_scoped"
+		}
+	]
+}
