@@ -6,11 +6,11 @@ import mod.azure.mchalo.MCHaloMod;
 import mod.azure.mchalo.config.HaloConfig.Weapons;
 import mod.azure.mchalo.entity.projectiles.BulletEntity;
 import mod.azure.mchalo.entity.projectiles.NeedleEntity;
+import mod.azure.mchalo.entity.projectiles.RocketEntity;
 import net.minecraft.client.item.TooltipContext;
 import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.enchantment.Enchantments;
 import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.TntEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
@@ -85,9 +85,8 @@ public class HaloGunBase extends Item implements IAnimatable, ISyncable {
 
 	@Override
 	public TypedActionResult<ItemStack> use(World world, PlayerEntity user, Hand hand) {
-		ItemStack itemStack = user.getStackInHand(hand);
 		user.setCurrentHand(hand);
-		return TypedActionResult.consume(itemStack);
+		return TypedActionResult.consume(user.getStackInHand(hand));
 	}
 
 	public <P extends Item & IAnimatable> PlayState predicate(AnimationEvent<P> event) {
@@ -128,9 +127,8 @@ public class HaloGunBase extends Item implements IAnimatable, ISyncable {
 		return arrowentity;
 	}
 
-	public TntEntity createTNT(World world, LivingEntity shooter) {
-		TntEntity arrowentity = new TntEntity(world, (double) shooter.getPos().getX() + 0.5D,
-				(double) shooter.getPos().getY(), (double) shooter.getPos().getZ() + 0.5D, shooter);
+	public RocketEntity createRocket(World world, ItemStack stack, LivingEntity shooter) {
+		RocketEntity arrowentity = new RocketEntity(world, shooter);
 		return arrowentity;
 	}
 

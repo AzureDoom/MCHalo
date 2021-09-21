@@ -30,6 +30,7 @@ public class HaloConfig implements ConfigData {
 
 		public int rocketlauncher_max_ammo = 8;
 		public int rocketlauncher_mag_size = 2;
+		public int rocketlauncher_damage = 4;
 
 		public int propshield_max_damage = 500;
 

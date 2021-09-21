@@ -7,15 +7,20 @@ import org.lwjgl.glfw.GLFW;
 import mod.azure.mchalo.MCHaloMod;
 import mod.azure.mchalo.client.gui.GunTableScreen;
 import mod.azure.mchalo.client.render.BattleRifleRender;
+import mod.azure.mchalo.client.render.BruteShotRender;
 import mod.azure.mchalo.client.render.EnergySwordRender;
 import mod.azure.mchalo.client.render.MagnumRender;
+import mod.azure.mchalo.client.render.MaulerRender;
 import mod.azure.mchalo.client.render.NeedlerRender;
+import mod.azure.mchalo.client.render.PlasmaPistolRender;
+import mod.azure.mchalo.client.render.PlasmaRifleRender;
 import mod.azure.mchalo.client.render.PropShieldRender;
 import mod.azure.mchalo.client.render.RocketLauncherRender;
 import mod.azure.mchalo.client.render.ShotgunRender;
 import mod.azure.mchalo.client.render.SniperRender;
 import mod.azure.mchalo.client.render.projectiles.BulletRender;
 import mod.azure.mchalo.client.render.projectiles.NeedleRender;
+import mod.azure.mchalo.client.render.projectiles.RocketRender;
 import mod.azure.mchalo.network.EntityPacket;
 import mod.azure.mchalo.util.HaloItems;
 import mod.azure.mchalo.util.ProjectilesEntityRegister;
@@ -36,7 +41,6 @@ import net.minecraft.client.util.InputUtil;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
-import net.minecraft.entity.LivingEntity;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.registry.Registry;
@@ -64,18 +68,23 @@ public class ClientInit implements ClientModInitializer {
 		GeoItemRenderer.registerItemRenderer(HaloItems.PROPSHIELD, new PropShieldRender());
 		GeoItemRenderer.registerItemRenderer(HaloItems.ENERGYSWORD, new EnergySwordRender());
 		GeoItemRenderer.registerItemRenderer(HaloItems.NEEDLER, new NeedlerRender());
+		GeoItemRenderer.registerItemRenderer(HaloItems.BRUTESHOT, new BruteShotRender());
+		GeoItemRenderer.registerItemRenderer(HaloItems.MAULER, new MaulerRender());
+		GeoItemRenderer.registerItemRenderer(HaloItems.PLASMAPISTOL, new PlasmaPistolRender());
+		GeoItemRenderer.registerItemRenderer(HaloItems.PLASMARIFLE, new PlasmaRifleRender());
 		EntityRendererRegistry.INSTANCE.register(ProjectilesEntityRegister.BULLET, (ctx) -> new BulletRender(ctx));
 		EntityRendererRegistry.INSTANCE.register(ProjectilesEntityRegister.NEEDLE, (ctx) -> new NeedleRender(ctx));
+		EntityRendererRegistry.INSTANCE.register(ProjectilesEntityRegister.ROCKET, (ctx) -> new RocketRender(ctx));
 		FabricModelPredicateProviderRegistry.register(HaloItems.SNIPER, new Identifier("scoped"),
 				(itemStack, clientWorld, livingEntity, seed) -> {
 					if (livingEntity != null)
-						return isSneaking(livingEntity) ? 1.0F : 0.0F;
+						return isScoped() ? 1.0F : 0.0F;
 					return 0.0F;
 				});
 		FabricModelPredicateProviderRegistry.register(HaloItems.BATTLERIFLE, new Identifier("scoped"),
 				(itemStack, clientWorld, livingEntity, seed) -> {
 					if (livingEntity != null)
-						return isSneaking(livingEntity) ? 1.0F : 0.0F;
+						return isScoped() ? 1.0F : 0.0F;
 					return 0.0F;
 				});
 		ClientSidePacketRegistry.INSTANCE.register(EntityPacket.ID, (ctx, buf) -> {
@@ -83,8 +92,8 @@ public class ClientInit implements ClientModInitializer {
 		});
 	}
 
-	private static boolean isSneaking(LivingEntity livingEntity) {
-		return livingEntity.isSneaking();
+	private static boolean isScoped() {
+		return scope.isPressed();
 	}
 
 	public static void requestParticleTexture(Identifier id) {

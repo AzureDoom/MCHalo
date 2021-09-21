@@ -46,7 +46,7 @@ public class NeedlerItem extends HaloGunBase {
 					NeedleEntity abstractarrowentity = createNeedle(worldIn, stack, playerentity,
 							config.needler_bullet_damage);
 					abstractarrowentity.setProperties(playerentity, playerentity.getPitch(), playerentity.getYaw(),
-							0.0F, 1.0F * 3.0F, 1.0F);
+							0.0F, 0.25F * 3.0F, 1.0F);
 					if (EnchantmentHelper.getLevel(Enchantments.FLAME, stack) > 0) {
 						abstractarrowentity.setOnFireFor(100);
 					}

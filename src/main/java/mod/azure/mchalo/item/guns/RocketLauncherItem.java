@@ -3,13 +3,13 @@ package mod.azure.mchalo.item.guns;
 import io.netty.buffer.Unpooled;
 import mod.azure.mchalo.MCHaloMod;
 import mod.azure.mchalo.client.ClientInit;
+import mod.azure.mchalo.entity.projectiles.RocketEntity;
 import mod.azure.mchalo.item.HaloGunBase;
 import mod.azure.mchalo.util.HaloSounds;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.networking.v1.PlayerLookup;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.TntEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
@@ -35,8 +35,11 @@ public class RocketLauncherItem extends HaloGunBase {
 			if (stack.getDamage() < (stack.getMaxDamage() - 1)) {
 				playerentity.getItemCooldownManager().set(this, 5);
 				if (!worldIn.isClient) {
-					TntEntity abstractarrowentity = createTNT(worldIn, playerentity);
-					abstractarrowentity.setVelocity(playerentity.getVelocity().multiply(3.6D, 1.0D, .6D));
+					RocketEntity abstractarrowentity = createRocket(worldIn, stack, playerentity);
+					abstractarrowentity.setProperties(playerentity, playerentity.getPitch(), playerentity.getYaw(),
+							0.0F, 0.25F * 3.0F, 1.0F);
+					abstractarrowentity.refreshPositionAndAngles(entityLiving.getX(), entityLiving.getBodyY(0.95),
+							entityLiving.getZ(), 0, 0);
 					stack.damage(1, entityLiving, p -> p.sendToolBreakStatus(entityLiving.getActiveHand()));
 					worldIn.spawnEntity(abstractarrowentity);
 					worldIn.playSound((PlayerEntity) null, playerentity.getX(), playerentity.getY(),

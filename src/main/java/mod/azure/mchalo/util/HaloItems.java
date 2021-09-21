@@ -5,8 +5,12 @@ import mod.azure.mchalo.item.EnergySwordItem;
 import mod.azure.mchalo.item.PropShieldItem;
 import mod.azure.mchalo.item.ammo.HaloAmmoItem;
 import mod.azure.mchalo.item.guns.BattleRifleItem;
+import mod.azure.mchalo.item.guns.BruteShotItem;
 import mod.azure.mchalo.item.guns.MagnumItem;
+import mod.azure.mchalo.item.guns.MaulerItem;
 import mod.azure.mchalo.item.guns.NeedlerItem;
+import mod.azure.mchalo.item.guns.PlasmaPistolItem;
+import mod.azure.mchalo.item.guns.PlasmaRifleItem;
 import mod.azure.mchalo.item.guns.RocketLauncherItem;
 import mod.azure.mchalo.item.guns.ShotgunItem;
 import mod.azure.mchalo.item.guns.SniperItem;
@@ -23,11 +27,11 @@ public class HaloItems {
 	public static MagnumItem MAGNUM = item(new MagnumItem(), "magnum_h3");
 	public static BattleRifleItem BATTLERIFLE = item(new BattleRifleItem(), "battle_rifle");
 	public static RocketLauncherItem ROCKETLAUNCHER = item(new RocketLauncherItem(), "rocket_launcher_h3");
-//	public static PlasmaPistolItem PLASMAPISTOL = item(new PlasmaPistolItem(), "plasma_pistol");
-//	public static PlasmaRifleItem PLASMARIFLE = item(new PlasmaRifleItem(), "plasma_rifle");
+	public static PlasmaPistolItem PLASMAPISTOL = item(new PlasmaPistolItem(), "plasma_pistol");
+	public static PlasmaRifleItem PLASMARIFLE = item(new PlasmaRifleItem(), "plasma_rifle");
 	public static NeedlerItem NEEDLER = item(new NeedlerItem(), "needler");
-//	public static MaulerItem MAULER = item(new MaulerItem(), "mauler");
-//	public static BruteShotItem BRUTESHOT = item(new BruteShotItem(), "brute_shot");
+	public static MaulerItem MAULER = item(new MaulerItem(), "mauler");
+	public static BruteShotItem BRUTESHOT = item(new BruteShotItem(), "brute_shot");
 	public static EnergySwordItem ENERGYSWORD = item(new EnergySwordItem(), "energy_sword");
 
 	/* Ammo */
@@ -38,6 +42,7 @@ public class HaloItems {
 	public static HaloAmmoItem BATTERIES = item(new HaloAmmoItem(), "batteries");
 	public static HaloAmmoItem BOLTS = item(new HaloAmmoItem(), "bolts");
 	public static HaloAmmoItem GRENADES = item(new HaloAmmoItem(), "grenades");
+	public static HaloAmmoItem ROCKET = item(new HaloAmmoItem(), "rocket");
 
 	/* Blocks */
 	public static PropShieldItem PROPSHIELD = item(new PropShieldItem(), "prop_shield_h2");
