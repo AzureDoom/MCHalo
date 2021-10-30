@@ -82,7 +82,7 @@ public class BattleRifleItem extends HaloGunBase {
 
 	public void reload(PlayerEntity user, Hand hand) {
 		if (user.getStackInHand(hand).getItem() instanceof BattleRifleItem) {
-			while (user.getStackInHand(hand).getDamage() != 0 && user.getInventory().count(HaloItems.BULLETCLIP) > 0) {
+			while (!user.isCreative() && user.getStackInHand(hand).getDamage() != 0 && user.getInventory().count(HaloItems.BULLETCLIP) > 0) {
 				removeAmmo(HaloItems.BULLETCLIP, user);
 				user.getStackInHand(hand).damage(-config.battlerifle_mag_size, user,
 						s -> user.sendToolBreakStatus(hand));

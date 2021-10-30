@@ -45,7 +45,7 @@ public class PlasmaRifleItem extends HaloGunBase {
 
 	public void reload(PlayerEntity user, Hand hand) {
 		if (user.getStackInHand(hand).getItem() instanceof PlasmaRifleItem) {
-			while (user.getStackInHand(hand).getDamage() != 0 && user.getInventory().count(HaloItems.BATTERIES) > 0) {
+			while (!user.isCreative() && user.getStackInHand(hand).getDamage() != 0 && user.getInventory().count(HaloItems.BATTERIES) > 0) {
 				removeAmmo(HaloItems.BATTERIES, user);
 				user.getStackInHand(hand).damage(-config.plasmarifle_mag_size, user,
 						s -> user.sendToolBreakStatus(hand));

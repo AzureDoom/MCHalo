@@ -83,7 +83,7 @@ public class ShotgunItem extends HaloGunBase {
 
 	public void reload(PlayerEntity user, Hand hand) {
 		if (user.getStackInHand(hand).getItem() instanceof ShotgunItem) {
-			while (user.getStackInHand(hand).getDamage() != 0
+			while (!user.isCreative() && user.getStackInHand(hand).getDamage() != 0
 					&& user.getInventory().count(HaloItems.SHOTGUN_CLIP) > 0) {
 				removeAmmo(HaloItems.SHOTGUN_CLIP, user);
 				user.getStackInHand(hand).damage(-config.shotgun_mag_size, user, s -> user.sendToolBreakStatus(hand));

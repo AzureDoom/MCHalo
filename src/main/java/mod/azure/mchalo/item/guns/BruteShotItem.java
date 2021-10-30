@@ -45,7 +45,7 @@ public class BruteShotItem extends HaloGunBase {
 
 	public void reload(PlayerEntity user, Hand hand) {
 		if (user.getStackInHand(hand).getItem() instanceof BruteShotItem) {
-			while (user.getStackInHand(hand).getDamage() != 0 && user.getInventory().count(HaloItems.GRENADES) > 0) {
+			while (!user.isCreative() && user.getStackInHand(hand).getDamage() != 0 && user.getInventory().count(HaloItems.GRENADES) > 0) {
 				removeAmmo(HaloItems.GRENADES, user);
 				user.getStackInHand(hand).damage(-config.bruteshot_mag_size, user, s -> user.sendToolBreakStatus(hand));
 				user.getStackInHand(hand).setCooldown(3);

@@ -80,7 +80,7 @@ public class SniperItem extends HaloGunBase {
 
 	public void reload(PlayerEntity user, Hand hand) {
 		if (user.getStackInHand(hand).getItem() instanceof SniperItem) {
-			while (user.getStackInHand(hand).getDamage() != 0
+			while (!user.isCreative() && user.getStackInHand(hand).getDamage() != 0
 					&& user.getInventory().count(HaloItems.SNIPER_ROUND) > 0) {
 				removeAmmo(HaloItems.SNIPER_ROUND, user);
 				user.getStackInHand(hand).damage(-config.sniper_mag_size, user, s -> user.sendToolBreakStatus(hand));

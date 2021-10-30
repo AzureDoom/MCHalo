@@ -80,7 +80,7 @@ public class NeedlerItem extends HaloGunBase {
 
 	public void reload(PlayerEntity user, Hand hand) {
 		if (user.getStackInHand(hand).getItem() instanceof NeedlerItem) {
-			while (user.getStackInHand(hand).getDamage() != 0 && user.getInventory().count(HaloItems.NEEDLES) > 0) {
+			while (!user.isCreative() && user.getStackInHand(hand).getDamage() != 0 && user.getInventory().count(HaloItems.NEEDLES) > 0) {
 				removeAmmo(HaloItems.NEEDLES, user);
 				user.getStackInHand(hand).damage(-config.needler_mag_size, user, s -> user.sendToolBreakStatus(hand));
 				user.getStackInHand(hand).setCooldown(3);

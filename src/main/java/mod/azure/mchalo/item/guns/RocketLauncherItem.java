@@ -70,7 +70,7 @@ public class RocketLauncherItem extends HaloGunBase {
 
 	public void reload(PlayerEntity user, Hand hand) {
 		if (user.getStackInHand(hand).getItem() instanceof RocketLauncherItem) {
-			while (user.getStackInHand(hand).getDamage() != 0 && user.getInventory().count(Items.TNT) > 0) {
+			while (!user.isCreative() && user.getStackInHand(hand).getDamage() != 0 && user.getInventory().count(Items.TNT) > 0) {
 				removeAmmo(Items.TNT, user);
 				user.getStackInHand(hand).damage(-config.rocketlauncher_mag_size, user,
 						s -> user.sendToolBreakStatus(hand));
