@@ -1,0 +1,1 @@
+gradlew migrateMappings --mappings "1.17.1+build.63" -Dorg.gradle.java.home="C:/Program Files/AdoptOpenJDK/jdk-16.0.1.9-hotspot/"

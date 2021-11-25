@@ -33,7 +33,7 @@
 		"fabric": "*",
 		"minecraft": "1.17.x",
 		"java": ">=16",
-		"geckolib3": ">=3.0.9"
+		"geckolib3": ">=3.0.22"
 	},
 	"suggests": {
 		"another-mod": "*"

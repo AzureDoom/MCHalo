@@ -1,5 +1,5 @@
-v.0.0.3
+v.0.0.4
 
 THIS IS A HEAVY WIP VERSION, FOR TESTING NOW
-- Started work on rest of the weapons
-- New License 
+
+- Fixed Creative Mode reloading, guns do not reload in Creative. Note a bug.
