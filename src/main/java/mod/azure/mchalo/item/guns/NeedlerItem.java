@@ -45,7 +45,7 @@ public class NeedlerItem extends HaloGunBase {
 				if (!worldIn.isClient) {
 					NeedleEntity abstractarrowentity = createNeedle(worldIn, stack, playerentity,
 							config.needler_bullet_damage);
-					abstractarrowentity.setProperties(playerentity, playerentity.getPitch(), playerentity.getYaw(),
+					abstractarrowentity.setVelocity(playerentity, playerentity.getPitch(), playerentity.getYaw(),
 							0.0F, 0.5F * 3.0F, 1.0F);
 					if (EnchantmentHelper.getLevel(Enchantments.FLAME, stack) > 0) {
 						abstractarrowentity.setOnFireFor(100);
@@ -83,7 +83,7 @@ public class NeedlerItem extends HaloGunBase {
 			while (!user.isCreative() && user.getStackInHand(hand).getDamage() != 0 && user.getInventory().count(HaloItems.NEEDLES) > 0) {
 				removeAmmo(HaloItems.NEEDLES, user);
 				user.getStackInHand(hand).damage(-config.needler_mag_size, user, s -> user.sendToolBreakStatus(hand));
-				user.getStackInHand(hand).setCooldown(3);
+				user.getStackInHand(hand).setBobbingAnimationTime(3);
 				user.getEntityWorld().playSound((PlayerEntity) null, user.getX(), user.getY(), user.getZ(),
 						HaloSounds.NEEDLERRELOAD, SoundCategory.PLAYERS, 1.00F, 1.0F);
 			}

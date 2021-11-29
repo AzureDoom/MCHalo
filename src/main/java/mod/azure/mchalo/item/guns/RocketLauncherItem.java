@@ -36,7 +36,7 @@ public class RocketLauncherItem extends HaloGunBase {
 				playerentity.getItemCooldownManager().set(this, 5);
 				if (!worldIn.isClient) {
 					RocketEntity abstractarrowentity = createRocket(worldIn, stack, playerentity);
-					abstractarrowentity.setProperties(playerentity, playerentity.getPitch(), playerentity.getYaw(),
+					abstractarrowentity.setVelocity(playerentity, playerentity.getPitch(), playerentity.getYaw(),
 							0.0F, 0.25F * 3.0F, 1.0F);
 					abstractarrowentity.refreshPositionAndAngles(entityLiving.getX(), entityLiving.getBodyY(0.95),
 							entityLiving.getZ(), 0, 0);
@@ -74,7 +74,7 @@ public class RocketLauncherItem extends HaloGunBase {
 				removeAmmo(Items.TNT, user);
 				user.getStackInHand(hand).damage(-config.rocketlauncher_mag_size, user,
 						s -> user.sendToolBreakStatus(hand));
-				user.getStackInHand(hand).setCooldown(3);
+				user.getStackInHand(hand).setBobbingAnimationTime(3);
 				user.getEntityWorld().playSound((PlayerEntity) null, user.getX(), user.getY(), user.getZ(),
 						HaloSounds.PISTOLRELOAD, SoundCategory.PLAYERS, 1.00F, 1.0F);
 			}

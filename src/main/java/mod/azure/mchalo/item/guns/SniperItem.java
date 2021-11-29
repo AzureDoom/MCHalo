@@ -45,7 +45,7 @@ public class SniperItem extends HaloGunBase {
 				if (!worldIn.isClient) {
 					BulletEntity abstractarrowentity = createBullet(worldIn, stack, playerentity,
 							config.sniper_bullet_damage);
-					abstractarrowentity.setProperties(playerentity, playerentity.getPitch(), playerentity.getYaw(),
+					abstractarrowentity.setVelocity(playerentity, playerentity.getPitch(), playerentity.getYaw(),
 							0.0F, 1.0F * 3.0F, 1.0F);
 					if (EnchantmentHelper.getLevel(Enchantments.FLAME, stack) > 0) {
 						abstractarrowentity.setOnFireFor(100);
@@ -84,7 +84,7 @@ public class SniperItem extends HaloGunBase {
 					&& user.getInventory().count(HaloItems.SNIPER_ROUND) > 0) {
 				removeAmmo(HaloItems.SNIPER_ROUND, user);
 				user.getStackInHand(hand).damage(-config.sniper_mag_size, user, s -> user.sendToolBreakStatus(hand));
-				user.getStackInHand(hand).setCooldown(3);
+				user.getStackInHand(hand).setBobbingAnimationTime(3);
 				user.getEntityWorld().playSound((PlayerEntity) null, user.getX(), user.getY(), user.getZ(),
 						HaloSounds.SNIPERRELOAD, SoundCategory.PLAYERS, 0.5F, 1.0F);
 			}

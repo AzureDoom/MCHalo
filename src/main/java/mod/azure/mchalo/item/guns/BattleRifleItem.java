@@ -46,7 +46,7 @@ public class BattleRifleItem extends HaloGunBase {
 					for (int y = 0; y < 3; ++y) {
 						BulletEntity abstractarrowentity = createBullet(worldIn, stack, playerentity,
 								config.battlerifle_bullet_damage);
-						abstractarrowentity.setProperties(playerentity, playerentity.getPitch(),
+						abstractarrowentity.setVelocity(playerentity, playerentity.getPitch(),
 								playerentity.getYaw() + (y == 3 ? 0.5F : y == 2 ? -0.5F : 0), 0.5F, 1.0F * 3.0F, 1.0F);
 						if (EnchantmentHelper.getLevel(Enchantments.FLAME, stack) > 0) {
 							abstractarrowentity.setOnFireFor(100);
@@ -86,7 +86,7 @@ public class BattleRifleItem extends HaloGunBase {
 				removeAmmo(HaloItems.BULLETCLIP, user);
 				user.getStackInHand(hand).damage(-config.battlerifle_mag_size, user,
 						s -> user.sendToolBreakStatus(hand));
-				user.getStackInHand(hand).setCooldown(3);
+				user.getStackInHand(hand).setBobbingAnimationTime(3);
 				user.getEntityWorld().playSound((PlayerEntity) null, user.getX(), user.getY(), user.getZ(),
 						HaloSounds.BATTLERIFLERELOAD, SoundCategory.PLAYERS, 1.00F, 1.0F);
 			}

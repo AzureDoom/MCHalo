@@ -29,11 +29,11 @@
 		"mchalo.mixins.json"
 	],
 	"depends": {
-		"fabricloader": ">=0.11.3",
+		"fabricloader": ">=0.12.5",
 		"fabric": "*",
-		"minecraft": "1.17.x",
-		"java": ">=16",
-		"geckolib3": ">=3.0.22"
+		"minecraft": "1.18.x",
+		"java": ">=17",
+		"geckolib3": ">=3.0.12"
 	},
 	"suggests": {
 		"another-mod": "*"

@@ -46,7 +46,7 @@ public class ShotgunItem extends HaloGunBase {
 					for (int y = 0; y < 4; ++y) {
 						BulletEntity abstractarrowentity = createBullet(worldIn, stack, playerentity,
 								config.shotgun_bullet_damage);
-						abstractarrowentity.setProperties(playerentity,
+						abstractarrowentity.setVelocity(playerentity,
 								playerentity.getPitch() + (y == 3 ? 1 : y == 4 ? -1 : 0),
 								playerentity.getYaw() + (y == 3 ? 1 : y == 2 ? -1 : y == 4 ? -1 : 0), 0.5F, 1.0F * 3.0F,
 								1.0F);
@@ -87,7 +87,7 @@ public class ShotgunItem extends HaloGunBase {
 					&& user.getInventory().count(HaloItems.SHOTGUN_CLIP) > 0) {
 				removeAmmo(HaloItems.SHOTGUN_CLIP, user);
 				user.getStackInHand(hand).damage(-config.shotgun_mag_size, user, s -> user.sendToolBreakStatus(hand));
-				user.getStackInHand(hand).setCooldown(3);
+				user.getStackInHand(hand).setBobbingAnimationTime(3);
 				user.getEntityWorld().playSound((PlayerEntity) null, user.getX(), user.getY(), user.getZ(),
 						HaloSounds.SHOTGUNRELOAD, SoundCategory.PLAYERS, 1.00F, 1.0F);
 			}

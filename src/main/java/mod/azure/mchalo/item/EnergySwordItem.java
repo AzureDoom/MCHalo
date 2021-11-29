@@ -141,7 +141,7 @@ public class EnergySwordItem extends SwordItem implements IAnimatable, ISyncable
 				removeAmmo(Items.DIAMOND, user);
 				user.getStackInHand(hand).damage(-config.battlerifle_mag_size, user,
 						s -> user.sendToolBreakStatus(hand));
-				user.getStackInHand(hand).setCooldown(3);
+				user.getStackInHand(hand).setBobbingAnimationTime(3);
 				user.getEntityWorld().playSound((PlayerEntity) null, user.getX(), user.getY(), user.getZ(),
 						HaloSounds.BATTLERIFLERELOAD, SoundCategory.PLAYERS, 1.00F, 1.0F);
 			}

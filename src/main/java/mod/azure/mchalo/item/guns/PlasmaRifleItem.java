@@ -49,7 +49,7 @@ public class PlasmaRifleItem extends HaloGunBase {
 				removeAmmo(HaloItems.BATTERIES, user);
 				user.getStackInHand(hand).damage(-config.plasmarifle_mag_size, user,
 						s -> user.sendToolBreakStatus(hand));
-				user.getStackInHand(hand).setCooldown(3);
+				user.getStackInHand(hand).setBobbingAnimationTime(3);
 				user.getEntityWorld().playSound((PlayerEntity) null, user.getX(), user.getY(), user.getZ(),
 						HaloSounds.PLASMARIFLERELOAD, SoundCategory.PLAYERS, 1.00F, 1.0F);
 			}
