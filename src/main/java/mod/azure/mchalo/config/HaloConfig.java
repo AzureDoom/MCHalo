@@ -49,8 +49,9 @@ public class HaloConfig implements ConfigData {
 		public int mauler_max_ammo = 25;
 		public int mauler_mag_size = 5;
 		public float mauler_bullet_damage = 3.5F;
-		public boolean mauler_cause_fire = false;
-		public boolean mauler_break_blocks = false;
+		
+		public boolean grenades_cause_fire = false;
+		public boolean grenades_break_blocks = false;
 
 		public int bruteshot_max_ammo = 18;
 		public int bruteshot_mag_size = 1;

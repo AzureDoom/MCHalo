@@ -295,8 +295,8 @@ public class GrenadeEntity extends PersistentProjectileEntity implements IAnimat
 
 	protected void explode() {
 		this.world.createExplosion(this, this.getX(), this.getBodyY(0.0625D), this.getZ(), config.mauler_bullet_damage,
-				(config.mauler_cause_fire ? true : false),
-				(config.mauler_break_blocks ? Explosion.DestructionType.BREAK : Explosion.DestructionType.NONE));
+				(config.grenades_cause_fire ? true : false),
+				(config.grenades_break_blocks ? Explosion.DestructionType.BREAK : Explosion.DestructionType.NONE));
 	}
 
 	@Override
