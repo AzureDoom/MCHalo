@@ -101,7 +101,7 @@ public class ShotgunItem extends HaloGunBase {
 		float j = EnchantmentHelper.getLevel(Enchantments.POWER, stack);
 		super.appendTooltip(stack, world, tooltip, context);
 		tooltip.add(new TranslatableText("Damage: "
-				+ (j > 0 ? (config.shotgun_bullet_damage + (j * 1.5F + 0.5F)) : config.shotgun_bullet_damage))
+				+ ((j > 0 ? (config.shotgun_bullet_damage + (j * 1.5F + 0.5F)) : config.shotgun_bullet_damage)*4))
 						.formatted(Formatting.ITALIC));
 	}
 }

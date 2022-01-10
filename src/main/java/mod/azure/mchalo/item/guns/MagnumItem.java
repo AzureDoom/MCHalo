@@ -81,7 +81,8 @@ public class MagnumItem extends HaloGunBase {
 
 	public void reload(PlayerEntity user, Hand hand) {
 		if (user.getStackInHand(hand).getItem() instanceof MagnumItem) {
-			while (!user.isCreative() && user.getStackInHand(hand).getDamage() != 0 && user.getInventory().count(HaloItems.BULLETCLIP) > 0) {
+			while (!user.isCreative() && user.getStackInHand(hand).getDamage() != 0
+					&& user.getInventory().count(HaloItems.BULLETCLIP) > 0) {
 				removeAmmo(HaloItems.BULLETCLIP, user);
 				user.getStackInHand(hand).damage(-config.magnum_mag_size, user, s -> user.sendToolBreakStatus(hand));
 				user.getStackInHand(hand).setBobbingAnimationTime(3);

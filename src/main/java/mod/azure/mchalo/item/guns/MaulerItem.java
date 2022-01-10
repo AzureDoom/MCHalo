@@ -43,7 +43,7 @@ public class MaulerItem extends HaloGunBase {
 			if (stack.getDamage() < (stack.getMaxDamage() - 1)) {
 				playerentity.getItemCooldownManager().set(this, 18);
 				if (!worldIn.isClient) {
-					for (int y = 0; y < 4; ++y) {
+					for (int y = 0; y < 8; ++y) {
 						BulletEntity abstractarrowentity = createBullet(worldIn, stack, playerentity,
 								config.mauler_bullet_damage);
 						abstractarrowentity.setVelocity(playerentity,
@@ -99,7 +99,7 @@ public class MaulerItem extends HaloGunBase {
 		float j = EnchantmentHelper.getLevel(Enchantments.POWER, stack);
 		super.appendTooltip(stack, world, tooltip, context);
 		tooltip.add(new TranslatableText(
-				"Damage: " + (j > 0 ? (config.mauler_bullet_damage + (j * 1.5F + 0.5F)) : config.mauler_bullet_damage))
+				"Damage: " + (j > 0 ? (config.mauler_bullet_damage + (j * 1.5F + 0.5F)) : config.mauler_bullet_damage) * 8)
 						.formatted(Formatting.ITALIC));
 	}
 
