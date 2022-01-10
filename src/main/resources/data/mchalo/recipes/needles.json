@@ -1,0 +1,21 @@
+{
+	"type": "mchalo:gun_table",
+	"pattern": "abc",
+	"key": {
+		"a": {
+			"item": "minecraft:iron_nugget",
+			"count": 2
+		},
+		"b": {
+			"item": "minecraft:amethyst_shard",
+			"count": 2
+		},
+		"c": {
+			"item": "minecraft:gunpowder",
+			"count": 1
+		}
+	},
+	"result": {
+		"item": "mchalo:needles"
+	}
+}

@@ -1,0 +1,21 @@
+{
+	"type": "mchalo:gun_table",
+	"pattern": "abc",
+	"key": {
+		"a": {
+			"item": "minecraft:amethyst_shard",
+			"count": 10
+		},
+		"b": {
+			"item": "minecraft:repeater",
+			"count": 1
+		},
+		"c": {
+			"item": "minecraft:iron_block",
+			"count": 1
+		}
+	},
+	"result": {
+		"item": "mchalo:plasma_rifle"
+	}
+}
