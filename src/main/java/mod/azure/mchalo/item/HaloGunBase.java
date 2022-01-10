@@ -5,7 +5,9 @@ import java.util.List;
 import mod.azure.mchalo.MCHaloMod;
 import mod.azure.mchalo.config.HaloConfig.Weapons;
 import mod.azure.mchalo.entity.projectiles.BulletEntity;
+import mod.azure.mchalo.entity.projectiles.GrenadeEntity;
 import mod.azure.mchalo.entity.projectiles.NeedleEntity;
+import mod.azure.mchalo.entity.projectiles.PlasmaEntity;
 import mod.azure.mchalo.entity.projectiles.RocketEntity;
 import net.minecraft.client.item.TooltipContext;
 import net.minecraft.enchantment.EnchantmentHelper;
@@ -129,6 +131,17 @@ public class HaloGunBase extends Item implements IAnimatable, ISyncable {
 
 	public RocketEntity createRocket(World world, ItemStack stack, LivingEntity shooter) {
 		RocketEntity arrowentity = new RocketEntity(world, shooter);
+		return arrowentity;
+	}
+
+	public PlasmaEntity createPlamsa(World worldIn, ItemStack stack, LivingEntity shooter, Float damage) {
+		float j = EnchantmentHelper.getLevel(Enchantments.POWER, stack);
+		PlasmaEntity arrowentity = new PlasmaEntity(worldIn, shooter, j > 0 ? (damage + (j * 1.5F + 0.5F)) : damage);
+		return arrowentity;
+	}
+
+	public GrenadeEntity createGrenade(World worldIn, ItemStack stack, LivingEntity shooter) {
+		GrenadeEntity arrowentity = new GrenadeEntity(worldIn, shooter, false);
 		return arrowentity;
 	}
 

@@ -2,18 +2,18 @@
 	"format_version": "1.8.0",
 	"animations": {
 		"firing": {
-			"animation_length": 0.76,
+			"animation_length": 0.12,
 			"bones": {
 				"root": {
 					"rotation": {
 						"0.0": {
 							"vector": [0, 0, 0]
 						},
-						"0.2": {
+						"0.08": {
 							"vector": [-5, 0, 0],
 							"easing": "easeInOutSine"
 						},
-						"0.44": {
+						"0.12": {
 							"vector": [0, 0, 0],
 							"easing": "easeInOutSine"
 						}
@@ -22,11 +22,11 @@
 						"0.0": {
 							"vector": [0, 0, 0]
 						},
-						"0.2": {
+						"0.08": {
 							"vector": [0, 0, 2],
 							"easing": "easeInOutSine"
 						},
-						"0.44": {
+						"0.12": {
 							"vector": [0, 0, 0],
 							"easing": "easeInOutSine"
 						}

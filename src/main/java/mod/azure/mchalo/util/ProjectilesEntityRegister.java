@@ -5,7 +5,9 @@ import java.util.List;
 
 import mod.azure.mchalo.MCHaloMod;
 import mod.azure.mchalo.entity.projectiles.BulletEntity;
+import mod.azure.mchalo.entity.projectiles.GrenadeEntity;
 import mod.azure.mchalo.entity.projectiles.NeedleEntity;
+import mod.azure.mchalo.entity.projectiles.PlasmaEntity;
 import mod.azure.mchalo.entity.projectiles.RocketEntity;
 import net.fabricmc.fabric.api.object.builder.v1.entity.FabricEntityTypeBuilder;
 import net.minecraft.entity.Entity;
@@ -24,8 +26,8 @@ public class ProjectilesEntityRegister {
 
 	public static EntityType<BulletEntity> BULLET = projectile(BulletEntity::new, "bullet");
 	public static EntityType<NeedleEntity> NEEDLE = projectile(NeedleEntity::new, "needle");
-	public static EntityType<BulletEntity> PLASMA = projectile(BulletEntity::new, "plasma");
-	public static EntityType<BulletEntity> GRENADE = projectile(BulletEntity::new, "grenade");
+	public static EntityType<PlasmaEntity> PLASMA = projectile(PlasmaEntity::new, "plasma");
+	public static EntityType<GrenadeEntity> GRENADE = projectile(GrenadeEntity::new, "grenade");
 	public static EntityType<BulletEntity> BOLT = projectile(BulletEntity::new, "bolt");
 	public static EntityType<RocketEntity> ROCKET = projectile(RocketEntity::new, "rocket");
 

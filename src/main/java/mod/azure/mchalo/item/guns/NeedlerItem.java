@@ -40,8 +40,9 @@ public class NeedlerItem extends HaloGunBase {
 	public void usageTick(World worldIn, LivingEntity entityLiving, ItemStack stack, int count) {
 		if (entityLiving instanceof PlayerEntity) {
 			PlayerEntity playerentity = (PlayerEntity) entityLiving;
-			if (stack.getDamage() < (stack.getMaxDamage() - 1)) {
-				playerentity.getItemCooldownManager().set(this, 5);
+			if (stack.getDamage() < (stack.getMaxDamage() - 1)
+					&& !playerentity.getItemCooldownManager().isCoolingDown(this)) {
+				playerentity.getItemCooldownManager().set(this, 3);
 				if (!worldIn.isClient) {
 					NeedleEntity abstractarrowentity = createNeedle(worldIn, stack, playerentity,
 							config.needler_bullet_damage);
@@ -50,6 +51,7 @@ public class NeedlerItem extends HaloGunBase {
 					if (EnchantmentHelper.getLevel(Enchantments.FLAME, stack) > 0) {
 						abstractarrowentity.setOnFireFor(100);
 					}
+					abstractarrowentity.age = 23;
 					stack.damage(1, entityLiving, p -> p.sendToolBreakStatus(entityLiving.getActiveHand()));
 					worldIn.spawnEntity(abstractarrowentity);
 					worldIn.playSound((PlayerEntity) null, playerentity.getX(), playerentity.getY(),

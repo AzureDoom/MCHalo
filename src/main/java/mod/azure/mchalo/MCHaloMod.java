@@ -9,6 +9,10 @@ import mod.azure.mchalo.config.HaloConfig;
 import mod.azure.mchalo.item.EnergySwordItem;
 import mod.azure.mchalo.item.guns.BattleRifleItem;
 import mod.azure.mchalo.item.guns.MagnumItem;
+import mod.azure.mchalo.item.guns.MaulerItem;
+import mod.azure.mchalo.item.guns.NeedlerItem;
+import mod.azure.mchalo.item.guns.PlasmaPistolItem;
+import mod.azure.mchalo.item.guns.PlasmaRifleItem;
 import mod.azure.mchalo.item.guns.RocketLauncherItem;
 import mod.azure.mchalo.item.guns.ShotgunItem;
 import mod.azure.mchalo.item.guns.SniperItem;
@@ -112,30 +116,34 @@ public class MCHaloMod implements ModInitializer {
 						((EnergySwordItem) player.getMainHandStack().getItem()).reload(player, Hand.MAIN_HAND);
 					}
 				});
-//		ServerPlayNetworking.registerGlobalReceiver(MCHaloMod.PLASMAPISTOL,
-//				(server, player, serverPlayNetworkHandler, inputPacket, packetSender) -> {
-//					if (player.getMainHandStack().getItem() instanceof PlasmaPistolItem) {
-//						((PlasmaPistolItem) player.getMainHandStack().getItem()).reload(player, Hand.MAIN_HAND);
-//					}
-//				});;
-//		ServerPlayNetworking.registerGlobalReceiver(MCHaloMod.PLASMARIFLE,
-//		(server, player, serverPlayNetworkHandler, inputPacket, packetSender) -> {
-//			if (player.getMainHandStack().getItem() instanceof PlasmaRifleItem) {
-//				((PlasmaRifleItem) player.getMainHandStack().getItem()).reload(player, Hand.MAIN_HAND);
-//			}
-//		});;
-//		ServerPlayNetworking.registerGlobalReceiver(MCHaloMod.NEEDLER,
-//		(server, player, serverPlayNetworkHandler, inputPacket, packetSender) -> {
-//			if (player.getMainHandStack().getItem() instanceof NeedlerItem) {
-//				((NeedlerItem) player.getMainHandStack().getItem()).reload(player, Hand.MAIN_HAND);
-//			}
-//		});;
-//		ServerPlayNetworking.registerGlobalReceiver(MCHaloMod.MAULER,
-//		(server, player, serverPlayNetworkHandler, inputPacket, packetSender) -> {
-//			if (player.getMainHandStack().getItem() instanceof MaulerItem) {
-//				((MaulerItem) player.getMainHandStack().getItem()).reload(player, Hand.MAIN_HAND);
-//			}
-//		});;
+		ServerPlayNetworking.registerGlobalReceiver(MCHaloMod.PLASMAPISTOL,
+				(server, player, serverPlayNetworkHandler, inputPacket, packetSender) -> {
+					if (player.getMainHandStack().getItem() instanceof PlasmaPistolItem) {
+						((PlasmaPistolItem) player.getMainHandStack().getItem()).reload(player, Hand.MAIN_HAND);
+					}
+				});
+		;
+		ServerPlayNetworking.registerGlobalReceiver(MCHaloMod.PLASMARIFLE,
+				(server, player, serverPlayNetworkHandler, inputPacket, packetSender) -> {
+					if (player.getMainHandStack().getItem() instanceof PlasmaRifleItem) {
+						((PlasmaRifleItem) player.getMainHandStack().getItem()).reload(player, Hand.MAIN_HAND);
+					}
+				});
+		;
+		ServerPlayNetworking.registerGlobalReceiver(MCHaloMod.NEEDLER,
+				(server, player, serverPlayNetworkHandler, inputPacket, packetSender) -> {
+					if (player.getMainHandStack().getItem() instanceof NeedlerItem) {
+						((NeedlerItem) player.getMainHandStack().getItem()).reload(player, Hand.MAIN_HAND);
+					}
+				});
+		;
+		ServerPlayNetworking.registerGlobalReceiver(MCHaloMod.MAULER,
+				(server, player, serverPlayNetworkHandler, inputPacket, packetSender) -> {
+					if (player.getMainHandStack().getItem() instanceof MaulerItem) {
+						((MaulerItem) player.getMainHandStack().getItem()).reload(player, Hand.MAIN_HAND);
+					}
+				});
+		;
 //		ServerPlayNetworking.registerGlobalReceiver(MCHaloMod.BRUTESHOT,
 //		(server, player, serverPlayNetworkHandler, inputPacket, packetSender) -> {
 //			if (player.getMainHandStack().getItem() instanceof BruteShotItem) {

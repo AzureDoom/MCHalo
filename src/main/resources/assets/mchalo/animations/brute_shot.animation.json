@@ -2,7 +2,7 @@
 	"format_version": "1.8.0",
 	"animations": {
 		"firing": {
-			"animation_length": 0.76,
+			"animation_length": 0.44,
 			"bones": {
 				"chuushin": {
 					"rotation": {

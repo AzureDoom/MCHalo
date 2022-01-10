@@ -19,7 +19,10 @@ import mod.azure.mchalo.client.render.RocketLauncherRender;
 import mod.azure.mchalo.client.render.ShotgunRender;
 import mod.azure.mchalo.client.render.SniperRender;
 import mod.azure.mchalo.client.render.projectiles.BulletRender;
+import mod.azure.mchalo.client.render.projectiles.GrenadeItemRender;
+import mod.azure.mchalo.client.render.projectiles.GrenadeRender;
 import mod.azure.mchalo.client.render.projectiles.NeedleRender;
+import mod.azure.mchalo.client.render.projectiles.PlasmaRender;
 import mod.azure.mchalo.client.render.projectiles.RocketRender;
 import mod.azure.mchalo.network.EntityPacket;
 import mod.azure.mchalo.util.HaloItems;
@@ -28,7 +31,7 @@ import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
-import net.fabricmc.fabric.api.client.rendereregistry.v1.EntityRendererRegistry;
+import net.fabricmc.fabric.api.client.rendering.v1.EntityRendererRegistry;
 import net.fabricmc.fabric.api.client.screenhandler.v1.ScreenRegistry;
 import net.fabricmc.fabric.api.event.client.ClientSpriteRegistryCallback;
 import net.fabricmc.fabric.api.network.ClientSidePacketRegistry;
@@ -72,9 +75,12 @@ public class ClientInit implements ClientModInitializer {
 		GeoItemRenderer.registerItemRenderer(HaloItems.MAULER, new MaulerRender());
 		GeoItemRenderer.registerItemRenderer(HaloItems.PLASMAPISTOL, new PlasmaPistolRender());
 		GeoItemRenderer.registerItemRenderer(HaloItems.PLASMARIFLE, new PlasmaRifleRender());
-		EntityRendererRegistry.INSTANCE.register(ProjectilesEntityRegister.BULLET, (ctx) -> new BulletRender(ctx));
-		EntityRendererRegistry.INSTANCE.register(ProjectilesEntityRegister.NEEDLE, (ctx) -> new NeedleRender(ctx));
-		EntityRendererRegistry.INSTANCE.register(ProjectilesEntityRegister.ROCKET, (ctx) -> new RocketRender(ctx));
+		GeoItemRenderer.registerItemRenderer(HaloItems.GRENADE, new GrenadeItemRender());
+		EntityRendererRegistry.register(ProjectilesEntityRegister.BULLET, (ctx) -> new BulletRender(ctx));
+		EntityRendererRegistry.register(ProjectilesEntityRegister.NEEDLE, (ctx) -> new NeedleRender(ctx));
+		EntityRendererRegistry.register(ProjectilesEntityRegister.ROCKET, (ctx) -> new RocketRender(ctx));
+		EntityRendererRegistry.register(ProjectilesEntityRegister.PLASMA, (ctx) -> new PlasmaRender(ctx));
+		EntityRendererRegistry.register(ProjectilesEntityRegister.GRENADE, (ctx) -> new GrenadeRender(ctx));
 		FabricModelPredicateProviderRegistry.register(HaloItems.SNIPER, new Identifier("scoped"),
 				(itemStack, clientWorld, livingEntity, seed) -> {
 					if (livingEntity != null)

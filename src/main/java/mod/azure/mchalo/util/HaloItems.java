@@ -3,6 +3,7 @@ package mod.azure.mchalo.util;
 import mod.azure.mchalo.MCHaloMod;
 import mod.azure.mchalo.item.EnergySwordItem;
 import mod.azure.mchalo.item.PropShieldItem;
+import mod.azure.mchalo.item.ammo.GrenadeItem;
 import mod.azure.mchalo.item.ammo.HaloAmmoItem;
 import mod.azure.mchalo.item.guns.BattleRifleItem;
 import mod.azure.mchalo.item.guns.BruteShotItem;
@@ -40,8 +41,7 @@ public class HaloItems {
 	public static HaloAmmoItem BULLETCLIP = item(new HaloAmmoItem(), "bullet_clip");
 	public static HaloAmmoItem NEEDLES = item(new HaloAmmoItem(), "needles");
 	public static HaloAmmoItem BATTERIES = item(new HaloAmmoItem(), "batteries");
-	public static HaloAmmoItem BOLTS = item(new HaloAmmoItem(), "bolts");
-	public static HaloAmmoItem GRENADES = item(new HaloAmmoItem(), "grenades");
+	public static GrenadeItem GRENADE = item(new GrenadeItem(), "grenade");
 	public static HaloAmmoItem ROCKET = item(new HaloAmmoItem(), "rocket");
 
 	/* Blocks */
