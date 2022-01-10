@@ -22,6 +22,7 @@ import mod.azure.mchalo.client.render.projectiles.BulletRender;
 import mod.azure.mchalo.client.render.projectiles.GrenadeItemRender;
 import mod.azure.mchalo.client.render.projectiles.GrenadeRender;
 import mod.azure.mchalo.client.render.projectiles.NeedleRender;
+import mod.azure.mchalo.client.render.projectiles.PlasmaGRender;
 import mod.azure.mchalo.client.render.projectiles.PlasmaRender;
 import mod.azure.mchalo.client.render.projectiles.RocketRender;
 import mod.azure.mchalo.network.EntityPacket;
@@ -80,6 +81,7 @@ public class ClientInit implements ClientModInitializer {
 		EntityRendererRegistry.register(ProjectilesEntityRegister.NEEDLE, (ctx) -> new NeedleRender(ctx));
 		EntityRendererRegistry.register(ProjectilesEntityRegister.ROCKET, (ctx) -> new RocketRender(ctx));
 		EntityRendererRegistry.register(ProjectilesEntityRegister.PLASMA, (ctx) -> new PlasmaRender(ctx));
+		EntityRendererRegistry.register(ProjectilesEntityRegister.PLASMAG, (ctx) -> new PlasmaGRender(ctx));
 		EntityRendererRegistry.register(ProjectilesEntityRegister.GRENADE, (ctx) -> new GrenadeRender(ctx));
 		FabricModelPredicateProviderRegistry.register(HaloItems.SNIPER, new Identifier("scoped"),
 				(itemStack, clientWorld, livingEntity, seed) -> {

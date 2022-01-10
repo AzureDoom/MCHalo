@@ -33,28 +33,28 @@ import software.bernie.geckolib3.core.event.predicate.AnimationEvent;
 import software.bernie.geckolib3.core.manager.AnimationData;
 import software.bernie.geckolib3.core.manager.AnimationFactory;
 
-public class PlasmaEntity extends PersistentProjectileEntity implements IAnimatable {
+public class PlasmaGEntity extends PersistentProjectileEntity implements IAnimatable {
 
 	protected int timeInAir;
 	protected boolean inAir;
 	private int ticksInAir;
 	protected static float bulletdamage;
 
-	public PlasmaEntity(EntityType<? extends PlasmaEntity> entityType, World world) {
+	public PlasmaGEntity(EntityType<? extends PlasmaGEntity> entityType, World world) {
 		super(entityType, world);
 		this.pickupType = PersistentProjectileEntity.PickupPermission.DISALLOWED;
 	}
 
-	public PlasmaEntity(World world, LivingEntity owner, Float damage) {
-		super(ProjectilesEntityRegister.PLASMA, owner, world);
+	public PlasmaGEntity(World world, LivingEntity owner, Float damage) {
+		super(ProjectilesEntityRegister.PLASMAG, owner, world);
 		bulletdamage = damage;
 	}
 
-	protected PlasmaEntity(EntityType<? extends PlasmaEntity> type, double x, double y, double z, World world) {
+	protected PlasmaGEntity(EntityType<? extends PlasmaGEntity> type, double x, double y, double z, World world) {
 		this(type, world);
 	}
 
-	protected PlasmaEntity(EntityType<? extends PlasmaEntity> type, LivingEntity owner, World world) {
+	protected PlasmaGEntity(EntityType<? extends PlasmaGEntity> type, LivingEntity owner, World world) {
 		this(type, owner.getX(), owner.getEyeY() - 0.10000000149011612D, owner.getZ(), world);
 		this.setOwner(owner);
 		if (owner instanceof PlayerEntity) {
@@ -71,7 +71,7 @@ public class PlasmaEntity extends PersistentProjectileEntity implements IAnimata
 
 	@Override
 	public void registerControllers(AnimationData data) {
-		data.addAnimationController(new AnimationController<PlasmaEntity>(this, "controller", 0, this::predicate));
+		data.addAnimationController(new AnimationController<PlasmaGEntity>(this, "controller", 0, this::predicate));
 	}
 
 	@Override

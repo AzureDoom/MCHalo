@@ -5,7 +5,7 @@ import java.util.List;
 import io.netty.buffer.Unpooled;
 import mod.azure.mchalo.MCHaloMod;
 import mod.azure.mchalo.client.ClientInit;
-import mod.azure.mchalo.entity.projectiles.PlasmaEntity;
+import mod.azure.mchalo.entity.projectiles.PlasmaGEntity;
 import mod.azure.mchalo.item.HaloGunBase;
 import mod.azure.mchalo.util.HaloItems;
 import mod.azure.mchalo.util.HaloSounds;
@@ -44,7 +44,7 @@ public class PlasmaPistolItem extends HaloGunBase {
 					&& !playerentity.getItemCooldownManager().isCoolingDown(this)) {
 				playerentity.getItemCooldownManager().set(this, 5);
 				if (!worldIn.isClient) {
-					PlasmaEntity abstractarrowentity = createPlamsa(worldIn, stack, playerentity,
+					PlasmaGEntity abstractarrowentity = createGPlamsa(worldIn, stack, playerentity,
 							config.plasmapistol_bullet_damage);
 					abstractarrowentity.setVelocity(playerentity, playerentity.getPitch(), playerentity.getYaw(), 0.0F,
 							0.5F * 3.0F, 1.0F);

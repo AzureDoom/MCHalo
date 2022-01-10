@@ -8,6 +8,7 @@ import mod.azure.mchalo.entity.projectiles.BulletEntity;
 import mod.azure.mchalo.entity.projectiles.GrenadeEntity;
 import mod.azure.mchalo.entity.projectiles.NeedleEntity;
 import mod.azure.mchalo.entity.projectiles.PlasmaEntity;
+import mod.azure.mchalo.entity.projectiles.PlasmaGEntity;
 import mod.azure.mchalo.entity.projectiles.RocketEntity;
 import net.fabricmc.fabric.api.object.builder.v1.entity.FabricEntityTypeBuilder;
 import net.minecraft.entity.Entity;
@@ -27,6 +28,7 @@ public class ProjectilesEntityRegister {
 	public static EntityType<BulletEntity> BULLET = projectile(BulletEntity::new, "bullet");
 	public static EntityType<NeedleEntity> NEEDLE = projectile(NeedleEntity::new, "needle");
 	public static EntityType<PlasmaEntity> PLASMA = projectile(PlasmaEntity::new, "plasma");
+	public static EntityType<PlasmaGEntity> PLASMAG = projectile(PlasmaGEntity::new, "plasmag");
 	public static EntityType<GrenadeEntity> GRENADE = projectile(GrenadeEntity::new, "grenade");
 	public static EntityType<BulletEntity> BOLT = projectile(BulletEntity::new, "bolt");
 	public static EntityType<RocketEntity> ROCKET = projectile(RocketEntity::new, "rocket");
