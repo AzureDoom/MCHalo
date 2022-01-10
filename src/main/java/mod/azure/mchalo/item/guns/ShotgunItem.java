@@ -37,10 +37,11 @@ public class ShotgunItem extends HaloGunBase {
 	}
 
 	@Override
-	public void onStoppedUsing(ItemStack stack, World worldIn, LivingEntity entityLiving, int remainingUseTicks) {
+	public void usageTick(World worldIn, LivingEntity entityLiving, ItemStack stack, int count) {
 		if (entityLiving instanceof PlayerEntity) {
 			PlayerEntity playerentity = (PlayerEntity) entityLiving;
-			if (stack.getDamage() < (stack.getMaxDamage() - 1)) {
+			if (stack.getDamage() < (stack.getMaxDamage() - 1)
+					&& !playerentity.getItemCooldownManager().isCoolingDown(this)) {
 				playerentity.getItemCooldownManager().set(this, 18);
 				if (!worldIn.isClient) {
 					for (int y = 0; y < 4; ++y) {
@@ -57,7 +58,8 @@ public class ShotgunItem extends HaloGunBase {
 					}
 					stack.damage(1, entityLiving, p -> p.sendToolBreakStatus(entityLiving.getActiveHand()));
 					worldIn.playSound((PlayerEntity) null, playerentity.getX(), playerentity.getY(),
-							playerentity.getZ(), HaloSounds.SHOTGUN, SoundCategory.PLAYERS, 0.25F, 1.3F);
+							playerentity.getZ(), HaloSounds.SHOTGUN, SoundCategory.PLAYERS, 0.5F,
+							1.0F / (worldIn.random.nextFloat() * 0.4F + 1.2F) + 1F * 0.5F);
 					final int id = GeckoLibUtil.guaranteeIDForStack(stack, (ServerWorld) worldIn);
 					GeckoLibNetwork.syncAnimation(playerentity, this, id, ANIM_OPEN);
 					for (PlayerEntity otherPlayer : PlayerLookup.tracking(playerentity)) {

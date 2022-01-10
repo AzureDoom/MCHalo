@@ -37,11 +37,12 @@ public class BattleRifleItem extends HaloGunBase {
 	}
 
 	@Override
-	public void onStoppedUsing(ItemStack stack, World worldIn, LivingEntity entityLiving, int remainingUseTicks) {
+	public void usageTick(World worldIn, LivingEntity entityLiving, ItemStack stack, int count) {
 		if (entityLiving instanceof PlayerEntity) {
 			PlayerEntity playerentity = (PlayerEntity) entityLiving;
-			if (stack.getDamage() < (stack.getMaxDamage() - 1)) {
-				playerentity.getItemCooldownManager().set(this, 10);
+			if (stack.getDamage() < (stack.getMaxDamage() - 1)
+					&& !playerentity.getItemCooldownManager().isCoolingDown(this)) {
+				playerentity.getItemCooldownManager().set(this, 12);
 				if (!worldIn.isClient) {
 					for (int y = 0; y < 3; ++y) {
 						BulletEntity abstractarrowentity = createBullet(worldIn, stack, playerentity,
@@ -53,7 +54,7 @@ public class BattleRifleItem extends HaloGunBase {
 						}
 						worldIn.spawnEntity(abstractarrowentity);
 					}
-					stack.damage(3, entityLiving, p -> p.sendToolBreakStatus(entityLiving.getActiveHand()));
+					stack.damage(1, entityLiving, p -> p.sendToolBreakStatus(entityLiving.getActiveHand()));
 					worldIn.playSound((PlayerEntity) null, playerentity.getX(), playerentity.getY(),
 							playerentity.getZ(), HaloSounds.BATTLERIFLE, SoundCategory.PLAYERS, 0.5F,
 							1.0F / (worldIn.random.nextFloat() * 0.4F + 1.2F) + 1F * 0.5F);
@@ -82,7 +83,8 @@ public class BattleRifleItem extends HaloGunBase {
 
 	public void reload(PlayerEntity user, Hand hand) {
 		if (user.getStackInHand(hand).getItem() instanceof BattleRifleItem) {
-			while (!user.isCreative() && user.getStackInHand(hand).getDamage() != 0 && user.getInventory().count(HaloItems.BULLETCLIP) > 0) {
+			while (!user.isCreative() && user.getStackInHand(hand).getDamage() != 0
+					&& user.getInventory().count(HaloItems.BULLETCLIP) > 0) {
 				removeAmmo(HaloItems.BULLETCLIP, user);
 				user.getStackInHand(hand).damage(-config.battlerifle_mag_size, user,
 						s -> user.sendToolBreakStatus(hand));

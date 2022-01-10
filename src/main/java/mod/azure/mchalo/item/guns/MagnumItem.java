@@ -37,30 +37,29 @@ public class MagnumItem extends HaloGunBase {
 	}
 
 	@Override
-	public void onStoppedUsing(ItemStack stack, World worldIn, LivingEntity entityLiving, int remainingUseTicks) {
+	public void usageTick(World worldIn, LivingEntity entityLiving, ItemStack stack, int count) {
 		if (entityLiving instanceof PlayerEntity) {
 			PlayerEntity playerentity = (PlayerEntity) entityLiving;
-			if (stack.getDamage() < (stack.getMaxDamage() - 1)) {
-				playerentity.getItemCooldownManager().set(this, 5);
+			if (stack.getDamage() < (stack.getMaxDamage() - 1)
+					&& !playerentity.getItemCooldownManager().isCoolingDown(this)) {
+				playerentity.getItemCooldownManager().set(this, 8);
 				if (!worldIn.isClient) {
 					BulletEntity abstractarrowentity = createBullet(worldIn, stack, playerentity,
 							config.magnum_bullet_damage);
-					abstractarrowentity.setVelocity(playerentity, playerentity.getPitch(), playerentity.getYaw(),
-							0.0F, 1.0F * 3.0F, 1.0F);
+					abstractarrowentity.setVelocity(playerentity, playerentity.getPitch(), playerentity.getYaw(), 0.0F,
+							1.0F * 3.0F, 1.0F);
 					if (EnchantmentHelper.getLevel(Enchantments.FLAME, stack) > 0) {
 						abstractarrowentity.setOnFireFor(100);
 					}
-					stack.damage(1, entityLiving, p -> p.sendToolBreakStatus(entityLiving.getActiveHand()));
 					worldIn.spawnEntity(abstractarrowentity);
+					stack.damage(1, entityLiving, p -> p.sendToolBreakStatus(entityLiving.getActiveHand()));
 					worldIn.playSound((PlayerEntity) null, playerentity.getX(), playerentity.getY(),
 							playerentity.getZ(), HaloSounds.PISTOL, SoundCategory.PLAYERS, 0.5F,
 							1.0F / (worldIn.random.nextFloat() * 0.4F + 1.2F) + 1F * 0.5F);
-					if (!worldIn.isClient) {
-						final int id = GeckoLibUtil.guaranteeIDForStack(stack, (ServerWorld) worldIn);
-						GeckoLibNetwork.syncAnimation(playerentity, this, id, ANIM_OPEN);
-						for (PlayerEntity otherPlayer : PlayerLookup.tracking(playerentity)) {
-							GeckoLibNetwork.syncAnimation(otherPlayer, this, id, ANIM_OPEN);
-						}
+					final int id = GeckoLibUtil.guaranteeIDForStack(stack, (ServerWorld) worldIn);
+					GeckoLibNetwork.syncAnimation(playerentity, this, id, ANIM_OPEN);
+					for (PlayerEntity otherPlayer : PlayerLookup.tracking(playerentity)) {
+						GeckoLibNetwork.syncAnimation(otherPlayer, this, id, ANIM_OPEN);
 					}
 				}
 			}
