@@ -21,8 +21,8 @@ version = project.mod_version
 group = project.maven_group
 
 repositories {
-	maven { url 'https://www.cursemaven.com' }
-    maven { url  = 'https://plugins.gradle.org/m2/' }
+	maven { url "https://cfa2.cursemaven.com" }
+    maven { url "https://plugins.gradle.org/m2/" }
     maven { url 'https://dl.cloudsmith.io/public/geckolib3/geckolib/maven/' }
     maven { url "https://maven.shedaniel.me/" }
 }
