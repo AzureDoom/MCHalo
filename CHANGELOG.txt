@@ -1,3 +1,4 @@
-v.1.0.0
+v.1.0.1
 
-Full Release. Most likely won't change anything from here unless it's a bug
+- Fixes Bruteshot reload. No fix for model, no idea why it's doing that.
+- Fixes Villagers right click issue where the weapon doesn't fire.
