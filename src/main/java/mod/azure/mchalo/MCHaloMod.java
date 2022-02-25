@@ -144,11 +144,11 @@ public class MCHaloMod implements ModInitializer {
 					}
 				});
 		;
-//		ServerPlayNetworking.registerGlobalReceiver(MCHaloMod.BRUTESHOT,
-//		(server, player, serverPlayNetworkHandler, inputPacket, packetSender) -> {
-//			if (player.getMainHandStack().getItem() instanceof BruteShotItem) {
-//				((BruteShotItem) player.getMainHandStack().getItem()).reload(player, Hand.MAIN_HAND);
-//			}
-//		});
+		ServerPlayNetworking.registerGlobalReceiver(MCHaloMod.BRUTESHOT,
+				(server, player, serverPlayNetworkHandler, inputPacket, packetSender) -> {
+					if (player.getMainHandStack().getItem() instanceof BruteShotItem) {
+						((BruteShotItem) player.getMainHandStack().getItem()).reload(player, Hand.MAIN_HAND);
+					}
+				});
 	}
 }
