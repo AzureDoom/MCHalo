@@ -8,6 +8,7 @@ import mod.azure.mchalo.client.gui.GunTableScreenHandler;
 import mod.azure.mchalo.config.HaloConfig;
 import mod.azure.mchalo.item.EnergySwordItem;
 import mod.azure.mchalo.item.guns.BattleRifleItem;
+import mod.azure.mchalo.item.guns.BruteShotItem;
 import mod.azure.mchalo.item.guns.MagnumItem;
 import mod.azure.mchalo.item.guns.MaulerItem;
 import mod.azure.mchalo.item.guns.NeedlerItem;
@@ -24,10 +25,8 @@ import mod.azure.mchalo.util.recipe.GunTableRecipe;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.client.itemgroup.FabricItemGroupBuilder;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
-import net.fabricmc.fabric.api.object.builder.v1.block.FabricBlockSettings;
 import net.fabricmc.fabric.api.object.builder.v1.block.entity.FabricBlockEntityTypeBuilder;
 import net.fabricmc.fabric.api.screenhandler.v1.ScreenHandlerRegistry;
-import net.minecraft.block.Material;
 import net.minecraft.block.entity.BlockEntityType;
 import net.minecraft.item.ItemGroup;
 import net.minecraft.item.ItemStack;
@@ -46,6 +45,7 @@ public class MCHaloMod implements ModInitializer {
 	public static final String MODID = "mchalo";
 	public static ProjectilesEntityRegister PROJECTILES;
 	public static BlockEntityType<GunBlockEntity> GUN_TABLE_ENTITY;
+	public static final GunTableBlock GUN_TABLE = new GunTableBlock();
 	public static final Identifier MAGNUM = new Identifier(MODID, "magnum");
 	public static final Identifier MAULER = new Identifier(MODID, "mauler");
 	public static final Identifier SNIPER = new Identifier(MODID, "sniper");
@@ -58,9 +58,7 @@ public class MCHaloMod implements ModInitializer {
 	public static final Identifier PLASMAPISTOL = new Identifier(MODID, "plasmapistol");
 	public static final Identifier GUN_TABLE_GUI = new Identifier(MODID, "gun_table_gui");
 	public static final Identifier ROCKETLAUNCHER = new Identifier(MODID, "rocketlauncher");
-	public static final Identifier lock_slot = new Identifier(MCHaloMod.MODID, "select_craft");
-	public static final GunTableBlock GUN_TABLE = new GunTableBlock(
-			FabricBlockSettings.of(Material.METAL).strength(4.0f).nonOpaque());
+	public static final Identifier lock_slot = new Identifier(MODID, "select_craft");
 	public static ScreenHandlerType<GunTableScreenHandler> SCREEN_HANDLER_TYPE = ScreenHandlerRegistry
 			.registerSimple(GUN_TABLE_GUI, GunTableScreenHandler::new);
 	public static final ItemGroup HALOTAB = FabricItemGroupBuilder.create(new Identifier(MODID, "items"))
