@@ -3,6 +3,7 @@ package mod.azure.mchalo.client.gui;
 import java.util.Optional;
 
 import mod.azure.mchalo.util.recipe.GunTableRecipe;
+import mod.azure.mchalo.util.recipe.GunTableRecipe.Type;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.screen.slot.Slot;
@@ -44,7 +45,7 @@ public class GunTableOutputSlot extends Slot {
 	public void onTakeItem(PlayerEntity player, ItemStack stack) {
 		this.onCrafted(stack);
 		Optional<GunTableRecipe> optionalGunTableRecipe = player.world.getRecipeManager()
-				.getFirstMatch(GunTableRecipe.GUN_TABLE, gunTableInventory, player.world);
+				.getFirstMatch(Type.INSTANCE, gunTableInventory, player.world);
 		if (optionalGunTableRecipe.isPresent()) {
 			GunTableRecipe gunTableRecipe = optionalGunTableRecipe.get();
 			DefaultedList<ItemStack> defaultedList = gunTableRecipe.getRemainder(gunTableInventory);

@@ -7,6 +7,7 @@ import java.util.Optional;
 import mod.azure.mchalo.MCHaloMod;
 import mod.azure.mchalo.mixin.IngredientAccess;
 import mod.azure.mchalo.util.recipe.GunTableRecipe;
+import mod.azure.mchalo.util.recipe.GunTableRecipe.Type;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.inventory.Inventory;
@@ -63,7 +64,7 @@ public class GunTableScreenHandler extends ScreenHandler {
 			ServerPlayerEntity serverPlayerEntity = (ServerPlayerEntity) player;
 			ItemStack itemStack = ItemStack.EMPTY;
 			Optional<GunTableRecipe> optional = world.getServer().getRecipeManager()
-					.getFirstMatch(GunTableRecipe.GUN_TABLE, craftingInventory, world);
+					.getFirstMatch(Type.INSTANCE, craftingInventory, world);
 			if (optional.isPresent()) {
 				GunTableRecipe craftingRecipe = optional.get();
 				itemStack = craftingRecipe.craft(craftingInventory);
@@ -130,7 +131,7 @@ public class GunTableScreenHandler extends ScreenHandler {
 
 	public List<GunTableRecipe> getRecipes() {
 		List<GunTableRecipe> list = new ArrayList<>(
-				playerInventory.player.world.getRecipeManager().listAllOfType(GunTableRecipe.GUN_TABLE));
+				playerInventory.player.world.getRecipeManager().listAllOfType(Type.INSTANCE));
 		list.sort(null);
 		return list;
 	}
