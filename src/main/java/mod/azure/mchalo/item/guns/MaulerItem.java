@@ -56,6 +56,8 @@ public class MaulerItem extends HaloGunBase {
 						abstractarrowentity.age = 37;
 						worldIn.spawnEntity(abstractarrowentity);
 					}
+					boolean isInsideWaterBlock = playerentity.world.isWater(playerentity.getBlockPos());
+					spawnLightSource(entityLiving, isInsideWaterBlock);
 					stack.damage(1, entityLiving, p -> p.sendToolBreakStatus(entityLiving.getActiveHand()));
 					worldIn.playSound((PlayerEntity) null, playerentity.getX(), playerentity.getY(),
 							playerentity.getZ(), HaloSounds.MAULER, SoundCategory.PLAYERS, 0.25F, 1.3F);

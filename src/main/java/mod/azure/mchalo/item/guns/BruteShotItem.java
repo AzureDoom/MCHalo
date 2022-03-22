@@ -51,6 +51,8 @@ public class BruteShotItem extends HaloGunBase {
 							entityLiving.getZ(), 0, 0);
 					stack.damage(1, entityLiving, p -> p.sendToolBreakStatus(entityLiving.getActiveHand()));
 					worldIn.spawnEntity(abstractarrowentity);
+					boolean isInsideWaterBlock = playerentity.world.isWater(playerentity.getBlockPos());
+					spawnLightSource(entityLiving, isInsideWaterBlock);
 					worldIn.playSound((PlayerEntity) null, playerentity.getX(), playerentity.getY(),
 							playerentity.getZ(), HaloSounds.BRUTESHOT, SoundCategory.PLAYERS, 0.5F,
 							1.0F / (worldIn.random.nextFloat() * 0.4F + 1.2F) + 1F * 0.5F);

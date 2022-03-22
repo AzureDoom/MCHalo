@@ -50,6 +50,8 @@ public class SniperItem extends HaloGunBase {
 					if (EnchantmentHelper.getLevel(Enchantments.FLAME, stack) > 0) {
 						abstractarrowentity.setOnFireFor(100);
 					}
+					boolean isInsideWaterBlock = playerentity.world.isWater(playerentity.getBlockPos());
+					spawnLightSource(entityLiving, isInsideWaterBlock);
 					stack.damage(1, entityLiving, p -> p.sendToolBreakStatus(entityLiving.getActiveHand()));
 					worldIn.spawnEntity(abstractarrowentity);
 					worldIn.playSound((PlayerEntity) null, playerentity.getX(), playerentity.getY(),

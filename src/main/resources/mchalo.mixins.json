@@ -9,6 +9,7 @@
 		"VillagerMixin"
 	],
 	"client": [
+		"AbstractClientPlayerEntityMixin",
 		"HeldItemRendererMixin",
 		"SniperMixin",
 		"WeaponRenderingMixin"

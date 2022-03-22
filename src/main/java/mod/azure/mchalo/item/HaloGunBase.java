@@ -3,6 +3,7 @@ package mod.azure.mchalo.item;
 import java.util.List;
 
 import mod.azure.mchalo.MCHaloMod;
+import mod.azure.mchalo.blocks.TickingLightEntity;
 import mod.azure.mchalo.config.HaloConfig.Weapons;
 import mod.azure.mchalo.entity.projectiles.BulletEntity;
 import mod.azure.mchalo.entity.projectiles.GrenadeEntity;
@@ -10,9 +11,12 @@ import mod.azure.mchalo.entity.projectiles.NeedleEntity;
 import mod.azure.mchalo.entity.projectiles.PlasmaEntity;
 import mod.azure.mchalo.entity.projectiles.PlasmaGEntity;
 import mod.azure.mchalo.entity.projectiles.RocketEntity;
+import net.minecraft.block.BlockState;
+import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.client.item.TooltipContext;
 import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.enchantment.Enchantments;
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.Item;
@@ -22,6 +26,7 @@ import net.minecraft.text.TranslatableText;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.Hand;
 import net.minecraft.util.TypedActionResult;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import software.bernie.geckolib3.core.AnimationState;
 import software.bernie.geckolib3.core.IAnimatable;
@@ -41,6 +46,7 @@ public class HaloGunBase extends Item implements IAnimatable, ISyncable {
 	public static Weapons config = MCHaloMod.config.weapons;
 	public String controllerName = "controller";
 	public static final int ANIM_OPEN = 0;
+	private BlockPos lightBlockPos = null;
 
 	public HaloGunBase(Settings settings) {
 		super(settings);
@@ -150,6 +156,50 @@ public class HaloGunBase extends Item implements IAnimatable, ISyncable {
 	public GrenadeEntity createGrenade(World worldIn, ItemStack stack, LivingEntity shooter) {
 		GrenadeEntity arrowentity = new GrenadeEntity(worldIn, shooter, false);
 		return arrowentity;
+	}
+
+	protected void spawnLightSource(Entity entity, boolean isInWaterBlock) {
+		if (lightBlockPos == null) {
+			lightBlockPos = findFreeSpace(entity.world, entity.getBlockPos(), 2);
+			if (lightBlockPos == null)
+				return;
+			entity.world.setBlockState(lightBlockPos, MCHaloMod.TICKING_LIGHT_BLOCK.getDefaultState());
+		} else if (checkDistance(lightBlockPos, entity.getBlockPos(), 2)) {
+			BlockEntity blockEntity = entity.world.getBlockEntity(lightBlockPos);
+			if (blockEntity instanceof TickingLightEntity) {
+				((TickingLightEntity) blockEntity).refresh(isInWaterBlock ? 20 : 0);
+			} else
+				lightBlockPos = null;
+		} else
+			lightBlockPos = null;
+	}
+
+	private boolean checkDistance(BlockPos blockPosA, BlockPos blockPosB, int distance) {
+		return Math.abs(blockPosA.getX() - blockPosB.getX()) <= distance
+				&& Math.abs(blockPosA.getY() - blockPosB.getY()) <= distance
+				&& Math.abs(blockPosA.getZ() - blockPosB.getZ()) <= distance;
+	}
+
+	private BlockPos findFreeSpace(World world, BlockPos blockPos, int maxDistance) {
+		if (blockPos == null)
+			return null;
+
+		int[] offsets = new int[maxDistance * 2 + 1];
+		offsets[0] = 0;
+		for (int i = 2; i <= maxDistance * 2; i += 2) {
+			offsets[i - 1] = i / 2;
+			offsets[i] = -i / 2;
+		}
+		for (int x : offsets)
+			for (int y : offsets)
+				for (int z : offsets) {
+					BlockPos offsetPos = blockPos.add(x, y, z);
+					BlockState state = world.getBlockState(offsetPos);
+					if (state.isAir() || state.getBlock().equals(MCHaloMod.TICKING_LIGHT_BLOCK))
+						return offsetPos;
+				}
+
+		return null;
 	}
 
 }

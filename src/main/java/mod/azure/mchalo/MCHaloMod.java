@@ -4,6 +4,8 @@ import me.shedaniel.autoconfig.AutoConfig;
 import me.shedaniel.autoconfig.serializer.GsonConfigSerializer;
 import mod.azure.mchalo.blocks.GunBlockEntity;
 import mod.azure.mchalo.blocks.GunTableBlock;
+import mod.azure.mchalo.blocks.TickingLightBlock;
+import mod.azure.mchalo.blocks.TickingLightEntity;
 import mod.azure.mchalo.client.gui.GunTableScreenHandler;
 import mod.azure.mchalo.config.HaloConfig;
 import mod.azure.mchalo.item.EnergySwordItem;
@@ -46,6 +48,7 @@ public class MCHaloMod implements ModInitializer {
 	public static ProjectilesEntityRegister PROJECTILES;
 	public static BlockEntityType<GunBlockEntity> GUN_TABLE_ENTITY;
 	public static final GunTableBlock GUN_TABLE = new GunTableBlock();
+	public static BlockEntityType<TickingLightEntity> TICKING_LIGHT_ENTITY;
 	public static final Identifier MAGNUM = new Identifier(MODID, "magnum");
 	public static final Identifier MAULER = new Identifier(MODID, "mauler");
 	public static final Identifier SNIPER = new Identifier(MODID, "sniper");
@@ -56,6 +59,7 @@ public class MCHaloMod implements ModInitializer {
 	public static final Identifier ENERGYSWORD = new Identifier(MODID, "energysword");
 	public static final Identifier PLASMARIFLE = new Identifier(MODID, "plasmarifle");
 	public static final Identifier PLASMAPISTOL = new Identifier(MODID, "plasmapistol");
+	public static final TickingLightBlock TICKING_LIGHT_BLOCK = new TickingLightBlock();
 	public static final Identifier GUN_TABLE_GUI = new Identifier(MODID, "gun_table_gui");
 	public static final Identifier ROCKETLAUNCHER = new Identifier(MODID, "rocketlauncher");
 	public static final Identifier lock_slot = new Identifier(MODID, "select_craft");
@@ -76,6 +80,9 @@ public class MCHaloMod implements ModInitializer {
 		PROJECTILES = new ProjectilesEntityRegister();
 		GUN_TABLE_ENTITY = Registry.register(Registry.BLOCK_ENTITY_TYPE, MODID + ":guntable",
 				FabricBlockEntityTypeBuilder.create(GunBlockEntity::new, GUN_TABLE).build(null));
+		Registry.register(Registry.BLOCK, new Identifier(MODID, "lightblock"), TICKING_LIGHT_BLOCK);
+		TICKING_LIGHT_ENTITY = Registry.register(Registry.BLOCK_ENTITY_TYPE, MODID + ":lightblock",
+				FabricBlockEntityTypeBuilder.create(TickingLightEntity::new, TICKING_LIGHT_BLOCK).build(null));
 		GeckoLib.initialize();
 		ServerPlayNetworking.registerGlobalReceiver(lock_slot, new C2SMessageSelectCraft());
 		ServerPlayNetworking.registerGlobalReceiver(MCHaloMod.SNIPER,

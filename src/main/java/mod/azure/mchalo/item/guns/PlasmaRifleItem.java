@@ -51,6 +51,8 @@ public class PlasmaRifleItem extends HaloGunBase {
 					if (EnchantmentHelper.getLevel(Enchantments.FLAME, stack) > 0) {
 						abstractarrowentity.setOnFireFor(100);
 					}
+					boolean isInsideWaterBlock = playerentity.world.isWater(playerentity.getBlockPos());
+					spawnLightSource(entityLiving, isInsideWaterBlock);
 					worldIn.spawnEntity(abstractarrowentity);
 					stack.damage(1, entityLiving, p -> p.sendToolBreakStatus(entityLiving.getActiveHand()));
 					worldIn.playSound((PlayerEntity) null, playerentity.getX(), playerentity.getY(),

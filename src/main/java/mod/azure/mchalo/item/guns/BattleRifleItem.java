@@ -54,6 +54,8 @@ public class BattleRifleItem extends HaloGunBase {
 						}
 						worldIn.spawnEntity(abstractarrowentity);
 					}
+					boolean isInsideWaterBlock = playerentity.world.isWater(playerentity.getBlockPos());
+					spawnLightSource(entityLiving, isInsideWaterBlock);
 					stack.damage(1, entityLiving, p -> p.sendToolBreakStatus(entityLiving.getActiveHand()));
 					worldIn.playSound((PlayerEntity) null, playerentity.getX(), playerentity.getY(),
 							playerentity.getZ(), HaloSounds.BATTLERIFLE, SoundCategory.PLAYERS, 0.5F,

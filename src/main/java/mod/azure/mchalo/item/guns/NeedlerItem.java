@@ -52,6 +52,8 @@ public class NeedlerItem extends HaloGunBase {
 						abstractarrowentity.setOnFireFor(100);
 					}
 					abstractarrowentity.age = 23;
+					boolean isInsideWaterBlock = playerentity.world.isWater(playerentity.getBlockPos());
+					spawnLightSource(entityLiving, isInsideWaterBlock);
 					stack.damage(1, entityLiving, p -> p.sendToolBreakStatus(entityLiving.getActiveHand()));
 					worldIn.spawnEntity(abstractarrowentity);
 					worldIn.playSound((PlayerEntity) null, playerentity.getX(), playerentity.getY(),

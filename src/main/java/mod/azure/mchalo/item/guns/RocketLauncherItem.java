@@ -41,6 +41,8 @@ public class RocketLauncherItem extends HaloGunBase {
 					abstractarrowentity.refreshPositionAndAngles(entityLiving.getX(), entityLiving.getBodyY(0.95),
 							entityLiving.getZ(), 0, 0);
 					stack.damage(1, entityLiving, p -> p.sendToolBreakStatus(entityLiving.getActiveHand()));
+					boolean isInsideWaterBlock = playerentity.world.isWater(playerentity.getBlockPos());
+					spawnLightSource(entityLiving, isInsideWaterBlock);
 					worldIn.spawnEntity(abstractarrowentity);
 					worldIn.playSound((PlayerEntity) null, playerentity.getX(), playerentity.getY(),
 							playerentity.getZ(), HaloSounds.PISTOL, SoundCategory.PLAYERS, 0.5F,
