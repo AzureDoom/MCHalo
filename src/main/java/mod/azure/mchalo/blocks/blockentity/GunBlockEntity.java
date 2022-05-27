@@ -1,6 +1,7 @@
-package mod.azure.mchalo.blocks;
+package mod.azure.mchalo.blocks.blockentity;
 
 import mod.azure.mchalo.MCHaloMod;
+import mod.azure.mchalo.blocks.ImplementedInventory;
 import mod.azure.mchalo.client.gui.GunTableScreenHandler;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntity;

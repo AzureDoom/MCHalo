@@ -3,7 +3,7 @@ package mod.azure.mchalo.item;
 import java.util.List;
 
 import mod.azure.mchalo.MCHaloMod;
-import mod.azure.mchalo.blocks.TickingLightEntity;
+import mod.azure.mchalo.blocks.blockentity.TickingLightEntity;
 import mod.azure.mchalo.config.HaloConfig.Weapons;
 import mod.azure.mchalo.entity.projectiles.BulletEntity;
 import mod.azure.mchalo.entity.projectiles.GrenadeEntity;

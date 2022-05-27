@@ -2,10 +2,10 @@ package mod.azure.mchalo;
 
 import me.shedaniel.autoconfig.AutoConfig;
 import me.shedaniel.autoconfig.serializer.GsonConfigSerializer;
-import mod.azure.mchalo.blocks.GunBlockEntity;
 import mod.azure.mchalo.blocks.GunTableBlock;
 import mod.azure.mchalo.blocks.TickingLightBlock;
-import mod.azure.mchalo.blocks.TickingLightEntity;
+import mod.azure.mchalo.blocks.blockentity.GunBlockEntity;
+import mod.azure.mchalo.blocks.blockentity.TickingLightEntity;
 import mod.azure.mchalo.client.gui.GunTableScreenHandler;
 import mod.azure.mchalo.config.HaloConfig;
 import mod.azure.mchalo.item.EnergySwordItem;

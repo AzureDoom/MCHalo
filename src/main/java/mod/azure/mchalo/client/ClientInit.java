@@ -32,15 +32,12 @@ import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
+import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.client.rendering.v1.EntityRendererRegistry;
 import net.fabricmc.fabric.api.client.screenhandler.v1.ScreenRegistry;
-import net.fabricmc.fabric.api.event.client.ClientSpriteRegistryCallback;
-import net.fabricmc.fabric.api.network.ClientSidePacketRegistry;
-import net.fabricmc.fabric.api.network.PacketContext;
 import net.fabricmc.fabric.api.object.builder.v1.client.model.FabricModelPredicateProviderRegistry;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.option.KeyBinding;
-import net.minecraft.client.texture.SpriteAtlasTexture;
 import net.minecraft.client.util.InputUtil;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.entity.Entity;
@@ -50,7 +47,6 @@ import net.minecraft.util.Identifier;
 import net.minecraft.util.registry.Registry;
 import software.bernie.geckolib3.renderers.geo.GeoItemRenderer;
 
-@SuppressWarnings("deprecation")
 public class ClientInit implements ClientModInitializer {
 
 	public static KeyBinding reload = new KeyBinding("key.mchalo.reload", InputUtil.Type.KEYSYM, GLFW.GLFW_KEY_R,
@@ -95,8 +91,8 @@ public class ClientInit implements ClientModInitializer {
 						return isScoped() ? 1.0F : 0.0F;
 					return 0.0F;
 				});
-		ClientSidePacketRegistry.INSTANCE.register(EntityPacket.ID, (ctx, buf) -> {
-			onPacket(ctx, buf);
+		ClientPlayNetworking.registerGlobalReceiver(EntityPacket.ID, (client, handler, buf, responseSender) -> {
+			onPacket(client, buf);
 		});
 	}
 
@@ -104,13 +100,8 @@ public class ClientInit implements ClientModInitializer {
 		return scope.isPressed();
 	}
 
-	public static void requestParticleTexture(Identifier id) {
-		ClientSpriteRegistryCallback.event(SpriteAtlasTexture.PARTICLE_ATLAS_TEXTURE)
-				.register(((texture, registry) -> registry.register(id)));
-	}
-
 	@Environment(EnvType.CLIENT)
-	public static void onPacket(PacketContext context, PacketByteBuf byteBuf) {
+	public static void onPacket(MinecraftClient context, PacketByteBuf byteBuf) {
 		EntityType<?> type = Registry.ENTITY_TYPE.get(byteBuf.readVarInt());
 		UUID entityUUID = byteBuf.readUuid();
 		int entityID = byteBuf.readVarInt();
@@ -119,7 +110,7 @@ public class ClientInit implements ClientModInitializer {
 		double z = byteBuf.readDouble();
 		float pitch = (byteBuf.readByte() * 360) / 256.0F;
 		float yaw = (byteBuf.readByte() * 360) / 256.0F;
-		context.getTaskQueue().execute(() -> {
+		context.execute(() -> {
 			@SuppressWarnings("resource")
 			ClientWorld world = MinecraftClient.getInstance().world;
 			Entity entity = type.create(world);
