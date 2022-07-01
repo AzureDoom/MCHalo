@@ -3,6 +3,7 @@ package mod.azure.mchalo.item.guns;
 import io.netty.buffer.Unpooled;
 import mod.azure.mchalo.MCHaloMod;
 import mod.azure.mchalo.client.ClientInit;
+import mod.azure.mchalo.config.HaloConfig;
 import mod.azure.mchalo.entity.projectiles.RocketEntity;
 import mod.azure.mchalo.item.HaloGunBase;
 import mod.azure.mchalo.util.HaloSounds;
@@ -18,6 +19,7 @@ import net.minecraft.network.PacketByteBuf;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.util.Hand;
+import net.minecraft.util.Rarity;
 import net.minecraft.world.World;
 import software.bernie.geckolib3.network.GeckoLibNetwork;
 import software.bernie.geckolib3.util.GeckoLibUtil;
@@ -25,7 +27,7 @@ import software.bernie.geckolib3.util.GeckoLibUtil;
 public class RocketLauncherItem extends HaloGunBase {
 
 	public RocketLauncherItem() {
-		super(new Item.Settings().group(MCHaloMod.HALOTAB).maxCount(1).maxDamage(config.rocketlauncher_max_ammo + 1));
+		super(new Item.Settings().group(MCHaloMod.HALOTAB).maxCount(1).maxDamage(HaloConfig.rocketlauncher_max_ammo + 1));
 	}
 
 	@Override
@@ -74,12 +76,17 @@ public class RocketLauncherItem extends HaloGunBase {
 		if (user.getStackInHand(hand).getItem() instanceof RocketLauncherItem) {
 			while (!user.isCreative() && user.getStackInHand(hand).getDamage() != 0 && user.getInventory().count(Items.TNT) > 0) {
 				removeAmmo(Items.TNT, user);
-				user.getStackInHand(hand).damage(-config.rocketlauncher_mag_size, user,
+				user.getStackInHand(hand).damage(-HaloConfig.rocketlauncher_mag_size, user,
 						s -> user.sendToolBreakStatus(hand));
 				user.getStackInHand(hand).setBobbingAnimationTime(3);
 				user.getEntityWorld().playSound((PlayerEntity) null, user.getX(), user.getY(), user.getZ(),
 						HaloSounds.PISTOLRELOAD, SoundCategory.PLAYERS, 1.00F, 1.0F);
 			}
 		}
+	}
+
+	@Override
+	public Rarity getRarity(ItemStack stack) {
+		return Rarity.RARE;
 	}
 }

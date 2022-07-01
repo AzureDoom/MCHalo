@@ -5,6 +5,7 @@ import java.util.List;
 import io.netty.buffer.Unpooled;
 import mod.azure.mchalo.MCHaloMod;
 import mod.azure.mchalo.client.ClientInit;
+import mod.azure.mchalo.config.HaloConfig;
 import mod.azure.mchalo.entity.projectiles.GrenadeEntity;
 import mod.azure.mchalo.item.HaloGunBase;
 import mod.azure.mchalo.util.HaloItems;
@@ -16,6 +17,7 @@ import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.enchantment.Enchantments;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
@@ -23,9 +25,10 @@ import net.minecraft.network.PacketByteBuf;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.text.Text;
-import net.minecraft.text.TranslatableText;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.Hand;
+import net.minecraft.util.Rarity;
+import net.minecraft.util.math.Box;
 import net.minecraft.world.World;
 import software.bernie.geckolib3.network.GeckoLibNetwork;
 import software.bernie.geckolib3.util.GeckoLibUtil;
@@ -33,7 +36,7 @@ import software.bernie.geckolib3.util.GeckoLibUtil;
 public class BruteShotItem extends HaloGunBase {
 
 	public BruteShotItem() {
-		super(new Item.Settings().group(MCHaloMod.HALOTAB).maxCount(1).maxDamage(config.bruteshot_max_ammo + 1));
+		super(new Item.Settings().group(MCHaloMod.HALOTAB).maxCount(1).maxDamage(HaloConfig.bruteshot_max_ammo + 1));
 	}
 
 	@Override
@@ -84,7 +87,8 @@ public class BruteShotItem extends HaloGunBase {
 			while (!user.isCreative() && user.getStackInHand(hand).getDamage() != 0
 					&& user.getInventory().count(HaloItems.GRENADE) > 0) {
 				removeAmmo(HaloItems.GRENADE, user);
-				user.getStackInHand(hand).damage(-config.bruteshot_mag_size, user, s -> user.sendToolBreakStatus(hand));
+				user.getStackInHand(hand).damage(-HaloConfig.bruteshot_mag_size, user,
+						s -> user.sendToolBreakStatus(hand));
 				user.getStackInHand(hand).setBobbingAnimationTime(3);
 				user.getEntityWorld().playSound((PlayerEntity) null, user.getX(), user.getY(), user.getZ(),
 						HaloSounds.BRUTESHOTRELOAD, SoundCategory.PLAYERS, 1.00F, 1.0F);
@@ -96,9 +100,38 @@ public class BruteShotItem extends HaloGunBase {
 	public void appendTooltip(ItemStack stack, World world, List<Text> tooltip, TooltipContext context) {
 		float j = EnchantmentHelper.getLevel(Enchantments.POWER, stack);
 		super.appendTooltip(stack, world, tooltip, context);
-		tooltip.add(new TranslatableText("Damage: "
-				+ (j > 0 ? (config.bruteshot_bullet_damage + (j * 1.5F + 0.5F)) : config.bruteshot_bullet_damage))
-						.formatted(Formatting.ITALIC));
+		tooltip.add(Text.translatable("Damage: " + (j > 0 ? (HaloConfig.bruteshot_bullet_damage + (j * 1.5F + 0.5F))
+				: HaloConfig.bruteshot_bullet_damage)).formatted(Formatting.ITALIC));
+	}
+
+	@Override
+	public Rarity getRarity(ItemStack stack) {
+		return Rarity.RARE;
+	}
+
+	@Override
+	public boolean postHit(ItemStack stack, LivingEntity target, LivingEntity miner) {
+		if (miner instanceof PlayerEntity) {
+			PlayerEntity playerentity = (PlayerEntity) miner;
+			if (stack.getDamage() < (stack.getMaxDamage() - 1)) {
+				if (!playerentity.getItemCooldownManager().isCoolingDown(this)
+						&& playerentity.getMainHandStack().getItem() instanceof BruteShotItem) {
+					playerentity.getItemCooldownManager().set(this, 20);
+					final Box aabb = new Box(playerentity.getBlockPos().up()).expand(2D, 1D, 2D);
+					playerentity.getEntityWorld().getOtherEntities(playerentity, aabb)
+							.forEach(e -> doDamage(playerentity, e));
+					stack.damage(1, playerentity, p -> p.sendToolBreakStatus(playerentity.getActiveHand()));
+				}
+			}
+		}
+		return super.postHit(stack, target, miner);
+	}
+
+	private void doDamage(LivingEntity user, Entity target) {
+		if (target instanceof LivingEntity) {
+			target.timeUntilRegen = 0;
+			target.damage(DamageSource.player((PlayerEntity) user), 9F);
+		}
 	}
 
 }

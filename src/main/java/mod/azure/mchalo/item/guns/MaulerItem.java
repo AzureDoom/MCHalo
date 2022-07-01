@@ -5,6 +5,7 @@ import java.util.List;
 import io.netty.buffer.Unpooled;
 import mod.azure.mchalo.MCHaloMod;
 import mod.azure.mchalo.client.ClientInit;
+import mod.azure.mchalo.config.HaloConfig;
 import mod.azure.mchalo.entity.projectiles.BulletEntity;
 import mod.azure.mchalo.item.HaloGunBase;
 import mod.azure.mchalo.util.HaloItems;
@@ -23,9 +24,9 @@ import net.minecraft.network.PacketByteBuf;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.text.Text;
-import net.minecraft.text.TranslatableText;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.Hand;
+import net.minecraft.util.Rarity;
 import net.minecraft.world.World;
 import software.bernie.geckolib3.network.GeckoLibNetwork;
 import software.bernie.geckolib3.util.GeckoLibUtil;
@@ -33,7 +34,7 @@ import software.bernie.geckolib3.util.GeckoLibUtil;
 public class MaulerItem extends HaloGunBase {
 
 	public MaulerItem() {
-		super(new Item.Settings().group(MCHaloMod.HALOTAB).maxCount(1).maxDamage(config.mauler_max_ammo + 1));
+		super(new Item.Settings().group(MCHaloMod.HALOTAB).maxCount(1).maxDamage(HaloConfig.mauler_max_ammo + 1));
 	}
 
 	@Override
@@ -45,7 +46,7 @@ public class MaulerItem extends HaloGunBase {
 				if (!worldIn.isClient) {
 					for (int y = 0; y < 8; ++y) {
 						BulletEntity abstractarrowentity = createBullet(worldIn, stack, playerentity,
-								config.mauler_bullet_damage);
+								HaloConfig.mauler_bullet_damage);
 						abstractarrowentity.setVelocity(playerentity,
 								playerentity.getPitch() + (y == 3 ? 3 : y == 4 ? -3 : 0),
 								playerentity.getYaw() + (y == 3 ? 3 : y == 2 ? -3 : y == 4 ? -3 : 0), 0.5F, 1.0F * 3.0F,
@@ -86,9 +87,11 @@ public class MaulerItem extends HaloGunBase {
 
 	public void reload(PlayerEntity user, Hand hand) {
 		if (user.getStackInHand(hand).getItem() instanceof MaulerItem) {
-			while (!user.isCreative() && user.getStackInHand(hand).getDamage() != 0 && user.getInventory().count(HaloItems.SHOTGUN_CLIP) > 0) {
+			while (!user.isCreative() && user.getStackInHand(hand).getDamage() != 0
+					&& user.getInventory().count(HaloItems.SHOTGUN_CLIP) > 0) {
 				removeAmmo(HaloItems.SHOTGUN_CLIP, user);
-				user.getStackInHand(hand).damage(-config.mauler_mag_size, user, s -> user.sendToolBreakStatus(hand));
+				user.getStackInHand(hand).damage(-HaloConfig.mauler_mag_size, user,
+						s -> user.sendToolBreakStatus(hand));
 				user.getStackInHand(hand).setBobbingAnimationTime(3);
 				user.getEntityWorld().playSound((PlayerEntity) null, user.getX(), user.getY(), user.getZ(),
 						HaloSounds.MAULERRELOAD, SoundCategory.PLAYERS, 1.00F, 1.0F);
@@ -100,9 +103,14 @@ public class MaulerItem extends HaloGunBase {
 	public void appendTooltip(ItemStack stack, World world, List<Text> tooltip, TooltipContext context) {
 		float j = EnchantmentHelper.getLevel(Enchantments.POWER, stack);
 		super.appendTooltip(stack, world, tooltip, context);
-		tooltip.add(new TranslatableText(
-				"Damage: " + (j > 0 ? (config.mauler_bullet_damage + (j * 1.5F + 0.5F)) : config.mauler_bullet_damage) * 8)
-						.formatted(Formatting.ITALIC));
+		tooltip.add(Text.translatable("Damage: "
+				+ (j > 0 ? (HaloConfig.mauler_bullet_damage + (j * 1.5F + 0.5F)) : HaloConfig.mauler_bullet_damage) * 8)
+				.formatted(Formatting.ITALIC));
+	}
+
+	@Override
+	public Rarity getRarity(ItemStack stack) {
+		return Rarity.RARE;
 	}
 
 }

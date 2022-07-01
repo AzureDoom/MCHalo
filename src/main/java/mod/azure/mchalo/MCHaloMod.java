@@ -1,12 +1,11 @@
 package mod.azure.mchalo;
 
-import me.shedaniel.autoconfig.AutoConfig;
-import me.shedaniel.autoconfig.serializer.GsonConfigSerializer;
 import mod.azure.mchalo.blocks.GunTableBlock;
 import mod.azure.mchalo.blocks.TickingLightBlock;
 import mod.azure.mchalo.blocks.blockentity.GunBlockEntity;
 import mod.azure.mchalo.blocks.blockentity.TickingLightEntity;
 import mod.azure.mchalo.client.gui.GunTableScreenHandler;
+import mod.azure.mchalo.config.CustomMidnightConfig;
 import mod.azure.mchalo.config.HaloConfig;
 import mod.azure.mchalo.item.EnergySwordItem;
 import mod.azure.mchalo.item.guns.BattleRifleItem;
@@ -28,7 +27,6 @@ import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.client.itemgroup.FabricItemGroupBuilder;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.fabricmc.fabric.api.object.builder.v1.block.entity.FabricBlockEntityTypeBuilder;
-import net.fabricmc.fabric.api.screenhandler.v1.ScreenHandlerRegistry;
 import net.minecraft.block.entity.BlockEntityType;
 import net.minecraft.item.ItemGroup;
 import net.minecraft.item.ItemStack;
@@ -63,8 +61,7 @@ public class MCHaloMod implements ModInitializer {
 	public static final Identifier GUN_TABLE_GUI = new Identifier(MODID, "gun_table_gui");
 	public static final Identifier ROCKETLAUNCHER = new Identifier(MODID, "rocketlauncher");
 	public static final Identifier lock_slot = new Identifier(MODID, "select_craft");
-	public static ScreenHandlerType<GunTableScreenHandler> SCREEN_HANDLER_TYPE = ScreenHandlerRegistry
-			.registerSimple(GUN_TABLE_GUI, GunTableScreenHandler::new);
+	public static ScreenHandlerType<GunTableScreenHandler> SCREEN_HANDLER_TYPE;
 	public static final ItemGroup HALOTAB = FabricItemGroupBuilder.create(new Identifier(MODID, "items"))
 			.icon(() -> new ItemStack(HaloItems.ENERGYSWORD)).build();
 	public static final RecipeSerializer<GunTableRecipe> GUN_TABLE_RECIPE_SERIALIZER = Registry
@@ -72,8 +69,7 @@ public class MCHaloMod implements ModInitializer {
 
 	@Override
 	public void onInitialize() {
-		AutoConfig.register(HaloConfig.class, GsonConfigSerializer::new);
-		config = AutoConfig.getConfigHolder(HaloConfig.class).getConfig();
+		CustomMidnightConfig.init(MODID, HaloConfig.class);
 		Registry.register(Registry.BLOCK, new Identifier(MODID, "gun_table"), GUN_TABLE);
 		ITEMS = new HaloItems();
 		SOUNDS = new HaloSounds();
@@ -83,6 +79,7 @@ public class MCHaloMod implements ModInitializer {
 		Registry.register(Registry.BLOCK, new Identifier(MODID, "lightblock"), TICKING_LIGHT_BLOCK);
 		TICKING_LIGHT_ENTITY = Registry.register(Registry.BLOCK_ENTITY_TYPE, MODID + ":lightblock",
 				FabricBlockEntityTypeBuilder.create(TickingLightEntity::new, TICKING_LIGHT_BLOCK).build(null));
+		SCREEN_HANDLER_TYPE = new ScreenHandlerType<>(GunTableScreenHandler::new);
 		GeckoLib.initialize();
 		ServerPlayNetworking.registerGlobalReceiver(lock_slot, new C2SMessageSelectCraft());
 		ServerPlayNetworking.registerGlobalReceiver(MCHaloMod.SNIPER,

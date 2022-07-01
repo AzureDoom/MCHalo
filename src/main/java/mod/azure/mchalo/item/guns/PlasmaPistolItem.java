@@ -5,6 +5,7 @@ import java.util.List;
 import io.netty.buffer.Unpooled;
 import mod.azure.mchalo.MCHaloMod;
 import mod.azure.mchalo.client.ClientInit;
+import mod.azure.mchalo.config.HaloConfig;
 import mod.azure.mchalo.entity.projectiles.PlasmaGEntity;
 import mod.azure.mchalo.item.HaloGunBase;
 import mod.azure.mchalo.util.HaloItems;
@@ -23,9 +24,9 @@ import net.minecraft.network.PacketByteBuf;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.text.Text;
-import net.minecraft.text.TranslatableText;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.Hand;
+import net.minecraft.util.Rarity;
 import net.minecraft.world.World;
 import software.bernie.geckolib3.network.GeckoLibNetwork;
 import software.bernie.geckolib3.util.GeckoLibUtil;
@@ -33,7 +34,7 @@ import software.bernie.geckolib3.util.GeckoLibUtil;
 public class PlasmaPistolItem extends HaloGunBase {
 
 	public PlasmaPistolItem() {
-		super(new Item.Settings().group(MCHaloMod.HALOTAB).maxCount(1).maxDamage(config.plasmapistol_max_ammo + 1));
+		super(new Item.Settings().group(MCHaloMod.HALOTAB).maxCount(1).maxDamage(HaloConfig.plasmapistol_max_ammo + 1));
 	}
 
 	@Override
@@ -45,7 +46,7 @@ public class PlasmaPistolItem extends HaloGunBase {
 				playerentity.getItemCooldownManager().set(this, 5);
 				if (!worldIn.isClient) {
 					PlasmaGEntity abstractarrowentity = createGPlamsa(worldIn, stack, playerentity,
-							config.plasmapistol_bullet_damage);
+							HaloConfig.plasmapistol_bullet_damage);
 					abstractarrowentity.setVelocity(playerentity, playerentity.getPitch(), playerentity.getYaw(), 0.0F,
 							0.5F * 3.0F, 1.0F);
 					if (EnchantmentHelper.getLevel(Enchantments.FLAME, stack) > 0) {
@@ -86,7 +87,7 @@ public class PlasmaPistolItem extends HaloGunBase {
 			while (!user.isCreative() && user.getStackInHand(hand).getDamage() != 0
 					&& user.getInventory().count(HaloItems.BATTERIES) > 0) {
 				removeAmmo(HaloItems.BATTERIES, user);
-				user.getStackInHand(hand).damage(-config.plasmapistol_mag_size, user,
+				user.getStackInHand(hand).damage(-HaloConfig.plasmapistol_mag_size, user,
 						s -> user.sendToolBreakStatus(hand));
 				user.getStackInHand(hand).setBobbingAnimationTime(3);
 				user.getEntityWorld().playSound((PlayerEntity) null, user.getX(), user.getY(), user.getZ(),
@@ -99,9 +100,13 @@ public class PlasmaPistolItem extends HaloGunBase {
 	public void appendTooltip(ItemStack stack, World world, List<Text> tooltip, TooltipContext context) {
 		float j = EnchantmentHelper.getLevel(Enchantments.POWER, stack);
 		super.appendTooltip(stack, world, tooltip, context);
-		tooltip.add(new TranslatableText("Damage: "
-				+ (j > 0 ? (config.plasmapistol_bullet_damage + (j * 1.5F + 0.5F)) : config.plasmapistol_bullet_damage))
-						.formatted(Formatting.ITALIC));
+		tooltip.add(Text.translatable("Damage: " + (j > 0 ? (HaloConfig.plasmapistol_bullet_damage + (j * 1.5F + 0.5F))
+				: HaloConfig.plasmapistol_bullet_damage)).formatted(Formatting.ITALIC));
+	}
+
+	@Override
+	public Rarity getRarity(ItemStack stack) {
+		return Rarity.RARE;
 	}
 
 }

@@ -7,17 +7,17 @@ import software.bernie.geckolib3.model.AnimatedGeoModel;
 
 public class BattleRifleModel extends AnimatedGeoModel<BattleRifleItem> {
 	@Override
-	public Identifier getModelLocation(BattleRifleItem object) {
+	public Identifier getModelResource(BattleRifleItem object) {
 		return new Identifier(MCHaloMod.MODID, "geo/battle_rifle.geo.json");
 	}
 
 	@Override
-	public Identifier getTextureLocation(BattleRifleItem object) {
+	public Identifier getTextureResource(BattleRifleItem object) {
 		return new Identifier(MCHaloMod.MODID, "textures/items/battle_rifle.png");
 	}
 
 	@Override
-	public Identifier getAnimationFileLocation(BattleRifleItem animatable) {
+	public Identifier getAnimationResource(BattleRifleItem animatable) {
 		return new Identifier(MCHaloMod.MODID, "animations/battle_rifle.animation.json");
 	}
 }

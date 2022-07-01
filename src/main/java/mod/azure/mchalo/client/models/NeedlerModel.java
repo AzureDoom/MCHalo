@@ -7,17 +7,17 @@ import software.bernie.geckolib3.model.AnimatedGeoModel;
 
 public class NeedlerModel extends AnimatedGeoModel<NeedlerItem> {
 	@Override
-	public Identifier getModelLocation(NeedlerItem object) {
+	public Identifier getModelResource(NeedlerItem object) {
 		return new Identifier(MCHaloMod.MODID, "geo/needler.geo.json");
 	}
 
 	@Override
-	public Identifier getTextureLocation(NeedlerItem object) {
+	public Identifier getTextureResource(NeedlerItem object) {
 		return new Identifier(MCHaloMod.MODID, "textures/items/needler.png");
 	}
 
 	@Override
-	public Identifier getAnimationFileLocation(NeedlerItem animatable) {
+	public Identifier getAnimationResource(NeedlerItem animatable) {
 		return new Identifier(MCHaloMod.MODID, "animations/needler.animation.json");
 	}
 }

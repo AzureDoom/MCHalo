@@ -2,9 +2,8 @@ package mod.azure.mchalo.entity.projectiles;
 
 import java.util.Iterator;
 
-import mod.azure.mchalo.MCHaloMod;
-import mod.azure.mchalo.config.HaloConfig.Weapons;
-import mod.azure.mchalo.network.EntityPacket;
+import mod.azure.mchalo.config.HaloConfig;
+import mod.azure.mchalo.network.HaloEntityPacket;
 import mod.azure.mchalo.util.HaloItems;
 import mod.azure.mchalo.util.ProjectilesEntityRegister;
 import net.fabricmc.api.EnvType;
@@ -50,7 +49,6 @@ public class GrenadeEntity extends PersistentProjectileEntity implements IAnimat
 	protected boolean inAir;
 	protected String type;
 	private int ticksInAir;
-	public static Weapons config = MCHaloMod.config.weapons;
 	private static final TrackedData<Boolean> SPINNING = DataTracker.registerData(GrenadeEntity.class,
 			TrackedDataHandlerRegistry.BOOLEAN);
 
@@ -113,7 +111,7 @@ public class GrenadeEntity extends PersistentProjectileEntity implements IAnimat
 
 	@Override
 	public Packet<?> createSpawnPacket() {
-		return EntityPacket.createPacket(this);
+		return HaloEntityPacket.createPacket(this);
 	}
 
 	@Override
@@ -121,7 +119,7 @@ public class GrenadeEntity extends PersistentProjectileEntity implements IAnimat
 		AreaEffectCloudEntity areaeffectcloudentity = new AreaEffectCloudEntity(this.world, this.getX(), this.getY(),
 				this.getZ());
 		areaeffectcloudentity.setParticleType(ParticleTypes.EXPLOSION);
-		areaeffectcloudentity.setRadius(config.mauler_bullet_damage + 2);
+		areaeffectcloudentity.setRadius(HaloConfig.mauler_bullet_damage + 2);
 		areaeffectcloudentity.setDuration(1);
 		areaeffectcloudentity.updatePosition(this.getX(), this.getEyeY(), this.getZ());
 		this.world.spawnEntity(areaeffectcloudentity);
@@ -294,9 +292,9 @@ public class GrenadeEntity extends PersistentProjectileEntity implements IAnimat
 	}
 
 	protected void explode() {
-		this.world.createExplosion(this, this.getX(), this.getBodyY(0.0625D), this.getZ(), config.mauler_bullet_damage,
-				(config.grenades_cause_fire ? true : false),
-				(config.grenades_break_blocks ? Explosion.DestructionType.BREAK : Explosion.DestructionType.NONE));
+		this.world.createExplosion(this, this.getX(), this.getBodyY(0.0625D), this.getZ(), HaloConfig.mauler_bullet_damage,
+				(HaloConfig.grenades_cause_fire ? true : false),
+				(HaloConfig.grenades_break_blocks ? Explosion.DestructionType.BREAK : Explosion.DestructionType.NONE));
 	}
 
 	@Override

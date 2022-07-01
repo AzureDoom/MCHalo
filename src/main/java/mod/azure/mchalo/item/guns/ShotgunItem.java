@@ -5,6 +5,7 @@ import java.util.List;
 import io.netty.buffer.Unpooled;
 import mod.azure.mchalo.MCHaloMod;
 import mod.azure.mchalo.client.ClientInit;
+import mod.azure.mchalo.config.HaloConfig;
 import mod.azure.mchalo.entity.projectiles.BulletEntity;
 import mod.azure.mchalo.item.HaloGunBase;
 import mod.azure.mchalo.util.HaloItems;
@@ -23,9 +24,9 @@ import net.minecraft.network.PacketByteBuf;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.text.Text;
-import net.minecraft.text.TranslatableText;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.Hand;
+import net.minecraft.util.Rarity;
 import net.minecraft.world.World;
 import software.bernie.geckolib3.network.GeckoLibNetwork;
 import software.bernie.geckolib3.util.GeckoLibUtil;
@@ -33,7 +34,7 @@ import software.bernie.geckolib3.util.GeckoLibUtil;
 public class ShotgunItem extends HaloGunBase {
 
 	public ShotgunItem() {
-		super(new Item.Settings().group(MCHaloMod.HALOTAB).maxCount(1).maxDamage(config.shotgun_max_ammo + 1));
+		super(new Item.Settings().group(MCHaloMod.HALOTAB).maxCount(1).maxDamage(HaloConfig.shotgun_max_ammo + 1));
 	}
 
 	@Override
@@ -46,7 +47,7 @@ public class ShotgunItem extends HaloGunBase {
 				if (!worldIn.isClient) {
 					for (int y = 0; y < 4; ++y) {
 						BulletEntity abstractarrowentity = createBullet(worldIn, stack, playerentity,
-								config.shotgun_bullet_damage);
+								HaloConfig.shotgun_bullet_damage);
 						abstractarrowentity.setVelocity(playerentity,
 								playerentity.getPitch() + (y == 3 ? 1 : y == 4 ? -1 : 0),
 								playerentity.getYaw() + (y == 3 ? 1 : y == 2 ? -1 : y == 4 ? -1 : 0), 0.5F, 1.0F * 3.0F,
@@ -90,7 +91,8 @@ public class ShotgunItem extends HaloGunBase {
 			while (!user.isCreative() && user.getStackInHand(hand).getDamage() != 0
 					&& user.getInventory().count(HaloItems.SHOTGUN_CLIP) > 0) {
 				removeAmmo(HaloItems.SHOTGUN_CLIP, user);
-				user.getStackInHand(hand).damage(-config.shotgun_mag_size, user, s -> user.sendToolBreakStatus(hand));
+				user.getStackInHand(hand).damage(-HaloConfig.shotgun_mag_size, user,
+						s -> user.sendToolBreakStatus(hand));
 				user.getStackInHand(hand).setBobbingAnimationTime(3);
 				user.getEntityWorld().playSound((PlayerEntity) null, user.getX(), user.getY(), user.getZ(),
 						HaloSounds.SHOTGUNRELOAD, SoundCategory.PLAYERS, 1.00F, 1.0F);
@@ -102,8 +104,14 @@ public class ShotgunItem extends HaloGunBase {
 	public void appendTooltip(ItemStack stack, World world, List<Text> tooltip, TooltipContext context) {
 		float j = EnchantmentHelper.getLevel(Enchantments.POWER, stack);
 		super.appendTooltip(stack, world, tooltip, context);
-		tooltip.add(new TranslatableText("Damage: "
-				+ ((j > 0 ? (config.shotgun_bullet_damage + (j * 1.5F + 0.5F)) : config.shotgun_bullet_damage)*4))
-						.formatted(Formatting.ITALIC));
+		tooltip.add(Text.translatable("Damage: "
+				+ ((j > 0 ? (HaloConfig.shotgun_bullet_damage + (j * 1.5F + 0.5F)) : HaloConfig.shotgun_bullet_damage)
+						* 4))
+				.formatted(Formatting.ITALIC));
+	}
+
+	@Override
+	public Rarity getRarity(ItemStack stack) {
+		return Rarity.RARE;
 	}
 }

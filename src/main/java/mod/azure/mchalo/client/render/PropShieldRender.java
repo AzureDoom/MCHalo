@@ -18,6 +18,6 @@ public class PropShieldRender extends GeoItemRenderer<PropShieldItem> {
 	public RenderLayer getRenderType(PropShieldItem animatable, float partialTicks, MatrixStack stack,
 			VertexConsumerProvider renderTypeBuffer, VertexConsumer vertexBuilder, int packedLightIn,
 			Identifier textureLocation) {
-		return RenderLayer.getEntityTranslucent(getTextureLocation(animatable));
+		return RenderLayer.getEntityTranslucent(getTextureResource(animatable));
 	}
 }

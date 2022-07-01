@@ -18,6 +18,6 @@ public class SniperRender extends GeoItemRenderer<SniperItem> {
 	public RenderLayer getRenderType(SniperItem animatable, float partialTicks, MatrixStack stack,
 			VertexConsumerProvider renderTypeBuffer, VertexConsumer vertexBuilder, int packedLightIn,
 			Identifier textureLocation) {
-		return RenderLayer.getEntityTranslucent(getTextureLocation(animatable));
+		return RenderLayer.getEntityTranslucent(getTextureResource(animatable));
 	}
 }

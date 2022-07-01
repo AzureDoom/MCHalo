@@ -3,12 +3,16 @@ package mod.azure.mchalo.entity.projectiles;
 import java.util.List;
 
 import mod.azure.mchalo.MCHaloMod;
-import mod.azure.mchalo.network.EntityPacket;
+import mod.azure.mchalo.blocks.blockentity.TickingLightEntity;
+import mod.azure.mchalo.config.HaloConfig;
+import mod.azure.mchalo.network.HaloEntityPacket;
 import mod.azure.mchalo.util.HaloItems;
 import mod.azure.mchalo.util.HaloSounds;
 import mod.azure.mchalo.util.ProjectilesEntityRegister;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
+import net.minecraft.block.BlockState;
+import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
@@ -21,6 +25,7 @@ import net.minecraft.network.Packet;
 import net.minecraft.sound.SoundEvent;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.hit.EntityHitResult;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Box;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
@@ -40,6 +45,8 @@ public class RocketEntity extends PersistentProjectileEntity implements IAnimata
 	protected boolean inAir;
 	private int ticksInAir;
 	private LivingEntity shooter;
+	private BlockPos lightBlockPos = null;
+	private int idleTicks = 0;
 
 	public RocketEntity(EntityType<? extends RocketEntity> entityType, World world) {
 		super(entityType, world);
@@ -83,7 +90,7 @@ public class RocketEntity extends PersistentProjectileEntity implements IAnimata
 
 	@Override
 	public Packet<?> createSpawnPacket() {
-		return EntityPacket.createPacket(this);
+		return HaloEntityPacket.createPacket(this);
 	}
 
 	@Override
@@ -124,11 +131,64 @@ public class RocketEntity extends PersistentProjectileEntity implements IAnimata
 
 	@Override
 	public void tick() {
-		super.tick();
-		if (this.age >= 100) {
+		int idleOpt = 100;
+		if (getVelocity().lengthSquared() < 0.01)
+			idleTicks++;
+		else
+			idleTicks = 0;
+		if (idleOpt <= 0 || idleTicks < idleOpt)
+			super.tick();
+		++this.ticksInAir;
+		if (this.ticksInAir >= 100) {
 			this.remove(Entity.RemovalReason.DISCARDED);
 			this.doDamage();
 		}
+		boolean isInsideWaterBlock = world.isWater(getBlockPos());
+		spawnLightSource(isInsideWaterBlock);
+	}
+
+	private void spawnLightSource(boolean isInWaterBlock) {
+		if (lightBlockPos == null) {
+			lightBlockPos = findFreeSpace(world, getBlockPos(), 2);
+			if (lightBlockPos == null)
+				return;
+			world.setBlockState(lightBlockPos, MCHaloMod.TICKING_LIGHT_BLOCK.getDefaultState());
+		} else if (checkDistance(lightBlockPos, getBlockPos(), 2)) {
+			BlockEntity blockEntity = world.getBlockEntity(lightBlockPos);
+			if (blockEntity instanceof TickingLightEntity) {
+				((TickingLightEntity) blockEntity).refresh(isInWaterBlock ? 20 : 0);
+			} else
+				lightBlockPos = null;
+		} else
+			lightBlockPos = null;
+	}
+
+	private boolean checkDistance(BlockPos blockPosA, BlockPos blockPosB, int distance) {
+		return Math.abs(blockPosA.getX() - blockPosB.getX()) <= distance
+				&& Math.abs(blockPosA.getY() - blockPosB.getY()) <= distance
+				&& Math.abs(blockPosA.getZ() - blockPosB.getZ()) <= distance;
+	}
+
+	private BlockPos findFreeSpace(World world, BlockPos blockPos, int maxDistance) {
+		if (blockPos == null)
+			return null;
+
+		int[] offsets = new int[maxDistance * 2 + 1];
+		offsets[0] = 0;
+		for (int i = 2; i <= maxDistance * 2; i += 2) {
+			offsets[i - 1] = i / 2;
+			offsets[i] = -i / 2;
+		}
+		for (int x : offsets)
+			for (int y : offsets)
+				for (int z : offsets) {
+					BlockPos offsetPos = blockPos.add(x, y, z);
+					BlockState state = world.getBlockState(offsetPos);
+					if (state.isAir() || state.getBlock().equals(MCHaloMod.TICKING_LIGHT_BLOCK))
+						return offsetPos;
+				}
+
+		return null;
 	}
 
 	public void initFromStack(ItemStack stack) {
@@ -202,14 +262,14 @@ public class RocketEntity extends PersistentProjectileEntity implements IAnimata
 			double y = (double) (MathHelper.sqrt((float) entity.squaredDistanceTo(vec3d)) / q);
 			if (y <= 1.0D) {
 				if (entity instanceof LivingEntity) {
-					entity.damage(DamageSource.player((PlayerEntity) this.shooter), MCHaloMod.config.weapons.rocketlauncher_damage);
+					entity.damage(DamageSource.player((PlayerEntity) this.shooter), HaloConfig.rocketlauncher_damage);
 				}
 				this.world.createExplosion(this, this.getX(), this.getBodyY(0.0625D), this.getZ(), 0.0F,
 						Explosion.DestructionType.NONE);
 			}
 		}
 	}
-	
+
 	@Override
 	public boolean doesRenderOnFire() {
 		return false;

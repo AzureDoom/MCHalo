@@ -1,3 +1,9 @@
-v.1.0.3
+v.1.1.0
 
-- Moves Packets to correct system.
+- Stopped using Cloth Config. 
+- Plasma projectiles are now particles instead of 3D models. 
+- Bullets are moved to particles.
+- Fixed Brute Shot Model
+- Energy Sword moved to new damage system and reloads with batteries. 
+- REI support added for crafting recipes. 
+- Brute Shot now does extra melee damage.

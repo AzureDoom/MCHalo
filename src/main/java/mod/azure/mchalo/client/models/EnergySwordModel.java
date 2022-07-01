@@ -7,17 +7,17 @@ import software.bernie.geckolib3.model.AnimatedGeoModel;
 
 public class EnergySwordModel extends AnimatedGeoModel<EnergySwordItem> {
 	@Override
-	public Identifier getModelLocation(EnergySwordItem object) {
+	public Identifier getModelResource(EnergySwordItem object) {
 		return new Identifier(MCHaloMod.MODID, "geo/energy_sword.geo.json");
 	}
 
 	@Override
-	public Identifier getTextureLocation(EnergySwordItem object) {
+	public Identifier getTextureResource(EnergySwordItem object) {
 		return new Identifier(MCHaloMod.MODID, "textures/items/energy_sword.png");
 	}
 
 	@Override
-	public Identifier getAnimationFileLocation(EnergySwordItem animatable) {
+	public Identifier getAnimationResource(EnergySwordItem animatable) {
 		return new Identifier(MCHaloMod.MODID, "animations/energy_sword.animation.json");
 	}
 }

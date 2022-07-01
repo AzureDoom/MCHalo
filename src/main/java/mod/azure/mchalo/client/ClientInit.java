@@ -25,24 +25,29 @@ import mod.azure.mchalo.client.render.projectiles.NeedleRender;
 import mod.azure.mchalo.client.render.projectiles.PlasmaGRender;
 import mod.azure.mchalo.client.render.projectiles.PlasmaRender;
 import mod.azure.mchalo.client.render.projectiles.RocketRender;
-import mod.azure.mchalo.network.EntityPacket;
+import mod.azure.mchalo.network.HaloEntityPacket;
+import mod.azure.mchalo.particle.PlasmaParticle;
 import mod.azure.mchalo.util.HaloItems;
+import mod.azure.mchalo.util.HaloParticles;
 import mod.azure.mchalo.util.ProjectilesEntityRegister;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
+import net.fabricmc.fabric.api.client.particle.v1.ParticleFactoryRegistry;
 import net.fabricmc.fabric.api.client.rendering.v1.EntityRendererRegistry;
-import net.fabricmc.fabric.api.client.screenhandler.v1.ScreenRegistry;
-import net.fabricmc.fabric.api.object.builder.v1.client.model.FabricModelPredicateProviderRegistry;
+import net.fabricmc.fabric.api.event.client.ClientSpriteRegistryCallback;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.gui.screen.ingame.HandledScreens;
+import net.minecraft.client.item.ModelPredicateProviderRegistry;
 import net.minecraft.client.option.KeyBinding;
 import net.minecraft.client.util.InputUtil;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.network.PacketByteBuf;
+import net.minecraft.screen.PlayerScreenHandler;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.registry.Registry;
 import software.bernie.geckolib3.renderers.geo.GeoItemRenderer;
@@ -57,7 +62,7 @@ public class ClientInit implements ClientModInitializer {
 
 	@Override
 	public void onInitializeClient() {
-		ScreenRegistry.register(MCHaloMod.SCREEN_HANDLER_TYPE, GunTableScreen::new);
+		HandledScreens.register(MCHaloMod.SCREEN_HANDLER_TYPE, GunTableScreen::new);
 		KeyBindingHelper.registerKeyBinding(reload);
 		KeyBindingHelper.registerKeyBinding(scope);
 		GeoItemRenderer.registerItemRenderer(HaloItems.SNIPER, new SniperRender());
@@ -79,21 +84,27 @@ public class ClientInit implements ClientModInitializer {
 		EntityRendererRegistry.register(ProjectilesEntityRegister.PLASMA, (ctx) -> new PlasmaRender(ctx));
 		EntityRendererRegistry.register(ProjectilesEntityRegister.PLASMAG, (ctx) -> new PlasmaGRender(ctx));
 		EntityRendererRegistry.register(ProjectilesEntityRegister.GRENADE, (ctx) -> new GrenadeRender(ctx));
-		FabricModelPredicateProviderRegistry.register(HaloItems.SNIPER, new Identifier("scoped"),
+		ModelPredicateProviderRegistry.register(HaloItems.SNIPER, new Identifier("scoped"),
 				(itemStack, clientWorld, livingEntity, seed) -> {
 					if (livingEntity != null)
 						return isScoped() ? 1.0F : 0.0F;
 					return 0.0F;
 				});
-		FabricModelPredicateProviderRegistry.register(HaloItems.BATTLERIFLE, new Identifier("scoped"),
+		ModelPredicateProviderRegistry.register(HaloItems.BATTLERIFLE, new Identifier("scoped"),
 				(itemStack, clientWorld, livingEntity, seed) -> {
 					if (livingEntity != null)
 						return isScoped() ? 1.0F : 0.0F;
 					return 0.0F;
 				});
-		ClientPlayNetworking.registerGlobalReceiver(EntityPacket.ID, (client, handler, buf, responseSender) -> {
+		ClientPlayNetworking.registerGlobalReceiver(HaloEntityPacket.ID, (client, handler, buf, responseSender) -> {
 			onPacket(client, buf);
 		});
+		ClientSpriteRegistryCallback.event(PlayerScreenHandler.BLOCK_ATLAS_TEXTURE)
+				.register(((atlasTexture, registry) -> {
+					registry.register(new Identifier("mchalo", "particle/plasma"));
+				}));
+		ParticleFactoryRegistry.getInstance().register(HaloParticles.PLASMA, PlasmaParticle.PurpleFactory::new);
+		ParticleFactoryRegistry.getInstance().register(HaloParticles.PLASMAG, PlasmaParticle.GreenFactory::new);
 	}
 
 	private static boolean isScoped() {

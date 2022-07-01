@@ -4,7 +4,6 @@ import java.util.List;
 
 import mod.azure.mchalo.MCHaloMod;
 import mod.azure.mchalo.blocks.blockentity.TickingLightEntity;
-import mod.azure.mchalo.config.HaloConfig.Weapons;
 import mod.azure.mchalo.entity.projectiles.BulletEntity;
 import mod.azure.mchalo.entity.projectiles.GrenadeEntity;
 import mod.azure.mchalo.entity.projectiles.NeedleEntity;
@@ -22,7 +21,6 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.text.Text;
-import net.minecraft.text.TranslatableText;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.Hand;
 import net.minecraft.util.TypedActionResult;
@@ -43,7 +41,6 @@ import software.bernie.geckolib3.util.GeckoLibUtil;
 public class HaloGunBase extends Item implements IAnimatable, ISyncable {
 
 	public AnimationFactory factory = new AnimationFactory(this);
-	public static Weapons config = MCHaloMod.config.weapons;
 	public String controllerName = "controller";
 	public static final int ANIM_OPEN = 0;
 	private BlockPos lightBlockPos = null;
@@ -87,9 +84,10 @@ public class HaloGunBase extends Item implements IAnimatable, ISyncable {
 
 	@Override
 	public void appendTooltip(ItemStack stack, World world, List<Text> tooltip, TooltipContext context) {
-		tooltip.add(new TranslatableText(
-				"Ammo: " + (stack.getMaxDamage() - stack.getDamage() - 1) + " / " + (stack.getMaxDamage() - 1))
-						.formatted(Formatting.ITALIC));
+		tooltip.add(Text
+				.translatable(
+						"Ammo: " + (stack.getMaxDamage() - stack.getDamage() - 1) + " / " + (stack.getMaxDamage() - 1))
+				.formatted(Formatting.ITALIC));
 	}
 
 	@Override

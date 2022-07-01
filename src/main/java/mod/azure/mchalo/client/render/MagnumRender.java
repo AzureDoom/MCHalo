@@ -18,6 +18,6 @@ public class MagnumRender extends GeoItemRenderer<MagnumItem> {
 	public RenderLayer getRenderType(MagnumItem animatable, float partialTicks, MatrixStack stack,
 			VertexConsumerProvider renderTypeBuffer, VertexConsumer vertexBuilder, int packedLightIn,
 			Identifier textureLocation) {
-		return RenderLayer.getEntityTranslucent(getTextureLocation(animatable));
+		return RenderLayer.getEntityTranslucent(getTextureResource(animatable));
 	}
 }

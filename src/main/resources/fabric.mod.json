@@ -23,17 +23,20 @@
 		],
 		"modmenu": [
 			"mod.azure.mchalo.config.ModMenuHalo"
+		],
+		"rei_client": [
+			"mod.azure.mchalo.rei.ReiPlugin"
 		]
 	},
 	"mixins": [
 		"mchalo.mixins.json"
 	],
 	"depends": {
-		"fabricloader": ">=0.12.5",
+		"fabricloader": ">=0.14.8",
 		"fabric": "*",
-		"minecraft": "1.18.x",
+		"minecraft": "1.19.x",
 		"java": ">=17",
-		"geckolib3": ">=3.0.12"
+		"geckolib3": ">=3.1.5"
 	},
 	"suggests": {
 		"another-mod": "*"

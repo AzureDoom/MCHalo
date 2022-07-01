@@ -1,10 +1,15 @@
 package mod.azure.mchalo.entity.projectiles;
 
-import mod.azure.mchalo.network.EntityPacket;
+import mod.azure.mchalo.MCHaloMod;
+import mod.azure.mchalo.blocks.blockentity.TickingLightEntity;
+import mod.azure.mchalo.network.HaloEntityPacket;
 import mod.azure.mchalo.util.HaloItems;
+import mod.azure.mchalo.util.HaloParticles;
 import mod.azure.mchalo.util.ProjectilesEntityRegister;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
+import net.minecraft.block.BlockState;
+import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
@@ -22,23 +27,17 @@ import net.minecraft.sound.SoundEvents;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.hit.EntityHitResult;
 import net.minecraft.util.hit.HitResult;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.Vec3d;
-import net.minecraft.world.RaycastContext;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
-import software.bernie.geckolib3.core.IAnimatable;
-import software.bernie.geckolib3.core.PlayState;
-import software.bernie.geckolib3.core.controller.AnimationController;
-import software.bernie.geckolib3.core.event.predicate.AnimationEvent;
-import software.bernie.geckolib3.core.manager.AnimationData;
-import software.bernie.geckolib3.core.manager.AnimationFactory;
 
-public class PlasmaEntity extends PersistentProjectileEntity implements IAnimatable {
+public class PlasmaEntity extends PersistentProjectileEntity {
 
 	protected int timeInAir;
 	protected boolean inAir;
 	private int ticksInAir;
 	protected static float bulletdamage;
+	private BlockPos lightBlockPos = null;
+	private int idleTicks = 0;
 
 	public PlasmaEntity(EntityType<? extends PlasmaEntity> entityType, World world) {
 		super(entityType, world);
@@ -63,25 +62,9 @@ public class PlasmaEntity extends PersistentProjectileEntity implements IAnimata
 
 	}
 
-	private AnimationFactory factory = new AnimationFactory(this);
-
-	private <E extends IAnimatable> PlayState predicate(AnimationEvent<E> event) {
-		return PlayState.CONTINUE;
-	}
-
-	@Override
-	public void registerControllers(AnimationData data) {
-		data.addAnimationController(new AnimationController<PlasmaEntity>(this, "controller", 0, this::predicate));
-	}
-
-	@Override
-	public AnimationFactory getFactory() {
-		return this.factory;
-	}
-
 	@Override
 	public Packet<?> createSpawnPacket() {
-		return EntityPacket.createPacket(this);
+		return HaloEntityPacket.createPacket(this);
 	}
 
 	@Override
@@ -121,80 +104,66 @@ public class PlasmaEntity extends PersistentProjectileEntity implements IAnimata
 
 	@Override
 	public void tick() {
-		super.tick();
-		boolean bl = this.isNoClip();
-		Vec3d vec3d = this.getVelocity();
-		if (this.prevPitch == 0.0F && this.prevYaw == 0.0F) {
-			double f = vec3d.horizontalLength();
-			this.setYaw((float) (MathHelper.atan2(vec3d.x, vec3d.z) * 57.2957763671875D));
-			this.setPitch((float) (MathHelper.atan2(vec3d.y, f) * 57.2957763671875D));
-			this.prevYaw = this.getYaw();
-			this.prevPitch = this.getPitch();
-		}
-		if (this.age >= 40) {
+		int idleOpt = 100;
+		if (getVelocity().lengthSquared() < 0.01)
+			idleTicks++;
+		else
+			idleTicks = 0;
+		if (idleOpt <= 0 || idleTicks < idleOpt)
+			super.tick();
+		++this.ticksInAir;
+		if (this.ticksInAir >= 80) {
 			this.remove(Entity.RemovalReason.DISCARDED);
 		}
-		if (this.inAir && !bl) {
-			this.age();
-			++this.timeInAir;
-		} else {
-			this.timeInAir = 0;
-			Vec3d vec3d3 = this.getPos();
-			Vec3d vector3d3 = vec3d3.add(vec3d);
-			HitResult hitResult = this.world.raycast(new RaycastContext(vec3d3, vector3d3,
-					RaycastContext.ShapeType.COLLIDER, RaycastContext.FluidHandling.NONE, this));
-			if (((HitResult) hitResult).getType() != HitResult.Type.MISS) {
-				vector3d3 = ((HitResult) hitResult).getPos();
-			}
-			while (!this.isRemoved()) {
-				EntityHitResult entityHitResult = this.getEntityCollision(vec3d3, vector3d3);
-				if (entityHitResult != null) {
-					hitResult = entityHitResult;
-				}
-				if (hitResult != null && ((HitResult) hitResult).getType() == HitResult.Type.ENTITY) {
-					Entity entity = ((EntityHitResult) hitResult).getEntity();
-					Entity entity2 = this.getOwner();
-					if (entity instanceof PlayerEntity && entity2 instanceof PlayerEntity
-							&& !((PlayerEntity) entity2).shouldDamagePlayer((PlayerEntity) entity)) {
-						hitResult = null;
-						entityHitResult = null;
-					}
-				}
-				if (hitResult != null && !bl) {
-					this.onCollision((HitResult) hitResult);
-					this.velocityDirty = true;
-				}
-				if (entityHitResult == null || this.getPierceLevel() <= 0) {
-					break;
-				}
-				hitResult = null;
-			}
-			vec3d = this.getVelocity();
-			double d = vec3d.x;
-			double e = vec3d.y;
-			double g = vec3d.z;
-			double h = this.getX() + d;
-			double j = this.getY() + e;
-			double k = this.getZ() + g;
-			double l = vec3d.horizontalLength();
-			if (bl) {
-				this.setYaw((float) (MathHelper.atan2(-e, -g) * 57.2957763671875D));
-			} else {
-				this.setYaw((float) (MathHelper.atan2(e, g) * 57.2957763671875D));
-			}
-			this.setPitch((float) (MathHelper.atan2(e, l) * 57.2957763671875D));
-			this.setPitch(updateRotation(this.prevPitch, this.getPitch()));
-			this.setYaw(updateRotation(this.prevYaw, this.getYaw()));
-			float m = 0.99F;
-
-			this.setVelocity(vec3d.multiply((double) m));
-			if (!this.hasNoGravity() && !bl) {
-				Vec3d vec3d5 = this.getVelocity();
-				this.setVelocity(vec3d5.x, vec3d5.y - 0.05000000074505806D, vec3d5.z);
-			}
-			this.updatePosition(h, j, k);
-			this.checkBlockCollision();
+		boolean isInsideWaterBlock = world.isWater(getBlockPos());
+		spawnLightSource(isInsideWaterBlock);
+		if (this.world.isClient) {
+			this.world.addParticle(HaloParticles.PLASMA, true, this.getX(), this.getY(), this.getZ(), 0, 0, 0);
 		}
+	}
+
+	private void spawnLightSource(boolean isInWaterBlock) {
+		if (lightBlockPos == null) {
+			lightBlockPos = findFreeSpace(world, getBlockPos(), 2);
+			if (lightBlockPos == null)
+				return;
+			world.setBlockState(lightBlockPos, MCHaloMod.TICKING_LIGHT_BLOCK.getDefaultState());
+		} else if (checkDistance(lightBlockPos, getBlockPos(), 2)) {
+			BlockEntity blockEntity = world.getBlockEntity(lightBlockPos);
+			if (blockEntity instanceof TickingLightEntity) {
+				((TickingLightEntity) blockEntity).refresh(isInWaterBlock ? 20 : 0);
+			} else
+				lightBlockPos = null;
+		} else
+			lightBlockPos = null;
+	}
+
+	private boolean checkDistance(BlockPos blockPosA, BlockPos blockPosB, int distance) {
+		return Math.abs(blockPosA.getX() - blockPosB.getX()) <= distance
+				&& Math.abs(blockPosA.getY() - blockPosB.getY()) <= distance
+				&& Math.abs(blockPosA.getZ() - blockPosB.getZ()) <= distance;
+	}
+
+	private BlockPos findFreeSpace(World world, BlockPos blockPos, int maxDistance) {
+		if (blockPos == null)
+			return null;
+
+		int[] offsets = new int[maxDistance * 2 + 1];
+		offsets[0] = 0;
+		for (int i = 2; i <= maxDistance * 2; i += 2) {
+			offsets[i - 1] = i / 2;
+			offsets[i] = -i / 2;
+		}
+		for (int x : offsets)
+			for (int y : offsets)
+				for (int z : offsets) {
+					BlockPos offsetPos = blockPos.add(x, y, z);
+					BlockState state = world.getBlockState(offsetPos);
+					if (state.isAir() || state.getBlock().equals(MCHaloMod.TICKING_LIGHT_BLOCK))
+						return offsetPos;
+				}
+
+		return null;
 	}
 
 	public void initFromStack(ItemStack stack) {

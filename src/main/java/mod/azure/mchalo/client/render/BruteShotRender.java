@@ -18,6 +18,6 @@ public class BruteShotRender extends GeoItemRenderer<BruteShotItem> {
 	public RenderLayer getRenderType(BruteShotItem animatable, float partialTicks, MatrixStack stack,
 			VertexConsumerProvider renderTypeBuffer, VertexConsumer vertexBuilder, int packedLightIn,
 			Identifier textureLocation) {
-		return RenderLayer.getEntityTranslucent(getTextureLocation(animatable));
+		return RenderLayer.getEntityTranslucent(getTextureResource(animatable));
 	}
 }
