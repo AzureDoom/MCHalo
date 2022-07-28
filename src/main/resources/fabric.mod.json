@@ -34,9 +34,9 @@
 	"depends": {
 		"fabricloader": ">=0.14.8",
 		"fabric": "*",
-		"minecraft": "1.19.x",
+		"minecraft": "1.19.1",
 		"java": ">=17",
-		"geckolib3": ">=3.1.5"
+		"geckolib3": ">=3.1.7"
 	},
 	"suggests": {
 		"another-mod": "*"
