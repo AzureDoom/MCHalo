@@ -1,3 +1,4 @@
-v.1.1.2
+v.1.1.3
 
-- Better Combat support added with custom melee sounds for Energy Sword and Brute Shot
+- Tweaked Energy Sword swings with Better Combat.
+- Fixed server crash.
