@@ -80,6 +80,7 @@ public class MCHaloMod implements ModInitializer {
 		TICKING_LIGHT_ENTITY = Registry.register(Registry.BLOCK_ENTITY_TYPE, MODID + ":lightblock",
 				FabricBlockEntityTypeBuilder.create(TickingLightEntity::new, TICKING_LIGHT_BLOCK).build(null));
 		SCREEN_HANDLER_TYPE = new ScreenHandlerType<>(GunTableScreenHandler::new);
+		Registry.register(Registry.SCREEN_HANDLER, new Identifier(MODID, "guntable_screen_type"), SCREEN_HANDLER_TYPE);
 		GeckoLib.initialize();
 		ServerPlayNetworking.registerGlobalReceiver(lock_slot, new C2SMessageSelectCraft());
 		ServerPlayNetworking.registerGlobalReceiver(MCHaloMod.SNIPER,
