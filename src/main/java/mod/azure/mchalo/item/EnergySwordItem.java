@@ -12,6 +12,8 @@ import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.item.SwordItem;
+import net.minecraft.item.ToolMaterials;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.Hand;
@@ -30,7 +32,7 @@ import software.bernie.geckolib3.network.GeckoLibNetwork;
 import software.bernie.geckolib3.network.ISyncable;
 import software.bernie.geckolib3.util.GeckoLibUtil;
 
-public class EnergySwordItem extends Item implements IAnimatable, ISyncable {
+public class EnergySwordItem extends SwordItem implements IAnimatable, ISyncable {
 
 	public AnimationFactory factory = new AnimationFactory(this);
 	public String controllerName = "controller";
@@ -40,7 +42,7 @@ public class EnergySwordItem extends Item implements IAnimatable, ISyncable {
 	public static final int ANIM_CLOSED = 3;
 
 	public EnergySwordItem() {
-		super(new Item.Settings().group(MCHaloMod.HALOTAB).maxCount(1).maxDamage(20));
+		super(ToolMaterials.DIAMOND, 1, -2.0f, new Item.Settings().group(MCHaloMod.HALOTAB).maxCount(1).maxDamage(20));
 		GeckoLibNetwork.registerSyncable(this);
 	}
 
