@@ -1,4 +1,3 @@
-v.1.1.4
+v.1.1.5
 
-- Tweaked Energy Sword swings with Better Combat.
-- Enchantment blacklist tweak
+- All audio is now mono.
