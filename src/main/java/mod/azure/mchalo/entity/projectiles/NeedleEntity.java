@@ -4,7 +4,6 @@ import java.util.List;
 
 import mod.azure.mchalo.MCHaloMod;
 import mod.azure.mchalo.blocks.blockentity.TickingLightEntity;
-import mod.azure.mchalo.network.HaloEntityPacket;
 import mod.azure.mchalo.util.HaloItems;
 import mod.azure.mchalo.util.HaloSounds;
 import mod.azure.mchalo.util.ProjectilesEntityRegister;
@@ -23,6 +22,8 @@ import net.minecraft.entity.projectile.PersistentProjectileEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.network.Packet;
+import net.minecraft.network.listener.ClientPlayPacketListener;
+import net.minecraft.network.packet.s2c.play.EntitySpawnS2CPacket;
 import net.minecraft.network.packet.s2c.play.GameStateChangeS2CPacket;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.sound.SoundEvent;
@@ -33,14 +34,14 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Box;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
-import software.bernie.geckolib3.core.IAnimatable;
-import software.bernie.geckolib3.core.PlayState;
-import software.bernie.geckolib3.core.controller.AnimationController;
-import software.bernie.geckolib3.core.event.predicate.AnimationEvent;
-import software.bernie.geckolib3.core.manager.AnimationData;
-import software.bernie.geckolib3.core.manager.AnimationFactory;
+import software.bernie.geckolib.animatable.GeoEntity;
+import software.bernie.geckolib.core.animatable.instance.AnimatableInstanceCache;
+import software.bernie.geckolib.core.animation.AnimatableManager.ControllerRegistrar;
+import software.bernie.geckolib.core.animation.AnimationController;
+import software.bernie.geckolib.core.object.PlayState;
+import software.bernie.geckolib.util.GeckoLibUtil;
 
-public class NeedleEntity extends PersistentProjectileEntity implements IAnimatable {
+public class NeedleEntity extends PersistentProjectileEntity implements GeoEntity {
 
 	protected int timeInAir;
 	protected boolean inAir;
@@ -48,6 +49,7 @@ public class NeedleEntity extends PersistentProjectileEntity implements IAnimata
 	private static float bulletdamage;
 	private BlockPos lightBlockPos = null;
 	private int idleTicks = 0;
+	private final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this);
 
 	public NeedleEntity(EntityType<? extends NeedleEntity> entityType, World world) {
 		super(entityType, world);
@@ -72,25 +74,21 @@ public class NeedleEntity extends PersistentProjectileEntity implements IAnimata
 
 	}
 
-	private AnimationFactory factory = new AnimationFactory(this);
-
-	private <E extends IAnimatable> PlayState predicate(AnimationEvent<E> event) {
-		return PlayState.CONTINUE;
+	@Override
+	public void registerControllers(ControllerRegistrar controllers) {
+		controllers.add(new AnimationController<>(this, event -> {
+			return PlayState.CONTINUE;
+		}));
 	}
 
 	@Override
-	public void registerControllers(AnimationData data) {
-		data.addAnimationController(new AnimationController<NeedleEntity>(this, "controller", 0, this::predicate));
+	public AnimatableInstanceCache getAnimatableInstanceCache() {
+		return this.cache;
 	}
 
 	@Override
-	public AnimationFactory getFactory() {
-		return this.factory;
-	}
-
-	@Override
-	public Packet<?> createSpawnPacket() {
-		return HaloEntityPacket.createPacket(this);
+	public Packet<ClientPlayPacketListener> createSpawnPacket() {
+		return new EntitySpawnS2CPacket(this);
 	}
 
 	@Override

@@ -10,7 +10,7 @@ import net.minecraft.util.Identifier;
 
 public class PlasmaRender extends ProjectileEntityRenderer<PlasmaEntity> {
 
-	private static final Identifier TEXTURE = new Identifier(MCHaloMod.MODID, "textures/items/empty.png");
+	private static final Identifier TEXTURE = new Identifier(MCHaloMod.MODID, "textures/item/empty.png");
 
 	public PlasmaRender(EntityRendererFactory.Context renderManagerIn) {
 		super(renderManagerIn);

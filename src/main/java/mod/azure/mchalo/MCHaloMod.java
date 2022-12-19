@@ -24,18 +24,19 @@ import mod.azure.mchalo.util.HaloSounds;
 import mod.azure.mchalo.util.ProjectilesEntityRegister;
 import mod.azure.mchalo.util.recipe.GunTableRecipe;
 import net.fabricmc.api.ModInitializer;
-import net.fabricmc.fabric.api.client.itemgroup.FabricItemGroupBuilder;
+import net.fabricmc.fabric.api.itemgroup.v1.FabricItemGroup;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.fabricmc.fabric.api.object.builder.v1.block.entity.FabricBlockEntityTypeBuilder;
 import net.minecraft.block.entity.BlockEntityType;
 import net.minecraft.item.ItemGroup;
 import net.minecraft.item.ItemStack;
 import net.minecraft.recipe.RecipeSerializer;
+import net.minecraft.registry.Registries;
+import net.minecraft.registry.Registry;
 import net.minecraft.screen.ScreenHandlerType;
 import net.minecraft.util.Hand;
 import net.minecraft.util.Identifier;
-import net.minecraft.util.registry.Registry;
-import software.bernie.geckolib3.GeckoLib;
+import software.bernie.geckolib.GeckoLib;
 
 public class MCHaloMod implements ModInitializer {
 
@@ -62,25 +63,48 @@ public class MCHaloMod implements ModInitializer {
 	public static final Identifier ROCKETLAUNCHER = new Identifier(MODID, "rocketlauncher");
 	public static final Identifier lock_slot = new Identifier(MODID, "select_craft");
 	public static ScreenHandlerType<GunTableScreenHandler> SCREEN_HANDLER_TYPE;
-	public static final ItemGroup HALOTAB = FabricItemGroupBuilder.create(new Identifier(MODID, "items"))
-			.icon(() -> new ItemStack(HaloItems.ENERGYSWORD)).build();
+	public static final ItemGroup HALOTAB = FabricItemGroup.builder(new Identifier(MODID, "items"))
+		    .icon(() -> new ItemStack(HaloItems.ENERGYSWORD))
+		    .entries((enabledFeatures, entries, operatorEnabled) -> {
+		        entries.add(HaloItems.ENERGYSWORD);
+		        entries.add(HaloItems.MAGNUM);
+		        entries.add(HaloItems.BATTLERIFLE);
+		        entries.add(HaloItems.BULLETCLIP);
+		        entries.add(HaloItems.SHOTGUN);
+		        entries.add(HaloItems.MAULER);
+		        entries.add(HaloItems.SHOTGUN_CLIP);
+		        entries.add(HaloItems.SNIPER);
+		        entries.add(HaloItems.SNIPER_ROUND);
+		        entries.add(HaloItems.BRUTESHOT);
+		        entries.add(HaloItems.GRENADE);
+		        entries.add(HaloItems.NEEDLER);
+		        entries.add(HaloItems.NEEDLES);
+		        entries.add(HaloItems.PLASMAPISTOL);
+		        entries.add(HaloItems.PLASMARIFLE);
+		        entries.add(HaloItems.BATTERIES);
+		        entries.add(HaloItems.ROCKETLAUNCHER);
+		        entries.add(HaloItems.ROCKET);
+		        entries.add(HaloItems.PROPSHIELD);
+		        entries.add(HaloItems.GUN_TABLE);
+		    })
+		    .build();
 	public static final RecipeSerializer<GunTableRecipe> GUN_TABLE_RECIPE_SERIALIZER = Registry
-			.register(Registry.RECIPE_SERIALIZER, new Identifier(MODID, "gun_table"), new GunTableRecipe.Serializer());
+			.register(Registries.RECIPE_SERIALIZER, new Identifier(MODID, "gun_table"), new GunTableRecipe.Serializer());
 
 	@Override
 	public void onInitialize() {
 		CustomMidnightConfig.init(MODID, HaloConfig.class);
-		Registry.register(Registry.BLOCK, new Identifier(MODID, "gun_table"), GUN_TABLE);
+		Registry.register(Registries.BLOCK, new Identifier(MODID, "gun_table"), GUN_TABLE);
 		ITEMS = new HaloItems();
 		SOUNDS = new HaloSounds();
 		PROJECTILES = new ProjectilesEntityRegister();
-		GUN_TABLE_ENTITY = Registry.register(Registry.BLOCK_ENTITY_TYPE, MODID + ":guntable",
+		GUN_TABLE_ENTITY = Registry.register(Registries.BLOCK_ENTITY_TYPE, MODID + ":guntable",
 				FabricBlockEntityTypeBuilder.create(GunBlockEntity::new, GUN_TABLE).build(null));
-		Registry.register(Registry.BLOCK, new Identifier(MODID, "lightblock"), TICKING_LIGHT_BLOCK);
-		TICKING_LIGHT_ENTITY = Registry.register(Registry.BLOCK_ENTITY_TYPE, MODID + ":lightblock",
+		Registry.register(Registries.BLOCK, new Identifier(MODID, "lightblock"), TICKING_LIGHT_BLOCK);
+		TICKING_LIGHT_ENTITY = Registry.register(Registries.BLOCK_ENTITY_TYPE, MODID + ":lightblock",
 				FabricBlockEntityTypeBuilder.create(TickingLightEntity::new, TICKING_LIGHT_BLOCK).build(null));
 		SCREEN_HANDLER_TYPE = new ScreenHandlerType<>(GunTableScreenHandler::new);
-		Registry.register(Registry.SCREEN_HANDLER, new Identifier(MODID, "guntable_screen_type"), SCREEN_HANDLER_TYPE);
+		Registry.register(Registries.SCREEN_HANDLER, new Identifier(MODID, "guntable_screen_type"), SCREEN_HANDLER_TYPE);
 		GeckoLib.initialize();
 		ServerPlayNetworking.registerGlobalReceiver(lock_slot, new C2SMessageSelectCraft());
 		ServerPlayNetworking.registerGlobalReceiver(MCHaloMod.SNIPER,

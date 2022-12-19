@@ -1,0 +1,52 @@
+{
+	"variants": {
+		"level=0": {
+			"model": "mchalo:block/lightblock"
+		},
+		"level=1": {
+			"model": "mchalo:block/lightblock"
+		},
+		"level=2": {
+			"model": "mchalo:block/lightblock"
+		},
+		"level=3": {
+			"model": "mchalo:block/lightblock"
+		},
+		"level=4": {
+			"model": "mchalo:block/lightblock"
+		},
+		"level=5": {
+			"model": "mchalo:block/lightblock"
+		},
+		"level=6": {
+			"model": "mchalo:block/lightblock"
+		},
+		"level=7": {
+			"model": "mchalo:block/lightblock"
+		},
+		"level=8": {
+			"model": "mchalo:block/lightblock"
+		},
+		"level=9": {
+			"model": "mchalo:block/lightblock"
+		},
+		"level=10": {
+			"model": "mchalo:block/lightblock"
+		},
+		"level=11": {
+			"model": "mchalo:block/lightblock"
+		},
+		"level=12": {
+			"model": "mchalo:block/lightblock"
+		},
+		"level=13": {
+			"model": "mchalo:block/lightblock"
+		},
+		"level=14": {
+			"model": "mchalo:block/lightblock"
+		},
+		"level=15": {
+			"model": "mchalo:block/lightblock"
+		}
+	}
+}

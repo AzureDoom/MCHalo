@@ -1,7 +1,6 @@
 package mod.azure.mchalo.entity.projectiles;
 
 import mod.azure.mchalo.config.HaloConfig;
-import mod.azure.mchalo.network.HaloEntityPacket;
 import mod.azure.mchalo.util.HaloItems;
 import mod.azure.mchalo.util.ProjectilesEntityRegister;
 import net.fabricmc.api.EnvType;
@@ -18,22 +17,22 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.network.Packet;
+import net.minecraft.network.listener.ClientPlayPacketListener;
+import net.minecraft.network.packet.s2c.play.EntitySpawnS2CPacket;
 import net.minecraft.particle.ParticleTypes;
 import net.minecraft.sound.SoundEvent;
 import net.minecraft.sound.SoundEvents;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.hit.EntityHitResult;
 import net.minecraft.world.World;
-import net.minecraft.world.explosion.Explosion;
-import software.bernie.geckolib3.core.IAnimatable;
-import software.bernie.geckolib3.core.PlayState;
-import software.bernie.geckolib3.core.builder.AnimationBuilder;
-import software.bernie.geckolib3.core.controller.AnimationController;
-import software.bernie.geckolib3.core.event.predicate.AnimationEvent;
-import software.bernie.geckolib3.core.manager.AnimationData;
-import software.bernie.geckolib3.core.manager.AnimationFactory;
+import software.bernie.geckolib.animatable.GeoEntity;
+import software.bernie.geckolib.core.animatable.instance.AnimatableInstanceCache;
+import software.bernie.geckolib.core.animation.AnimatableManager.ControllerRegistrar;
+import software.bernie.geckolib.core.animation.AnimationController;
+import software.bernie.geckolib.core.object.PlayState;
+import software.bernie.geckolib.util.GeckoLibUtil;
 
-public class GrenadeEntity extends PersistentProjectileEntity implements IAnimatable {
+public class GrenadeEntity extends PersistentProjectileEntity implements GeoEntity {
 
 	protected int timeInAir;
 	protected boolean inAir;
@@ -41,6 +40,7 @@ public class GrenadeEntity extends PersistentProjectileEntity implements IAnimat
 	private int ticksInAir;
 	private static final TrackedData<Boolean> SPINNING = DataTracker.registerData(GrenadeEntity.class,
 			TrackedDataHandlerRegistry.BOOLEAN);
+	private final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this);
 
 	public GrenadeEntity(EntityType<? extends GrenadeEntity> entityType, World world) {
 		super(entityType, world);
@@ -79,26 +79,21 @@ public class GrenadeEntity extends PersistentProjectileEntity implements IAnimat
 		this.dataTracker.set(SPINNING, spin);
 	}
 
-	private AnimationFactory factory = new AnimationFactory(this);
-
-	private <E extends IAnimatable> PlayState predicate(AnimationEvent<E> event) {
-		event.getController().setAnimation(new AnimationBuilder().addAnimation("spin", true));
-		return PlayState.CONTINUE;
+	@Override
+	public void registerControllers(ControllerRegistrar controllers) {
+		controllers.add(new AnimationController<>(this, event -> {
+			return PlayState.CONTINUE;
+		}));
 	}
 
 	@Override
-	public void registerControllers(AnimationData data) {
-		data.addAnimationController(new AnimationController<GrenadeEntity>(this, "controller", 0, this::predicate));
+	public AnimatableInstanceCache getAnimatableInstanceCache() {
+		return this.cache;
 	}
 
 	@Override
-	public AnimationFactory getFactory() {
-		return this.factory;
-	}
-
-	@Override
-	public Packet<?> createSpawnPacket() {
-		return HaloEntityPacket.createPacket(this);
+	public Packet<ClientPlayPacketListener> createSpawnPacket() {
+		return new EntitySpawnS2CPacket(this);
 	}
 
 	@Override
@@ -190,7 +185,7 @@ public class GrenadeEntity extends PersistentProjectileEntity implements IAnimat
 	protected void explode() {
 		this.world.createExplosion(this, this.getX(), this.getBodyY(0.0625D), this.getZ(),
 				HaloConfig.mauler_bullet_damage, (HaloConfig.grenades_cause_fire ? true : false),
-				(HaloConfig.grenades_break_blocks ? Explosion.DestructionType.BREAK : Explosion.DestructionType.NONE));
+				(HaloConfig.grenades_break_blocks ? World.ExplosionSourceType.BLOCK : World.ExplosionSourceType.NONE));
 	}
 
 	@Override

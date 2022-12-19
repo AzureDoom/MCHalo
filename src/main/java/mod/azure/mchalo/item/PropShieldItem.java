@@ -1,41 +1,40 @@
 package mod.azure.mchalo.item;
 
 import java.util.List;
+import java.util.function.Consumer;
+import java.util.function.Supplier;
 
-import mod.azure.mchalo.MCHaloMod;
+import mod.azure.mchalo.client.render.PropShieldRender;
 import mod.azure.mchalo.config.HaloConfig;
 import net.minecraft.client.item.TooltipContext;
+import net.minecraft.client.render.item.BuiltinModelItemRenderer;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
-import net.minecraft.tag.ItemTags;
+import net.minecraft.registry.tag.ItemTags;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.Hand;
 import net.minecraft.util.TypedActionResult;
 import net.minecraft.util.UseAction;
 import net.minecraft.world.World;
-import software.bernie.geckolib3.core.AnimationState;
-import software.bernie.geckolib3.core.IAnimatable;
-import software.bernie.geckolib3.core.PlayState;
-import software.bernie.geckolib3.core.builder.AnimationBuilder;
-import software.bernie.geckolib3.core.controller.AnimationController;
-import software.bernie.geckolib3.core.event.predicate.AnimationEvent;
-import software.bernie.geckolib3.core.manager.AnimationData;
-import software.bernie.geckolib3.core.manager.AnimationFactory;
-import software.bernie.geckolib3.network.GeckoLibNetwork;
-import software.bernie.geckolib3.network.ISyncable;
-import software.bernie.geckolib3.util.GeckoLibUtil;
+import software.bernie.geckolib.animatable.GeoItem;
+import software.bernie.geckolib.animatable.SingletonGeoAnimatable;
+import software.bernie.geckolib.animatable.client.RenderProvider;
+import software.bernie.geckolib.core.animatable.instance.AnimatableInstanceCache;
+import software.bernie.geckolib.core.animation.AnimatableManager.ControllerRegistrar;
+import software.bernie.geckolib.core.animation.AnimationController;
+import software.bernie.geckolib.core.object.PlayState;
+import software.bernie.geckolib.util.GeckoLibUtil;
 
-public class PropShieldItem extends Item implements IAnimatable, ISyncable {
+public class PropShieldItem extends Item implements GeoItem {
 
-	public AnimationFactory factory = new AnimationFactory(this);
-	public String controllerName = "controller";
-	public static final int ANIM_OPEN = 0;
+	private final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this);
+	private final Supplier<Object> renderProvider = GeoItem.makeRenderer(this);
 
 	public PropShieldItem() {
-		super(new Item.Settings().group(MCHaloMod.HALOTAB).maxCount(1).maxDamage(HaloConfig.propshield_max_damage + 1));
-		GeckoLibNetwork.registerSyncable(this);
+		super(new Item.Settings().maxCount(1).maxDamage(HaloConfig.propshield_max_damage + 1));
+		SingletonGeoAnimatable.registerSyncedAnimatable(this);
 	}
 
 	public UseAction getUseAction(ItemStack stack) {
@@ -64,29 +63,31 @@ public class PropShieldItem extends Item implements IAnimatable, ISyncable {
 				.formatted(Formatting.ITALIC));
 	}
 
-	public <P extends Item & IAnimatable> PlayState predicate(AnimationEvent<P> event) {
-		return PlayState.CONTINUE;
+	@Override
+	public AnimatableInstanceCache getAnimatableInstanceCache() {
+		return this.cache;
 	}
 
 	@Override
-	public void onAnimationSync(int id, int state) {
-		if (state == ANIM_OPEN) {
-			final AnimationController<?> controller = GeckoLibUtil.getControllerForID(this.factory, id, controllerName);
-			if (controller.getAnimationState() == AnimationState.Stopped) {
-				controller.markNeedsReload();
-				controller.setAnimation(new AnimationBuilder().addAnimation("firing", false));
+	public void registerControllers(ControllerRegistrar controllers) {
+		controllers.add(new AnimationController<>(this, "shoot_controller", event -> PlayState.CONTINUE));
+	}
+
+	@Override
+	public void createRenderer(Consumer<Object> consumer) {
+		consumer.accept(new RenderProvider() {
+			private final PropShieldRender renderer = new PropShieldRender();
+
+			@Override
+			public BuiltinModelItemRenderer getCustomRenderer() {
+				return this.renderer;
 			}
-		}
+		});
 	}
 
 	@Override
-	public AnimationFactory getFactory() {
-		return this.factory;
-	}
-
-	@Override
-	public void registerControllers(AnimationData data) {
-		data.addAnimationController(new AnimationController(this, controllerName, 1, this::predicate));
+	public Supplier<Object> getRenderProvider() {
+		return this.renderProvider;
 	}
 
 }

@@ -1,42 +1,42 @@
 package mod.azure.mchalo.item.ammo;
 
-import mod.azure.mchalo.MCHaloMod;
+import java.util.function.Consumer;
+import java.util.function.Supplier;
+
+import mod.azure.mchalo.client.render.projectiles.GrenadeItemRender;
 import mod.azure.mchalo.entity.projectiles.GrenadeEntity;
+import net.minecraft.client.render.item.BuiltinModelItemRenderer;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.BlockItem;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.Hand;
 import net.minecraft.util.TypedActionResult;
 import net.minecraft.world.World;
-import software.bernie.geckolib3.core.IAnimatable;
-import software.bernie.geckolib3.core.PlayState;
-import software.bernie.geckolib3.core.controller.AnimationController;
-import software.bernie.geckolib3.core.event.predicate.AnimationEvent;
-import software.bernie.geckolib3.core.manager.AnimationData;
-import software.bernie.geckolib3.core.manager.AnimationFactory;
+import software.bernie.geckolib.animatable.GeoItem;
+import software.bernie.geckolib.animatable.client.RenderProvider;
+import software.bernie.geckolib.core.animatable.instance.AnimatableInstanceCache;
+import software.bernie.geckolib.core.animation.AnimatableManager.ControllerRegistrar;
+import software.bernie.geckolib.core.animation.AnimationController;
+import software.bernie.geckolib.core.object.PlayState;
+import software.bernie.geckolib.util.GeckoLibUtil;
 
-public class GrenadeItem extends Item implements IAnimatable {
+public class GrenadeItem extends Item implements GeoItem {
 
-	public AnimationFactory factory = new AnimationFactory(this);
-	public String controllerName = "controller";
+	private final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this);
+	private final Supplier<Object> renderProvider = GeoItem.makeRenderer(this);
 
 	public GrenadeItem() {
-		super(new Item.Settings().group(MCHaloMod.HALOTAB));
-	}
-
-	public <P extends BlockItem & IAnimatable> PlayState predicate(AnimationEvent<P> event) {
-		return PlayState.CONTINUE;
+		super(new Item.Settings());
 	}
 
 	@Override
-	public void registerControllers(AnimationData data) {
-		data.addAnimationController(new AnimationController(this, controllerName, 1, this::predicate));
+	public void registerControllers(ControllerRegistrar controllers) {
+		controllers.add(new AnimationController<>(this, "shoot_controller", event -> PlayState.CONTINUE));
 	}
 
 	@Override
-	public AnimationFactory getFactory() {
-		return this.factory;
+	public AnimatableInstanceCache getAnimatableInstanceCache() {
+		return this.cache;
 	}
 
 	public TypedActionResult<ItemStack> use(World world, PlayerEntity user, Hand hand) {
@@ -56,6 +56,23 @@ public class GrenadeItem extends Item implements IAnimatable {
 		} else {
 			return TypedActionResult.fail(itemStack);
 		}
+	}
+
+	@Override
+	public void createRenderer(Consumer<Object> consumer) {
+		consumer.accept(new RenderProvider() {
+			private final GrenadeItemRender renderer = new GrenadeItemRender();
+
+			@Override
+			public BuiltinModelItemRenderer getCustomRenderer() {
+				return this.renderer;
+			}
+		});
+	}
+
+	@Override
+	public Supplier<Object> getRenderProvider() {
+		return this.renderProvider;
 	}
 
 }

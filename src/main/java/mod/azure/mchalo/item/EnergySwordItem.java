@@ -1,11 +1,15 @@
 package mod.azure.mchalo.item;
 
+import java.util.function.Consumer;
+import java.util.function.Supplier;
+
 import io.netty.buffer.Unpooled;
 import mod.azure.mchalo.MCHaloMod;
 import mod.azure.mchalo.client.ClientInit;
+import mod.azure.mchalo.client.render.EnergySwordRender;
 import mod.azure.mchalo.util.HaloItems;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
-import net.fabricmc.fabric.api.networking.v1.PlayerLookup;
+import net.minecraft.client.render.item.BuiltinModelItemRenderer;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.damage.DamageSource;
@@ -15,83 +19,42 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.item.SwordItem;
 import net.minecraft.item.ToolMaterials;
 import net.minecraft.network.PacketByteBuf;
-import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.Hand;
 import net.minecraft.util.Rarity;
 import net.minecraft.util.math.Box;
 import net.minecraft.world.World;
-import software.bernie.geckolib3.core.AnimationState;
-import software.bernie.geckolib3.core.IAnimatable;
-import software.bernie.geckolib3.core.PlayState;
-import software.bernie.geckolib3.core.builder.AnimationBuilder;
-import software.bernie.geckolib3.core.controller.AnimationController;
-import software.bernie.geckolib3.core.event.predicate.AnimationEvent;
-import software.bernie.geckolib3.core.manager.AnimationData;
-import software.bernie.geckolib3.core.manager.AnimationFactory;
-import software.bernie.geckolib3.network.GeckoLibNetwork;
-import software.bernie.geckolib3.network.ISyncable;
-import software.bernie.geckolib3.util.GeckoLibUtil;
+import software.bernie.geckolib.animatable.GeoItem;
+import software.bernie.geckolib.animatable.SingletonGeoAnimatable;
+import software.bernie.geckolib.animatable.client.RenderProvider;
+import software.bernie.geckolib.core.animatable.instance.AnimatableInstanceCache;
+import software.bernie.geckolib.core.animation.AnimatableManager.ControllerRegistrar;
+import software.bernie.geckolib.core.animation.AnimationController;
+import software.bernie.geckolib.core.object.PlayState;
+import software.bernie.geckolib.util.GeckoLibUtil;
 
-public class EnergySwordItem extends SwordItem implements IAnimatable, ISyncable {
+public class EnergySwordItem extends SwordItem implements GeoItem {
 
-	public AnimationFactory factory = new AnimationFactory(this);
-	public String controllerName = "controller";
-	public static final int ANIM_OPENING = 0;
-	public static final int ANIM_OPENED = 1;
-	public static final int ANIM_CLOSING = 2;
-	public static final int ANIM_CLOSED = 3;
+	private final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this);
+	private final Supplier<Object> renderProvider = GeoItem.makeRenderer(this);
 
 	public EnergySwordItem() {
-		super(ToolMaterials.DIAMOND, 1, -2.0f, new Item.Settings().group(MCHaloMod.HALOTAB).maxCount(1).maxDamage(20));
-		GeckoLibNetwork.registerSyncable(this);
-	}
-
-	public <P extends Item & IAnimatable> PlayState predicate(AnimationEvent<P> event) {
-		return PlayState.CONTINUE;
+		super(ToolMaterials.DIAMOND, 1, -2.0f, new Item.Settings().maxCount(1).maxDamage(20));
+		SingletonGeoAnimatable.registerSyncedAnimatable(this);
 	}
 
 	@Override
-	public void registerControllers(AnimationData data) {
-		data.addAnimationController(new AnimationController(this, controllerName, 1, this::predicate));
+	public void registerControllers(ControllerRegistrar controllers) {
+		controllers.add(new AnimationController<>(this, "shoot_controller", event -> {
+//			if (MinecraftClient.getInstance().player.getMainHandStack() == event.getData(DataTickets.ITEMSTACK))
+//				return event.setAndContinue(RawAnimation.begin().thenPlay("opening").thenLoop("open_loop"));
+//			return event.setAndContinue(RawAnimation.begin().thenPlayAndHold("closing"));
+			return PlayState.STOP;
+		}));
 	}
 
 	@Override
-	public AnimationFactory getFactory() {
-		return this.factory;
-	}
-
-	@Override
-	public void onAnimationSync(int id, int state) {
-		if (state == ANIM_OPENING) {
-			final AnimationController<?> controller = GeckoLibUtil.getControllerForID(this.factory, id, controllerName);
-			if (controller.getAnimationState() == AnimationState.Stopped) {
-				controller.markNeedsReload();
-				controller.setAnimation(
-						new AnimationBuilder().addAnimation("opening", false).addAnimation("open_loop", false));
-			}
-		}
-		if (state == ANIM_OPENED) {
-			final AnimationController<?> controller = GeckoLibUtil.getControllerForID(this.factory, id, controllerName);
-			if (controller.getAnimationState() == AnimationState.Stopped) {
-				controller.markNeedsReload();
-				controller.setAnimation(new AnimationBuilder().addAnimation("open_loop"));
-			}
-		}
-		if (state == ANIM_CLOSING) {
-			final AnimationController<?> controller = GeckoLibUtil.getControllerForID(this.factory, id, controllerName);
-			if (controller.getAnimationState() == AnimationState.Stopped) {
-				controller.markNeedsReload();
-				controller.setAnimation(
-						new AnimationBuilder().addAnimation("closing", false).addAnimation("closed_loop", false));
-			}
-		}
-		if (state == ANIM_CLOSED) {
-			final AnimationController<?> controller = GeckoLibUtil.getControllerForID(this.factory, id, controllerName);
-			if (controller.getAnimationState() == AnimationState.Stopped) {
-				controller.markNeedsReload();
-				controller.setAnimation(new AnimationBuilder().addAnimation("closed_loop"));
-			}
-		}
+	public AnimatableInstanceCache getAnimatableInstanceCache() {
+		return this.cache;
 	}
 
 	public void removeAmmo(Item ammo, PlayerEntity playerEntity) {
@@ -119,15 +82,6 @@ public class EnergySwordItem extends SwordItem implements IAnimatable, ISyncable
 					PacketByteBuf passedData = new PacketByteBuf(Unpooled.buffer());
 					passedData.writeBoolean(true);
 					ClientPlayNetworking.send(MCHaloMod.ENERGYSWORD, passedData);
-				}
-			}
-		}
-		if (!world.isClient) {
-			final int id = GeckoLibUtil.guaranteeIDForStack(stack, (ServerWorld) world);
-			if (((PlayerEntity) entity).getMainHandStack().getItem() instanceof EnergySwordItem) {
-				GeckoLibNetwork.syncAnimation((PlayerEntity) entity, this, id, selected ? ANIM_OPENED : ANIM_CLOSED);
-				for (PlayerEntity otherPlayer : PlayerLookup.tracking((PlayerEntity) entity)) {
-					GeckoLibNetwork.syncAnimation(otherPlayer, this, id, selected ? ANIM_OPENED : ANIM_CLOSED);
 				}
 			}
 		}
@@ -186,6 +140,23 @@ public class EnergySwordItem extends SwordItem implements IAnimatable, ISyncable
 	@Override
 	public Rarity getRarity(ItemStack stack) {
 		return Rarity.EPIC;
+	}
+
+	@Override
+	public void createRenderer(Consumer<Object> consumer) {
+		consumer.accept(new RenderProvider() {
+			private final EnergySwordRender renderer = new EnergySwordRender();
+
+			@Override
+			public BuiltinModelItemRenderer getCustomRenderer() {
+				return this.renderer;
+			}
+		});
+	}
+
+	@Override
+	public Supplier<Object> getRenderProvider() {
+		return this.renderProvider;
 	}
 
 }

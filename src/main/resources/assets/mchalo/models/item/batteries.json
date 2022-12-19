@@ -1,6 +1,6 @@
 {
   "parent": "item/generated",
   "textures": {
-    "layer0": "mchalo:items/batteries"
+    "layer0": "mchalo:item/batteries"
   }
 }

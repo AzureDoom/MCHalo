@@ -1,8 +1,8 @@
 {
 	"credit": "Made with Blockbench",
 	"textures": {
-		"shell": "mchalo:items/shotgun_clip",
-		"shell_box": "mchalo:items/shotgun_clip"
+		"shell": "mchalo:item/shotgun_clip",
+		"shell_box": "mchalo:item/shotgun_clip"
 	},
 	"elements": [
 		{

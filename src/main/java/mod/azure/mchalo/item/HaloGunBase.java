@@ -26,28 +26,22 @@ import net.minecraft.util.Hand;
 import net.minecraft.util.TypedActionResult;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
-import software.bernie.geckolib3.core.AnimationState;
-import software.bernie.geckolib3.core.IAnimatable;
-import software.bernie.geckolib3.core.PlayState;
-import software.bernie.geckolib3.core.builder.AnimationBuilder;
-import software.bernie.geckolib3.core.controller.AnimationController;
-import software.bernie.geckolib3.core.event.predicate.AnimationEvent;
-import software.bernie.geckolib3.core.manager.AnimationData;
-import software.bernie.geckolib3.core.manager.AnimationFactory;
-import software.bernie.geckolib3.network.GeckoLibNetwork;
-import software.bernie.geckolib3.network.ISyncable;
-import software.bernie.geckolib3.util.GeckoLibUtil;
+import software.bernie.geckolib.animatable.GeoItem;
+import software.bernie.geckolib.core.animatable.instance.AnimatableInstanceCache;
+import software.bernie.geckolib.core.animation.AnimatableManager.ControllerRegistrar;
+import software.bernie.geckolib.core.animation.Animation.LoopType;
+import software.bernie.geckolib.core.animation.AnimationController;
+import software.bernie.geckolib.core.animation.RawAnimation;
+import software.bernie.geckolib.core.object.PlayState;
+import software.bernie.geckolib.util.GeckoLibUtil;
 
-public class HaloGunBase extends Item implements IAnimatable, ISyncable {
+public abstract class HaloGunBase extends Item implements GeoItem {
 
-	public AnimationFactory factory = new AnimationFactory(this);
-	public String controllerName = "controller";
-	public static final int ANIM_OPEN = 0;
+	private final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this);
 	private BlockPos lightBlockPos = null;
 
 	public HaloGunBase(Settings settings) {
 		super(settings);
-		GeckoLibNetwork.registerSyncable(this);
 	}
 
 	public void removeAmmo(Item ammo, PlayerEntity playerEntity) {
@@ -96,29 +90,15 @@ public class HaloGunBase extends Item implements IAnimatable, ISyncable {
 		return TypedActionResult.consume(user.getStackInHand(hand));
 	}
 
-	public <P extends Item & IAnimatable> PlayState predicate(AnimationEvent<P> event) {
-		return PlayState.CONTINUE;
+	@Override
+	public void registerControllers(ControllerRegistrar controllers) {
+		controllers.add(new AnimationController<>(this, "shoot_controller", event -> PlayState.CONTINUE)
+				.triggerableAnim("firing", RawAnimation.begin().then("firing", LoopType.PLAY_ONCE)));
 	}
 
 	@Override
-	public void registerControllers(AnimationData data) {
-		data.addAnimationController(new AnimationController(this, controllerName, 1, this::predicate));
-	}
-
-	@Override
-	public AnimationFactory getFactory() {
-		return this.factory;
-	}
-
-	@Override
-	public void onAnimationSync(int id, int state) {
-		if (state == ANIM_OPEN) {
-			final AnimationController<?> controller = GeckoLibUtil.getControllerForID(this.factory, id, controllerName);
-			if (controller.getAnimationState() == AnimationState.Stopped) {
-				controller.markNeedsReload();
-				controller.setAnimation(new AnimationBuilder().addAnimation("firing", false));
-			}
-		}
+	public AnimatableInstanceCache getAnimatableInstanceCache() {
+		return this.cache;
 	}
 
 	public BulletEntity createBullet(World worldIn, ItemStack stack, LivingEntity shooter, Float damage) {

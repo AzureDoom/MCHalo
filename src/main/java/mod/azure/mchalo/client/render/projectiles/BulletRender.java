@@ -10,7 +10,7 @@ import net.minecraft.util.Identifier;
 
 public class BulletRender extends ProjectileEntityRenderer<BulletEntity> {
 
-	private static final Identifier TEXTURE = new Identifier(MCHaloMod.MODID, "textures/items/empty.png");
+	private static final Identifier TEXTURE = new Identifier(MCHaloMod.MODID, "textures/item/empty.png");
 
 	public BulletRender(EntityRendererFactory.Context renderManagerIn) {
 		super(renderManagerIn);

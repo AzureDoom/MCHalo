@@ -5,7 +5,6 @@ import java.util.List;
 import mod.azure.mchalo.MCHaloMod;
 import mod.azure.mchalo.blocks.blockentity.TickingLightEntity;
 import mod.azure.mchalo.config.HaloConfig;
-import mod.azure.mchalo.network.HaloEntityPacket;
 import mod.azure.mchalo.util.HaloItems;
 import mod.azure.mchalo.util.HaloSounds;
 import mod.azure.mchalo.util.ProjectilesEntityRegister;
@@ -22,6 +21,8 @@ import net.minecraft.entity.projectile.PersistentProjectileEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.network.Packet;
+import net.minecraft.network.listener.ClientPlayPacketListener;
+import net.minecraft.network.packet.s2c.play.EntitySpawnS2CPacket;
 import net.minecraft.sound.SoundEvent;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.hit.EntityHitResult;
@@ -30,16 +31,14 @@ import net.minecraft.util.math.Box;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
-import net.minecraft.world.explosion.Explosion;
-import software.bernie.geckolib3.core.IAnimatable;
-import software.bernie.geckolib3.core.PlayState;
-import software.bernie.geckolib3.core.builder.AnimationBuilder;
-import software.bernie.geckolib3.core.controller.AnimationController;
-import software.bernie.geckolib3.core.event.predicate.AnimationEvent;
-import software.bernie.geckolib3.core.manager.AnimationData;
-import software.bernie.geckolib3.core.manager.AnimationFactory;
+import software.bernie.geckolib.animatable.GeoEntity;
+import software.bernie.geckolib.core.animatable.instance.AnimatableInstanceCache;
+import software.bernie.geckolib.core.animation.AnimatableManager.ControllerRegistrar;
+import software.bernie.geckolib.core.animation.AnimationController;
+import software.bernie.geckolib.core.object.PlayState;
+import software.bernie.geckolib.util.GeckoLibUtil;
 
-public class RocketEntity extends PersistentProjectileEntity implements IAnimatable {
+public class RocketEntity extends PersistentProjectileEntity implements GeoEntity {
 
 	protected int timeInAir;
 	protected boolean inAir;
@@ -47,6 +46,7 @@ public class RocketEntity extends PersistentProjectileEntity implements IAnimata
 	private LivingEntity shooter;
 	private BlockPos lightBlockPos = null;
 	private int idleTicks = 0;
+	private final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this);
 
 	public RocketEntity(EntityType<? extends RocketEntity> entityType, World world) {
 		super(entityType, world);
@@ -58,21 +58,16 @@ public class RocketEntity extends PersistentProjectileEntity implements IAnimata
 		this.shooter = owner;
 	}
 
-	private AnimationFactory factory = new AnimationFactory(this);
-
-	private <E extends IAnimatable> PlayState predicate(AnimationEvent<E> event) {
-		event.getController().setAnimation(new AnimationBuilder().addAnimation("idle", true));
-		return PlayState.CONTINUE;
+	@Override
+	public void registerControllers(ControllerRegistrar controllers) {
+		controllers.add(new AnimationController<>(this, event -> {
+			return PlayState.CONTINUE;
+		}));
 	}
 
 	@Override
-	public void registerControllers(AnimationData data) {
-		data.addAnimationController(new AnimationController<RocketEntity>(this, "controller", 0, this::predicate));
-	}
-
-	@Override
-	public AnimationFactory getFactory() {
-		return this.factory;
+	public AnimatableInstanceCache getAnimatableInstanceCache() {
+		return this.cache;
 	}
 
 	protected RocketEntity(EntityType<? extends RocketEntity> type, double x, double y, double z, World world) {
@@ -89,8 +84,8 @@ public class RocketEntity extends PersistentProjectileEntity implements IAnimata
 	}
 
 	@Override
-	public Packet<?> createSpawnPacket() {
-		return HaloEntityPacket.createPacket(this);
+	public Packet<ClientPlayPacketListener> createSpawnPacket() {
+		return new EntitySpawnS2CPacket(this);
 	}
 
 	@Override
@@ -265,7 +260,7 @@ public class RocketEntity extends PersistentProjectileEntity implements IAnimata
 					entity.damage(DamageSource.player((PlayerEntity) this.shooter), HaloConfig.rocketlauncher_damage);
 				}
 				this.world.createExplosion(this, this.getX(), this.getBodyY(0.0625D), this.getZ(), 0.0F,
-						Explosion.DestructionType.NONE);
+						World.ExplosionSourceType.NONE);
 			}
 		}
 	}

@@ -2,10 +2,11 @@ package mod.azure.mchalo.client.models;
 
 import mod.azure.mchalo.MCHaloMod;
 import mod.azure.mchalo.item.PropShieldItem;
+import net.minecraft.client.render.RenderLayer;
 import net.minecraft.util.Identifier;
-import software.bernie.geckolib3.model.AnimatedGeoModel;
+import software.bernie.geckolib.model.GeoModel;
 
-public class PropShieldModel extends AnimatedGeoModel<PropShieldItem> {
+public class PropShieldModel extends GeoModel<PropShieldItem> {
 	@Override
 	public Identifier getModelResource(PropShieldItem object) {
 		return new Identifier(MCHaloMod.MODID, "geo/prop_shield_h2.geo.json");
@@ -13,11 +14,16 @@ public class PropShieldModel extends AnimatedGeoModel<PropShieldItem> {
 
 	@Override
 	public Identifier getTextureResource(PropShieldItem object) {
-		return new Identifier(MCHaloMod.MODID, "textures/items/shield_h2.png");
+		return new Identifier(MCHaloMod.MODID, "textures/item/shield_h2.png");
 	}
 
 	@Override
 	public Identifier getAnimationResource(PropShieldItem animatable) {
 		return new Identifier(MCHaloMod.MODID, "animations/shield_h2.animation.json");
+	}
+
+	@Override
+	public RenderLayer getRenderType(PropShieldItem animatable, Identifier texture) {
+		return RenderLayer.getEntityTranslucent(getTextureResource(animatable));
 	}
 }

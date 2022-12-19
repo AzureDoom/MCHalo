@@ -37,13 +37,11 @@ public abstract class HeldItemRendererMixin {
 		ClientPlayerEntity clientPlayerEntity = this.client.player;
 		ItemStack itemStack = clientPlayerEntity.getMainHandStack();
 		ItemStack itemStack2 = clientPlayerEntity.getOffHandStack();
-		if ((this.mainHand.getItem() instanceof HaloGunBase)
-				&& ItemStack.areItemsEqualIgnoreDamage(mainHand, itemStack)) {
+		if ((this.mainHand.getItem() instanceof HaloGunBase) && ItemStack.areItemsEqual(mainHand, itemStack)) {
 			this.equipProgressMainHand = 1;
 			this.mainHand = itemStack;
 		}
-		if ((this.offHand.getItem() instanceof HaloGunBase)
-				&& ItemStack.areItemsEqualIgnoreDamage(offHand, itemStack2)) {
+		if ((this.offHand.getItem() instanceof HaloGunBase) && ItemStack.areItemsEqual(offHand, itemStack2)) {
 			this.equipProgressOffHand = 1;
 			this.offHand = itemStack2;
 		}

@@ -6,20 +6,7 @@ import org.lwjgl.glfw.GLFW;
 
 import mod.azure.mchalo.MCHaloMod;
 import mod.azure.mchalo.client.gui.GunTableScreen;
-import mod.azure.mchalo.client.render.BattleRifleRender;
-import mod.azure.mchalo.client.render.BruteShotRender;
-import mod.azure.mchalo.client.render.EnergySwordRender;
-import mod.azure.mchalo.client.render.MagnumRender;
-import mod.azure.mchalo.client.render.MaulerRender;
-import mod.azure.mchalo.client.render.NeedlerRender;
-import mod.azure.mchalo.client.render.PlasmaPistolRender;
-import mod.azure.mchalo.client.render.PlasmaRifleRender;
-import mod.azure.mchalo.client.render.PropShieldRender;
-import mod.azure.mchalo.client.render.RocketLauncherRender;
-import mod.azure.mchalo.client.render.ShotgunRender;
-import mod.azure.mchalo.client.render.SniperRender;
 import mod.azure.mchalo.client.render.projectiles.BulletRender;
-import mod.azure.mchalo.client.render.projectiles.GrenadeItemRender;
 import mod.azure.mchalo.client.render.projectiles.GrenadeRender;
 import mod.azure.mchalo.client.render.projectiles.NeedleRender;
 import mod.azure.mchalo.client.render.projectiles.PlasmaGRender;
@@ -37,7 +24,6 @@ import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.client.particle.v1.ParticleFactoryRegistry;
 import net.fabricmc.fabric.api.client.rendering.v1.EntityRendererRegistry;
-import net.fabricmc.fabric.api.event.client.ClientSpriteRegistryCallback;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.ingame.HandledScreens;
 import net.minecraft.client.item.ModelPredicateProviderRegistry;
@@ -47,10 +33,8 @@ import net.minecraft.client.world.ClientWorld;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.network.PacketByteBuf;
-import net.minecraft.screen.PlayerScreenHandler;
+import net.minecraft.registry.Registries;
 import net.minecraft.util.Identifier;
-import net.minecraft.util.registry.Registry;
-import software.bernie.geckolib3.renderers.geo.GeoItemRenderer;
 
 public class ClientInit implements ClientModInitializer {
 
@@ -65,19 +49,6 @@ public class ClientInit implements ClientModInitializer {
 		HandledScreens.register(MCHaloMod.SCREEN_HANDLER_TYPE, GunTableScreen::new);
 		KeyBindingHelper.registerKeyBinding(reload);
 		KeyBindingHelper.registerKeyBinding(scope);
-		GeoItemRenderer.registerItemRenderer(HaloItems.SNIPER, new SniperRender());
-		GeoItemRenderer.registerItemRenderer(HaloItems.SHOTGUN, new ShotgunRender());
-		GeoItemRenderer.registerItemRenderer(HaloItems.MAGNUM, new MagnumRender());
-		GeoItemRenderer.registerItemRenderer(HaloItems.BATTLERIFLE, new BattleRifleRender());
-		GeoItemRenderer.registerItemRenderer(HaloItems.ROCKETLAUNCHER, new RocketLauncherRender());
-		GeoItemRenderer.registerItemRenderer(HaloItems.PROPSHIELD, new PropShieldRender());
-		GeoItemRenderer.registerItemRenderer(HaloItems.ENERGYSWORD, new EnergySwordRender());
-		GeoItemRenderer.registerItemRenderer(HaloItems.NEEDLER, new NeedlerRender());
-		GeoItemRenderer.registerItemRenderer(HaloItems.BRUTESHOT, new BruteShotRender());
-		GeoItemRenderer.registerItemRenderer(HaloItems.MAULER, new MaulerRender());
-		GeoItemRenderer.registerItemRenderer(HaloItems.PLASMAPISTOL, new PlasmaPistolRender());
-		GeoItemRenderer.registerItemRenderer(HaloItems.PLASMARIFLE, new PlasmaRifleRender());
-		GeoItemRenderer.registerItemRenderer(HaloItems.GRENADE, new GrenadeItemRender());
 		EntityRendererRegistry.register(ProjectilesEntityRegister.BULLET, (ctx) -> new BulletRender(ctx));
 		EntityRendererRegistry.register(ProjectilesEntityRegister.NEEDLE, (ctx) -> new NeedleRender(ctx));
 		EntityRendererRegistry.register(ProjectilesEntityRegister.ROCKET, (ctx) -> new RocketRender(ctx));
@@ -99,10 +70,6 @@ public class ClientInit implements ClientModInitializer {
 		ClientPlayNetworking.registerGlobalReceiver(HaloEntityPacket.ID, (client, handler, buf, responseSender) -> {
 			onPacket(client, buf);
 		});
-		ClientSpriteRegistryCallback.event(PlayerScreenHandler.BLOCK_ATLAS_TEXTURE)
-				.register(((atlasTexture, registry) -> {
-					registry.register(new Identifier("mchalo", "particle/plasma"));
-				}));
 		ParticleFactoryRegistry.getInstance().register(HaloParticles.PLASMA, PlasmaParticle.PurpleFactory::new);
 		ParticleFactoryRegistry.getInstance().register(HaloParticles.PLASMAG, PlasmaParticle.GreenFactory::new);
 	}
@@ -113,7 +80,7 @@ public class ClientInit implements ClientModInitializer {
 
 	@Environment(EnvType.CLIENT)
 	public static void onPacket(MinecraftClient context, PacketByteBuf byteBuf) {
-		EntityType<?> type = Registry.ENTITY_TYPE.get(byteBuf.readVarInt());
+		EntityType<?> type = Registries.ENTITY_TYPE.get(byteBuf.readVarInt());
 		UUID entityUUID = byteBuf.readUuid();
 		int entityID = byteBuf.readVarInt();
 		double x = byteBuf.readDouble();

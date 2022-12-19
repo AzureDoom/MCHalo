@@ -2,7 +2,6 @@ package mod.azure.mchalo.entity.projectiles;
 
 import mod.azure.mchalo.MCHaloMod;
 import mod.azure.mchalo.blocks.blockentity.TickingLightEntity;
-import mod.azure.mchalo.network.HaloEntityPacket;
 import mod.azure.mchalo.util.HaloItems;
 import mod.azure.mchalo.util.HaloParticles;
 import mod.azure.mchalo.util.ProjectilesEntityRegister;
@@ -20,6 +19,8 @@ import net.minecraft.entity.projectile.PersistentProjectileEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.network.Packet;
+import net.minecraft.network.listener.ClientPlayPacketListener;
+import net.minecraft.network.packet.s2c.play.EntitySpawnS2CPacket;
 import net.minecraft.network.packet.s2c.play.GameStateChangeS2CPacket;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.sound.SoundEvent;
@@ -63,8 +64,8 @@ public class PlasmaEntity extends PersistentProjectileEntity {
 	}
 
 	@Override
-	public Packet<?> createSpawnPacket() {
-		return HaloEntityPacket.createPacket(this);
+	public Packet<ClientPlayPacketListener> createSpawnPacket() {
+		return new EntitySpawnS2CPacket(this);
 	}
 
 	@Override
