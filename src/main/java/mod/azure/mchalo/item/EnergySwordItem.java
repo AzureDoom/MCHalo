@@ -19,6 +19,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.item.SwordItem;
 import net.minecraft.item.ToolMaterials;
 import net.minecraft.network.PacketByteBuf;
+import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.Hand;
 import net.minecraft.util.Rarity;
 import net.minecraft.util.math.Box;
@@ -29,12 +30,13 @@ import software.bernie.geckolib.animatable.client.RenderProvider;
 import software.bernie.geckolib.core.animatable.instance.AnimatableInstanceCache;
 import software.bernie.geckolib.core.animation.AnimatableManager.ControllerRegistrar;
 import software.bernie.geckolib.core.animation.AnimationController;
+import software.bernie.geckolib.core.animation.RawAnimation;
 import software.bernie.geckolib.core.object.PlayState;
 import software.bernie.geckolib.util.GeckoLibUtil;
 
 public class EnergySwordItem extends SwordItem implements GeoItem {
 
-	private final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this);
+	private final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this, true);
 	private final Supplier<Object> renderProvider = GeoItem.makeRenderer(this);
 
 	public EnergySwordItem() {
@@ -43,18 +45,40 @@ public class EnergySwordItem extends SwordItem implements GeoItem {
 	}
 
 	@Override
-	public void registerControllers(ControllerRegistrar controllers) {
-		controllers.add(new AnimationController<>(this, "shoot_controller", event -> {
-//			if (MinecraftClient.getInstance().player.getMainHandStack() == event.getData(DataTickets.ITEMSTACK))
-//				return event.setAndContinue(RawAnimation.begin().thenPlay("opening").thenLoop("open_loop"));
-//			return event.setAndContinue(RawAnimation.begin().thenPlayAndHold("closing"));
-			return PlayState.STOP;
-		}));
+	public AnimatableInstanceCache getAnimatableInstanceCache() {
+		return this.cache;
 	}
 
 	@Override
-	public AnimatableInstanceCache getAnimatableInstanceCache() {
-		return this.cache;
+	public void registerControllers(ControllerRegistrar controllers) {
+		controllers.add(new AnimationController<>(this, "shoot_controller", event -> PlayState.CONTINUE)
+				.triggerableAnim("open", RawAnimation.begin().thenPlay("opening").thenLoop("open_loop"))
+				.triggerableAnim("close", RawAnimation.begin().thenPlayAndHold("closing"))
+				.setSoundKeyframeHandler(event -> {
+					if (event.getKeyframeData().getSound().matches("energy_open")) {
+					}
+					if (event.getKeyframeData().getSound().matches("energy_loop")) {
+					}
+				}));
+	}
+
+	@Override
+	public void inventoryTick(ItemStack stack, World world, Entity entity, int slot, boolean selected) {
+		if (!world.isClient)
+			if (((PlayerEntity) entity).getMainHandStack().isOf(this) && selected)
+				triggerAnim((PlayerEntity) entity, GeoItem.getOrAssignId(stack, (ServerWorld) world),
+						"shoot_controller", "open");
+			else
+				triggerAnim((PlayerEntity) entity, GeoItem.getOrAssignId(stack, (ServerWorld) world),
+						"shoot_controller", "close");
+		if (world.isClient)
+			if (((PlayerEntity) entity).getMainHandStack().getItem() instanceof EnergySwordItem) {
+				if (ClientInit.reload.isPressed() && selected) {
+					PacketByteBuf passedData = new PacketByteBuf(Unpooled.buffer());
+					passedData.writeBoolean(true);
+					ClientPlayNetworking.send(MCHaloMod.ENERGYSWORD, passedData);
+				}
+			}
 	}
 
 	public void removeAmmo(Item ammo, PlayerEntity playerEntity) {
@@ -69,19 +93,6 @@ public class EnergySwordItem extends SwordItem implements GeoItem {
 						item1.decrement(1);
 						break;
 					}
-				}
-			}
-		}
-	}
-
-	@Override
-	public void inventoryTick(ItemStack stack, World world, Entity entity, int slot, boolean selected) {
-		if (world.isClient) {
-			if (((PlayerEntity) entity).getMainHandStack().getItem() instanceof EnergySwordItem) {
-				if (ClientInit.reload.isPressed() && selected) {
-					PacketByteBuf passedData = new PacketByteBuf(Unpooled.buffer());
-					passedData.writeBoolean(true);
-					ClientPlayNetworking.send(MCHaloMod.ENERGYSWORD, passedData);
 				}
 			}
 		}

@@ -160,6 +160,20 @@
 			}
 		]
 	},
+	"energy_loop": {
+		"sounds": [
+			{
+				"name": "mchalo:energy_loop"
+			}
+		]
+	},
+	"energy_open": {
+		"sounds": [
+			{
+				"name": "mchalo:energy_open"
+			}
+		]
+	},
 	"brute_shot_melee1": {
 		"sounds": [
 			{

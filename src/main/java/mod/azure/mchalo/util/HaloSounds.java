@@ -31,6 +31,8 @@ public class HaloSounds {
 	public static SoundEvent ENERGYSWORD1A = of("energy_melee1a");
 	public static SoundEvent ENERGYSWORD1B = of("energy_melee1b");
 	public static SoundEvent ENERGYSWORD1C = of("energy_melee1c");
+	public static SoundEvent ENERGYSWORDLOOP = of("energy_loop");
+	public static SoundEvent ENERGYSWORDOPEN = of("energy_open");
 	public static SoundEvent BRUTESHOT_MELEE1 = of("brute_shot_melee1");
 	public static SoundEvent BRUTESHOT_MELEE2 = of("brute_shot_melee2");
 	public static SoundEvent BRUTESHOT_MELEE3 = of("brute_shot_melee3");
