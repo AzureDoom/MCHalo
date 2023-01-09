@@ -1,3 +1,4 @@
-v.1.1.10
+v.1.1.11
 
-- Added Engery Sword Animation
+- Fixes Config not saving in Mod Menu.
+- Fixes MonsterMixin that broke spawning.

@@ -1,11 +1,11 @@
 package mod.azure.mchalo;
 
+import eu.midnightdust.lib.config.MidnightConfig;
 import mod.azure.mchalo.blocks.GunTableBlock;
 import mod.azure.mchalo.blocks.TickingLightBlock;
 import mod.azure.mchalo.blocks.blockentity.GunBlockEntity;
 import mod.azure.mchalo.blocks.blockentity.TickingLightEntity;
 import mod.azure.mchalo.client.gui.GunTableScreenHandler;
-import mod.azure.mchalo.config.CustomMidnightConfig;
 import mod.azure.mchalo.config.HaloConfig;
 import mod.azure.mchalo.item.EnergySwordItem;
 import mod.azure.mchalo.item.guns.BattleRifleItem;
@@ -93,7 +93,7 @@ public class MCHaloMod implements ModInitializer {
 
 	@Override
 	public void onInitialize() {
-		CustomMidnightConfig.init(MODID, HaloConfig.class);
+		MidnightConfig.init(MODID, HaloConfig.class);
 		Registry.register(Registries.BLOCK, new Identifier(MODID, "gun_table"), GUN_TABLE);
 		ITEMS = new HaloItems();
 		SOUNDS = new HaloSounds();

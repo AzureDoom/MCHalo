@@ -1,6 +1,8 @@
 package mod.azure.mchalo.config;
 
-public class HaloConfig extends CustomMidnightConfig {
+import eu.midnightdust.lib.config.MidnightConfig;
+
+public class HaloConfig extends MidnightConfig {
 
 	@Entry
 	public static int battlerifle_max_ammo = 144;
