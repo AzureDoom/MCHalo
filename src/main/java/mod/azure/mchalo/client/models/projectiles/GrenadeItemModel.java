@@ -3,7 +3,7 @@ package mod.azure.mchalo.client.models.projectiles;
 import mod.azure.mchalo.MCHaloMod;
 import mod.azure.mchalo.item.ammo.GrenadeItem;
 import net.minecraft.util.Identifier;
-import software.bernie.geckolib.model.GeoModel;
+import mod.azure.azurelib.model.GeoModel;
 
 public class GrenadeItemModel extends GeoModel<GrenadeItem> {
 	@Override

@@ -1,5 +1,12 @@
 package mod.azure.mchalo.entity.projectiles;
 
+import mod.azure.azurelib.animatable.GeoEntity;
+import mod.azure.azurelib.core.animatable.instance.AnimatableInstanceCache;
+import mod.azure.azurelib.core.animation.AnimatableManager.ControllerRegistrar;
+import mod.azure.azurelib.core.animation.AnimationController;
+import mod.azure.azurelib.core.object.PlayState;
+import mod.azure.azurelib.network.packet.EntityPacket;
+import mod.azure.azurelib.util.AzureLibUtil;
 import mod.azure.mchalo.config.HaloConfig;
 import mod.azure.mchalo.util.HaloItems;
 import mod.azure.mchalo.util.ProjectilesEntityRegister;
@@ -18,19 +25,12 @@ import net.minecraft.item.Items;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.network.Packet;
 import net.minecraft.network.listener.ClientPlayPacketListener;
-import net.minecraft.network.packet.s2c.play.EntitySpawnS2CPacket;
 import net.minecraft.particle.ParticleTypes;
 import net.minecraft.sound.SoundEvent;
 import net.minecraft.sound.SoundEvents;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.hit.EntityHitResult;
 import net.minecraft.world.World;
-import software.bernie.geckolib.animatable.GeoEntity;
-import software.bernie.geckolib.core.animatable.instance.AnimatableInstanceCache;
-import software.bernie.geckolib.core.animation.AnimatableManager.ControllerRegistrar;
-import software.bernie.geckolib.core.animation.AnimationController;
-import software.bernie.geckolib.core.object.PlayState;
-import software.bernie.geckolib.util.GeckoLibUtil;
 
 public class GrenadeEntity extends PersistentProjectileEntity implements GeoEntity {
 
@@ -40,7 +40,7 @@ public class GrenadeEntity extends PersistentProjectileEntity implements GeoEnti
 	private int ticksInAir;
 	private static final TrackedData<Boolean> SPINNING = DataTracker.registerData(GrenadeEntity.class,
 			TrackedDataHandlerRegistry.BOOLEAN);
-	private final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this);
+	private final AnimatableInstanceCache cache = AzureLibUtil.createInstanceCache(this);
 
 	public GrenadeEntity(EntityType<? extends GrenadeEntity> entityType, World world) {
 		super(entityType, world);
@@ -93,7 +93,7 @@ public class GrenadeEntity extends PersistentProjectileEntity implements GeoEnti
 
 	@Override
 	public Packet<ClientPlayPacketListener> createSpawnPacket() {
-		return new EntitySpawnS2CPacket(this);
+		return EntityPacket.createPacket(this);
 	}
 
 	@Override

@@ -3,7 +3,7 @@ package mod.azure.mchalo.client.render;
 import mod.azure.mchalo.client.models.RocketLauncherModel;
 import mod.azure.mchalo.item.guns.RocketLauncherItem;
 import net.minecraft.client.render.model.json.ModelTransformation;
-import software.bernie.geckolib.renderer.GeoItemRenderer;
+import mod.azure.azurelib.renderer.GeoItemRenderer;
 
 public class RocketLauncherRender extends GeoItemRenderer<RocketLauncherItem> {
 

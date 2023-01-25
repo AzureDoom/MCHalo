@@ -12,7 +12,6 @@ import mod.azure.mchalo.client.render.projectiles.NeedleRender;
 import mod.azure.mchalo.client.render.projectiles.PlasmaGRender;
 import mod.azure.mchalo.client.render.projectiles.PlasmaRender;
 import mod.azure.mchalo.client.render.projectiles.RocketRender;
-import mod.azure.mchalo.network.HaloEntityPacket;
 import mod.azure.mchalo.particle.PlasmaParticle;
 import mod.azure.mchalo.util.HaloItems;
 import mod.azure.mchalo.util.HaloParticles;
@@ -21,7 +20,6 @@ import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
-import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.client.particle.v1.ParticleFactoryRegistry;
 import net.fabricmc.fabric.api.client.rendering.v1.EntityRendererRegistry;
 import net.minecraft.client.MinecraftClient;
@@ -67,9 +65,6 @@ public class ClientInit implements ClientModInitializer {
 						return isScoped() ? 1.0F : 0.0F;
 					return 0.0F;
 				});
-		ClientPlayNetworking.registerGlobalReceiver(HaloEntityPacket.ID, (client, handler, buf, responseSender) -> {
-			onPacket(client, buf);
-		});
 		ParticleFactoryRegistry.getInstance().register(HaloParticles.PLASMA, PlasmaParticle.PurpleFactory::new);
 		ParticleFactoryRegistry.getInstance().register(HaloParticles.PLASMAG, PlasmaParticle.GreenFactory::new);
 	}

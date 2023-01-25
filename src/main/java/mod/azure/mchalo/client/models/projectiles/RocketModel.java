@@ -4,7 +4,7 @@ import mod.azure.mchalo.MCHaloMod;
 import mod.azure.mchalo.entity.projectiles.RocketEntity;
 import net.minecraft.client.render.RenderLayer;
 import net.minecraft.util.Identifier;
-import software.bernie.geckolib.model.GeoModel;
+import mod.azure.azurelib.model.GeoModel;
 
 public class RocketModel extends GeoModel<RocketEntity> {
 	@Override

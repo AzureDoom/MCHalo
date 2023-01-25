@@ -1,5 +1,6 @@
 package mod.azure.mchalo.entity.projectiles;
 
+import mod.azure.azurelib.network.packet.EntityPacket;
 import mod.azure.mchalo.util.HaloItems;
 import mod.azure.mchalo.util.ProjectilesEntityRegister;
 import net.fabricmc.api.EnvType;
@@ -15,7 +16,6 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.network.Packet;
 import net.minecraft.network.listener.ClientPlayPacketListener;
-import net.minecraft.network.packet.s2c.play.EntitySpawnS2CPacket;
 import net.minecraft.network.packet.s2c.play.GameStateChangeS2CPacket;
 import net.minecraft.particle.ParticleTypes;
 import net.minecraft.server.network.ServerPlayerEntity;
@@ -58,7 +58,7 @@ public class BulletEntity extends PersistentProjectileEntity {
 
 	@Override
 	public Packet<ClientPlayPacketListener> createSpawnPacket() {
-		return new EntitySpawnS2CPacket(this);
+		return EntityPacket.createPacket(this);
 	}
 
 	@Override

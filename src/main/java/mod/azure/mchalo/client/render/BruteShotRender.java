@@ -3,7 +3,7 @@ package mod.azure.mchalo.client.render;
 import mod.azure.mchalo.client.models.BruteShotModel;
 import mod.azure.mchalo.item.guns.BruteShotItem;
 import net.minecraft.client.render.model.json.ModelTransformation;
-import software.bernie.geckolib.renderer.GeoItemRenderer;
+import mod.azure.azurelib.renderer.GeoItemRenderer;
 
 public class BruteShotRender extends GeoItemRenderer<BruteShotItem> {
 

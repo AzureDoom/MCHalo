@@ -1,6 +1,7 @@
 package mod.azure.mchalo;
 
 import eu.midnightdust.lib.config.MidnightConfig;
+import mod.azure.azurelib.AzureLib;
 import mod.azure.mchalo.blocks.GunTableBlock;
 import mod.azure.mchalo.blocks.TickingLightBlock;
 import mod.azure.mchalo.blocks.blockentity.GunBlockEntity;
@@ -36,7 +37,6 @@ import net.minecraft.registry.Registry;
 import net.minecraft.screen.ScreenHandlerType;
 import net.minecraft.util.Hand;
 import net.minecraft.util.Identifier;
-import software.bernie.geckolib.GeckoLib;
 
 public class MCHaloMod implements ModInitializer {
 
@@ -105,7 +105,7 @@ public class MCHaloMod implements ModInitializer {
 				FabricBlockEntityTypeBuilder.create(TickingLightEntity::new, TICKING_LIGHT_BLOCK).build(null));
 		SCREEN_HANDLER_TYPE = new ScreenHandlerType<>(GunTableScreenHandler::new);
 		Registry.register(Registries.SCREEN_HANDLER, new Identifier(MODID, "guntable_screen_type"), SCREEN_HANDLER_TYPE);
-		GeckoLib.initialize();
+		AzureLib.initialize();
 		ServerPlayNetworking.registerGlobalReceiver(lock_slot, new C2SMessageSelectCraft());
 		ServerPlayNetworking.registerGlobalReceiver(MCHaloMod.SNIPER,
 				(server, player, serverPlayNetworkHandler, inputPacket, packetSender) -> {
