@@ -2,15 +2,15 @@ package mod.azure.mchalo.entity.projectiles;
 
 import java.util.List;
 
+import mod.azure.azurelib.AzureLibMod;
 import mod.azure.azurelib.animatable.GeoEntity;
 import mod.azure.azurelib.core.animatable.instance.AnimatableInstanceCache;
 import mod.azure.azurelib.core.animation.AnimatableManager.ControllerRegistrar;
 import mod.azure.azurelib.core.animation.AnimationController;
 import mod.azure.azurelib.core.object.PlayState;
+import mod.azure.azurelib.entities.TickingLightEntity;
 import mod.azure.azurelib.network.packet.EntityPacket;
 import mod.azure.azurelib.util.AzureLibUtil;
-import mod.azure.mchalo.MCHaloMod;
-import mod.azure.mchalo.blocks.blockentity.TickingLightEntity;
 import mod.azure.mchalo.config.HaloConfig;
 import mod.azure.mchalo.util.HaloItems;
 import mod.azure.mchalo.util.HaloSounds;
@@ -147,7 +147,7 @@ public class RocketEntity extends PersistentProjectileEntity implements GeoEntit
 			lightBlockPos = findFreeSpace(world, getBlockPos(), 2);
 			if (lightBlockPos == null)
 				return;
-			world.setBlockState(lightBlockPos, MCHaloMod.TICKING_LIGHT_BLOCK.getDefaultState());
+			world.setBlockState(lightBlockPos, AzureLibMod.TICKING_LIGHT_BLOCK.getDefaultState());
 		} else if (checkDistance(lightBlockPos, getBlockPos(), 2)) {
 			BlockEntity blockEntity = world.getBlockEntity(lightBlockPos);
 			if (blockEntity instanceof TickingLightEntity) {
@@ -179,7 +179,7 @@ public class RocketEntity extends PersistentProjectileEntity implements GeoEntit
 				for (int z : offsets) {
 					BlockPos offsetPos = blockPos.add(x, y, z);
 					BlockState state = world.getBlockState(offsetPos);
-					if (state.isAir() || state.getBlock().equals(MCHaloMod.TICKING_LIGHT_BLOCK))
+					if (state.isAir() || state.getBlock().equals(AzureLibMod.TICKING_LIGHT_BLOCK))
 						return offsetPos;
 				}
 

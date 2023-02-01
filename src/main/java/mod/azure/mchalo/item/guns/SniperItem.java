@@ -32,6 +32,7 @@ import net.minecraft.util.Hand;
 import net.minecraft.util.Rarity;
 import net.minecraft.world.World;
 import mod.azure.azurelib.animatable.GeoItem;
+import mod.azure.azurelib.animatable.SingletonGeoAnimatable;
 import mod.azure.azurelib.animatable.client.RenderProvider;
 
 public class SniperItem extends HaloGunBase {
@@ -40,6 +41,7 @@ public class SniperItem extends HaloGunBase {
 	
 	public SniperItem() {
 		super(new Item.Settings().maxCount(1).maxDamage(HaloConfig.sniper_max_ammo + 1));
+		SingletonGeoAnimatable.registerSyncedAnimatable(this);
 	}
 
 	@Override
