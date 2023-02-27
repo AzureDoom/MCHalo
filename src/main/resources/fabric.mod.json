@@ -12,7 +12,7 @@
 		"sources": "https://github.com/AzureDoom/mchalo"
 	},
 	"license": "CC-BY-NC-4.0",
-	"icon": "assets/mchalo/icon.png",
+	"icon": "icon.png",
 	"environment": "*",
 	"entrypoints": {
 		"main": [
