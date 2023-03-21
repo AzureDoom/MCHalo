@@ -2,28 +2,28 @@ package mod.azure.mchalo.client.models.projectiles;
 
 import mod.azure.mchalo.MCHaloMod;
 import mod.azure.mchalo.entity.projectiles.NeedleEntity;
-import net.minecraft.client.render.RenderLayer;
-import net.minecraft.util.Identifier;
+import net.minecraft.client.renderer.RenderType;
+import net.minecraft.resources.ResourceLocation;
 import mod.azure.azurelib.model.GeoModel;
 
 public class NeedleModel extends GeoModel<NeedleEntity> {
 	@Override
-	public Identifier getModelResource(NeedleEntity object) {
-		return new Identifier(MCHaloMod.MODID, "geo/needle.geo.json");
+	public ResourceLocation getModelResource(NeedleEntity object) {
+		return new ResourceLocation(MCHaloMod.MODID, "geo/needle.geo.json");
 	}
 
 	@Override
-	public Identifier getTextureResource(NeedleEntity object) {
-		return new Identifier(MCHaloMod.MODID, "textures/item/needler.png");
+	public ResourceLocation getTextureResource(NeedleEntity object) {
+		return new ResourceLocation(MCHaloMod.MODID, "textures/item/needler.png");
 	}
 
 	@Override
-	public Identifier getAnimationResource(NeedleEntity animatable) {
-		return new Identifier(MCHaloMod.MODID, "animations/needle.animation.json");
+	public ResourceLocation getAnimationResource(NeedleEntity animatable) {
+		return new ResourceLocation(MCHaloMod.MODID, "animations/needle.animation.json");
 	}
 
 	@Override
-	public RenderLayer getRenderType(NeedleEntity animatable, Identifier texture) {
-		return RenderLayer.getEntityTranslucent(getTextureResource(animatable));
+	public RenderType getRenderType(NeedleEntity animatable, ResourceLocation texture) {
+		return RenderType.entityTranslucent(getTextureResource(animatable));
 	}
 }

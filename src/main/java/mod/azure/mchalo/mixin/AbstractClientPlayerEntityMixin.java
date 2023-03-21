@@ -9,31 +9,27 @@ import com.mojang.authlib.GameProfile;
 
 import mod.azure.mchalo.client.ClientInit;
 import mod.azure.mchalo.util.HaloItems;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.network.AbstractClientPlayerEntity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.player.AbstractClientPlayer;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.Level;
 
-@Mixin(AbstractClientPlayerEntity.class)
-public abstract class AbstractClientPlayerEntityMixin extends PlayerEntity {
+@Mixin(AbstractClientPlayer.class)
+public abstract class AbstractClientPlayerEntityMixin extends Player {
 
-
-	public AbstractClientPlayerEntityMixin(World world, BlockPos pos, float yaw, GameProfile gameProfile) {
+	public AbstractClientPlayerEntityMixin(Level world, BlockPos pos, float yaw, GameProfile gameProfile) {
 		super(world, pos, yaw, gameProfile);
 	}
 
-	@Inject(at = @At("HEAD"), method = "getFovMultiplier", cancellable = true)
+	@Inject(at = @At("HEAD"), method = "getFieldOfViewModifier", cancellable = true)
 	private void render(CallbackInfoReturnable<Float> ci) {
-		ItemStack itemStack = this.getMainHandStack();
-		if (MinecraftClient.getInstance().options.getPerspective().isFirstPerson()) {
-			if (itemStack.isOf(HaloItems.SNIPER)) {
-				ci.setReturnValue(ClientInit.scope.isPressed() ? 0.1F : 1.0F);
-			}
-			if (itemStack.isOf(HaloItems.BATTLERIFLE)) {
-				ci.setReturnValue(ClientInit.scope.isPressed() ? 0.5F : 1.0F);
-			}
+		var itemStack = this.getMainHandItem();
+		if (Minecraft.getInstance().options.getCameraType().isFirstPerson()) {
+			if (itemStack.is(HaloItems.SNIPER))
+				ci.setReturnValue(ClientInit.scope.isDown() ? 0.1F : 1.0F);
+			if (itemStack.is(HaloItems.BATTLERIFLE))
+				ci.setReturnValue(ClientInit.scope.isDown() ? 0.5F : 1.0F);
 		}
 	}
 }

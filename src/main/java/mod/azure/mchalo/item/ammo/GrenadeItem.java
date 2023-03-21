@@ -12,13 +12,13 @@ import mod.azure.azurelib.core.object.PlayState;
 import mod.azure.azurelib.util.AzureLibUtil;
 import mod.azure.mchalo.client.render.projectiles.GrenadeItemRender;
 import mod.azure.mchalo.entity.projectiles.GrenadeEntity;
-import net.minecraft.client.render.item.BuiltinModelItemRenderer;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.Hand;
-import net.minecraft.util.TypedActionResult;
-import net.minecraft.world.World;
+import net.minecraft.client.renderer.BlockEntityWithoutLevelRenderer;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResultHolder;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.Level;
 
 public class GrenadeItem extends Item implements GeoItem {
 
@@ -26,7 +26,7 @@ public class GrenadeItem extends Item implements GeoItem {
 	private final Supplier<Object> renderProvider = GeoItem.makeRenderer(this);
 
 	public GrenadeItem() {
-		super(new Item.Settings());
+		super(new Item.Properties());
 	}
 
 	@Override
@@ -39,33 +39,33 @@ public class GrenadeItem extends Item implements GeoItem {
 		return this.cache;
 	}
 
-	public TypedActionResult<ItemStack> use(World world, PlayerEntity user, Hand hand) {
-		ItemStack itemStack = user.getStackInHand(hand);
-		if (!user.getItemCooldownManager().isCoolingDown(this)) {
-			user.getItemCooldownManager().set(this, 25);
-			if (!world.isClient) {
-				GrenadeEntity snowballEntity = new GrenadeEntity(world, user);
-				snowballEntity.setVelocity(user, user.getPitch(), user.getYaw(), 0.0F, 0.75F, 1.0F);
-				snowballEntity.setDamage(0);
-				world.spawnEntity(snowballEntity);
+	public InteractionResultHolder<ItemStack> use(Level world, Player user, InteractionHand hand) {
+		var itemStack = user.getItemInHand(hand);
+		if (!user.getCooldowns().isOnCooldown(this)) {
+			user.getCooldowns().addCooldown(this, 25);
+			if (!world.isClientSide) {
+				var nadeEntity = new GrenadeEntity(world, user);
+				nadeEntity.shootFromRotation(user, user.getXRot(), user.getYRot(), 0.0F, 0.75F, 1.0F);
+				nadeEntity.setBaseDamage(0);
+				world.addFreshEntity(nadeEntity);
 			}
-			if (!user.getAbilities().creativeMode) {
-				itemStack.decrement(1);
-			}
-			return TypedActionResult.success(itemStack, world.isClient());
-		} else {
-			return TypedActionResult.fail(itemStack);
-		}
+			if (!user.getAbilities().instabuild)
+				itemStack.shrink(1);
+			return InteractionResultHolder.sidedSuccess(itemStack, world.isClientSide());
+		} else
+			return InteractionResultHolder.fail(itemStack);
 	}
 
 	@Override
 	public void createRenderer(Consumer<Object> consumer) {
 		consumer.accept(new RenderProvider() {
-			private final GrenadeItemRender renderer = new GrenadeItemRender();
+			private GrenadeItemRender renderer = null;
 
 			@Override
-			public BuiltinModelItemRenderer getCustomRenderer() {
-				return this.renderer;
+			public BlockEntityWithoutLevelRenderer getCustomRenderer() {
+				if (renderer == null)
+					return new GrenadeItemRender();
+				return renderer;
 			}
 		});
 	}

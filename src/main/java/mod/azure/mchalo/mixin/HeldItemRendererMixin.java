@@ -8,42 +8,41 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import mod.azure.mchalo.item.HaloGunBase;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.network.ClientPlayerEntity;
-import net.minecraft.client.render.item.HeldItemRenderer;
-import net.minecraft.item.ItemStack;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.ItemInHandRenderer;
+import net.minecraft.world.item.ItemStack;
 
-@Mixin(value = HeldItemRenderer.class)
+@Mixin(value = ItemInHandRenderer.class)
 public abstract class HeldItemRendererMixin {
 
 	@Shadow
 	@Final
-	private final MinecraftClient client;
+	private final Minecraft minecraft;
 	@Shadow
-	private float equipProgressMainHand;
+	private float mainHandHeight;
 	@Shadow
-	private float equipProgressOffHand;
+	private float offHandHeight;
 	@Shadow
-	private ItemStack mainHand;
+	private ItemStack mainHandItem;
 	@Shadow
-	private ItemStack offHand;
+	private ItemStack offHandItem;
 
-	public HeldItemRendererMixin(MinecraftClient client) {
-		this.client = client;
+	public HeldItemRendererMixin(Minecraft minecraft) {
+		this.minecraft = minecraft;
 	}
 
-	@Inject(method = "updateHeldItems", at = @At("TAIL"))
+	@Inject(method = "tick", at = @At("TAIL"))
 	public void fguns$cancelAnimation(CallbackInfo ci) {
-		ClientPlayerEntity clientPlayerEntity = this.client.player;
-		ItemStack itemStack = clientPlayerEntity.getMainHandStack();
-		ItemStack itemStack2 = clientPlayerEntity.getOffHandStack();
-		if ((this.mainHand.getItem() instanceof HaloGunBase) && ItemStack.areItemsEqual(mainHand, itemStack)) {
-			this.equipProgressMainHand = 1;
-			this.mainHand = itemStack;
+		var clientPlayerEntity = this.minecraft.player;
+		var itemStack = clientPlayerEntity.getMainHandItem();
+		var itemStack2 = clientPlayerEntity.getOffhandItem();
+		if ((this.mainHandItem.getItem() instanceof HaloGunBase) && ItemStack.isSame(mainHandItem, itemStack)) {
+			this.mainHandHeight = 1;
+			this.mainHandItem = itemStack;
 		}
-		if ((this.offHand.getItem() instanceof HaloGunBase) && ItemStack.areItemsEqual(offHand, itemStack2)) {
-			this.equipProgressOffHand = 1;
-			this.offHand = itemStack2;
+		if ((this.offHandItem.getItem() instanceof HaloGunBase) && ItemStack.isSame(offHandItem, itemStack2)) {
+			this.offHandHeight = 1;
+			this.offHandItem = itemStack2;
 		}
 	}
 }

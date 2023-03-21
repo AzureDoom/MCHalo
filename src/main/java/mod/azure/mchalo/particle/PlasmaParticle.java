@@ -4,93 +4,92 @@ import java.util.Random;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
+import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.particle.Particle;
-import net.minecraft.client.particle.ParticleFactory;
-import net.minecraft.client.particle.ParticleTextureSheet;
-import net.minecraft.client.particle.SpriteBillboardParticle;
-import net.minecraft.client.particle.SpriteProvider;
-import net.minecraft.client.world.ClientWorld;
-import net.minecraft.particle.DefaultParticleType;
-import net.minecraft.util.math.MathHelper;
+import net.minecraft.client.particle.ParticleProvider;
+import net.minecraft.client.particle.ParticleRenderType;
+import net.minecraft.client.particle.SpriteSet;
+import net.minecraft.client.particle.TextureSheetParticle;
+import net.minecraft.core.particles.SimpleParticleType;
+import net.minecraft.util.Mth;
 
 @Environment(value = EnvType.CLIENT)
-public class PlasmaParticle extends SpriteBillboardParticle {
+public class PlasmaParticle extends TextureSheetParticle {
 	static final Random RANDOM = new Random();
-	private final SpriteProvider spriteProvider;
+	private final SpriteSet spriteProvider;
 
-	PlasmaParticle(ClientWorld world, double x, double y, double z, double velocityX, double velocityY,
-			double velocityZ, SpriteProvider spriteProvider) {
+	PlasmaParticle(ClientLevel world, double x, double y, double z, double velocityX, double velocityY,
+			double velocityZ, SpriteSet spriteProvider) {
 		super(world, x, y, z, velocityX, velocityY, velocityZ);
-		this.velocityMultiplier = 0.96f;
-		this.field_28787 = true;
+		this.friction = 0.96f;
+		this.speedUpWhenYMotionIsBlocked = true;
 		this.spriteProvider = spriteProvider;
-		this.scale *= 2f;
-		this.collidesWithWorld = false;
-		this.setSpriteForAge(spriteProvider);
+		this.quadSize *= 2f;
+		this.hasPhysics = false;
+		this.setSpriteFromAge(spriteProvider);
 	}
 
 	@Override
-	public ParticleTextureSheet getType() {
-		return ParticleTextureSheet.PARTICLE_SHEET_TRANSLUCENT;
+	public ParticleRenderType getRenderType() {
+		return ParticleRenderType.PARTICLE_SHEET_TRANSLUCENT;
 	}
 
 	@Override
-	public int getBrightness(float tint) {
-		float f = ((float) this.age + tint) / (float) this.maxAge;
-		f = MathHelper.clamp(f, 0.0f, 1.0f);
-		int i = super.getBrightness(tint);
-		int j = i & 0xFF;
-		int k = i >> 16 & 0xFF;
-		if ((j += (int) (f * 15.0f * 16.0f)) > 240) {
+	public int getLightColor(float tint) {
+		var f = ((float) this.age + tint) / (float) this.lifetime;
+		f = Mth.clamp(f, 0.0f, 1.0f);
+		var lightColor = super.getLightColor(tint);
+		var j = lightColor & 0xFF;
+		var k = lightColor >> 16 & 0xFF;
+		if ((j += (int) (f * 15.0f * 16.0f)) > 240) 
 			j = 240;
-		}
 		return j | k << 16;
 	}
 
 	@Override
 	public void tick() {
 		super.tick();
-		this.setSpriteForAge(this.spriteProvider);
+		this.setSpriteFromAge(this.spriteProvider);
 	}
 
 	@Environment(value = EnvType.CLIENT)
-	public static class GreenFactory implements ParticleFactory<DefaultParticleType> {
-		private final SpriteProvider spriteProvider;
+	public static class GreenFactory implements ParticleProvider<SimpleParticleType> {
+		private final SpriteSet spriteProvider;
 
-		public GreenFactory(SpriteProvider spriteProvider) {
+		public GreenFactory(SpriteSet spriteProvider) {
 			this.spriteProvider = spriteProvider;
 		}
 
 		@Override
-		public Particle createParticle(DefaultParticleType defaultParticleType, ClientWorld clientWorld, double d,
+		public Particle createParticle(SimpleParticleType defaultParticleType, ClientLevel clientWorld, double d,
 				double e, double f, double g, double h, double i) {
-			double rotate = MathHelper.clamp(f, 0.0f, 360.0f);
-			PlasmaParticle glowParticle = new PlasmaParticle(clientWorld, d, e, f, 0.0, 0.0, 0.0, this.spriteProvider);
+			double rotate = Mth.clamp(f, 0.0f, 360.0f);
+			var glowParticle = new PlasmaParticle(clientWorld, d, e, f, 0.0, 0.0, 0.0, this.spriteProvider);
 			glowParticle.setColor(199F, 78F, 189F);
-			glowParticle.setVelocity(g * 0.25, h * 0.25, i * 0.25);
-			glowParticle.angle = (float) rotate;
-			glowParticle.setMaxAge(clientWorld.random.nextInt(2) + 2);
+			glowParticle.setParticleSpeed(g * 0.25, h * 0.25, i * 0.25);
+			glowParticle.roll = (float) rotate;
+			glowParticle.setLifetime(clientWorld.random.nextInt(2) + 2);
 			return glowParticle;
 		}
 	}
 
 	@Environment(value = EnvType.CLIENT)
-	public static class PurpleFactory implements ParticleFactory<DefaultParticleType> {
-		private final SpriteProvider spriteProvider;
+	public static class PurpleFactory implements ParticleProvider<SimpleParticleType> {
+		private final SpriteSet spriteProvider;
 
-		public PurpleFactory(SpriteProvider spriteProvider) {
+		public PurpleFactory(SpriteSet spriteProvider) {
 			this.spriteProvider = spriteProvider;
 		}
 
 		@Override
-		public Particle createParticle(DefaultParticleType defaultParticleType, ClientWorld clientWorld, double d,
+		public Particle createParticle(SimpleParticleType defaultParticleType, ClientLevel clientWorld, double d,
 				double e, double f, double g, double h, double i) {
-			double rotate = MathHelper.clamp(f, 0.0f, 360.0f);
-			PlasmaParticle glowParticle = new PlasmaParticle(clientWorld, d, e, f, 0.0, 0.0, 0.0, this.spriteProvider);
+			var rotate = Mth.clamp(f, 0.0f, 360.0f);
+			var glowParticle = new PlasmaParticle(clientWorld, d, e, f, 0.0, 0.0, 0.0, this.spriteProvider);
 			glowParticle.setColor(128F, 199F, 31F);
-			glowParticle.setVelocity(g * 0.25, h * 0.25, i * 0.25);
-			glowParticle.angle = (float) rotate;
-			glowParticle.setMaxAge(clientWorld.random.nextInt(2) + 2);
+			glowParticle.setParticleSpeed(g * 0.25, h * 0.25, i * 0.25);
+			glowParticle.roll = (float) rotate;
+			glowParticle.setLifetime(clientWorld.random.nextInt(2) + 2);
 			return glowParticle;
 		}
 	}

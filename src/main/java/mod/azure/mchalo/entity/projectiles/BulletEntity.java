@@ -5,73 +5,71 @@ import mod.azure.mchalo.util.HaloItems;
 import mod.azure.mchalo.util.ProjectilesEntityRegister;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.enchantment.EnchantmentHelper;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.damage.DamageSource;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.projectile.PersistentProjectileEntity;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NbtCompound;
-import net.minecraft.network.Packet;
-import net.minecraft.network.listener.ClientPlayPacketListener;
-import net.minecraft.network.packet.s2c.play.GameStateChangeS2CPacket;
-import net.minecraft.particle.ParticleTypes;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.sound.SoundEvent;
-import net.minecraft.sound.SoundEvents;
-import net.minecraft.util.hit.BlockHitResult;
-import net.minecraft.util.hit.EntityHitResult;
-import net.minecraft.util.hit.HitResult;
-import net.minecraft.world.World;
+import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.protocol.Packet;
+import net.minecraft.network.protocol.game.ClientGamePacketListener;
+import net.minecraft.network.protocol.game.ClientboundGameEventPacket;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.sounds.SoundEvent;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.entity.projectile.AbstractArrow;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.enchantment.EnchantmentHelper;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.EntityHitResult;
+import net.minecraft.world.phys.HitResult;
 
-public class BulletEntity extends PersistentProjectileEntity {
+public class BulletEntity extends AbstractArrow {
 
 	protected int timeInAir;
 	protected boolean inAir;
 	private int ticksInAir;
 	private static float bulletdamage;
 
-	public BulletEntity(EntityType<? extends BulletEntity> entityType, World world) {
+	public BulletEntity(EntityType<? extends BulletEntity> entityType, Level world) {
 		super(entityType, world);
-		this.pickupType = PersistentProjectileEntity.PickupPermission.DISALLOWED;
+		this.pickup = AbstractArrow.Pickup.DISALLOWED;
 	}
 
-	public BulletEntity(World world, LivingEntity owner, Float damage) {
+	public BulletEntity(Level world, LivingEntity owner, Float damage) {
 		super(ProjectilesEntityRegister.BULLET, owner, world);
 		bulletdamage = damage;
 	}
 
-	protected BulletEntity(EntityType<? extends BulletEntity> type, double x, double y, double z, World world) {
+	protected BulletEntity(EntityType<? extends BulletEntity> type, double x, double y, double z, Level world) {
 		this(type, world);
 	}
 
-	protected BulletEntity(EntityType<? extends BulletEntity> type, LivingEntity owner, World world) {
+	protected BulletEntity(EntityType<? extends BulletEntity> type, LivingEntity owner, Level world) {
 		this(type, owner.getX(), owner.getEyeY() - 0.10000000149011612D, owner.getZ(), world);
 		this.setOwner(owner);
-		if (owner instanceof PlayerEntity) {
-			this.pickupType = PersistentProjectileEntity.PickupPermission.ALLOWED;
-		}
-
+		if (owner instanceof Player) 
+			this.pickup = AbstractArrow.Pickup.DISALLOWED;
 	}
 
 	@Override
-	public Packet<ClientPlayPacketListener> createSpawnPacket() {
+	public Packet<ClientGamePacketListener> getAddEntityPacket() {
 		return EntityPacket.createPacket(this);
 	}
 
 	@Override
-	protected void onHit(LivingEntity living) {
-		super.onHit(living);
-		if (!(living instanceof PlayerEntity)) {
-			living.timeUntilRegen = 0;
-			living.setVelocity(0, 0, 0);
+	protected void doPostHurtEffects(LivingEntity living) {
+		super.doPostHurtEffects(living);
+		if (!(living instanceof Player)) {
+			living.invulnerableTime = 0;
+			living.setDeltaMovement(0, 0, 0);
 		}
 	}
 
 	@Override
-	public void age() {
+	public void tickDespawn() {
 		++this.ticksInAir;
 		if (this.ticksInAir >= 40) {
 			this.remove(Entity.RemovalReason.DISCARDED);
@@ -79,20 +77,20 @@ public class BulletEntity extends PersistentProjectileEntity {
 	}
 
 	@Override
-	public void setVelocity(double x, double y, double z, float speed, float divergence) {
-		super.setVelocity(x, y, z, speed, divergence);
+	public void shoot(double x, double y, double z, float speed, float divergence) {
+		super.shoot(x, y, z, speed, divergence);
 		this.ticksInAir = 0;
 	}
 
 	@Override
-	public void writeCustomDataToNbt(NbtCompound tag) {
-		super.writeCustomDataToNbt(tag);
+	public void addAdditionalSaveData(CompoundTag tag) {
+		super.addAdditionalSaveData(tag);
 		tag.putShort("life", (short) this.ticksInAir);
 	}
 
 	@Override
-	public void readCustomDataFromNbt(NbtCompound tag) {
-		super.readCustomDataFromNbt(tag);
+	public void readAdditionalSaveData(CompoundTag tag) {
+		super.readAdditionalSaveData(tag);
 		this.ticksInAir = tag.getShort("life");
 	}
 
@@ -100,13 +98,12 @@ public class BulletEntity extends PersistentProjectileEntity {
 	public void tick() {
 		super.tick();
 		++this.ticksInAir;
-		if (this.ticksInAir >= 80) {
+		if (this.ticksInAir >= 80) 
 			this.remove(Entity.RemovalReason.DISCARDED);
-		}
-		if (this.world.isClient) {
-			double d2 = this.getX() + (this.random.nextDouble()) * (double) this.getWidth() * 0.5D;
-			double f2 = this.getZ() + (this.random.nextDouble()) * (double) this.getWidth() * 0.5D;
-			this.world.addParticle(ParticleTypes.SMOKE, true, d2, this.getY(), f2, 0, 0, 0);
+		if (this.level.isClientSide) {
+			var x = this.getX() + (this.random.nextDouble()) * (double) this.getBbWidth() * 0.5D;
+			var y = this.getZ() + (this.random.nextDouble()) * (double) this.getBbWidth() * 0.5D;
+			this.level.addParticle(ParticleTypes.SMOKE, true, x, this.getY(), y, 0, 0, 0);
 		}
 	}
 
@@ -116,80 +113,73 @@ public class BulletEntity extends PersistentProjectileEntity {
 	}
 
 	@Override
-	public boolean hasNoGravity() {
-		return this.isSubmergedInWater() ? false : true;
+	public boolean isNoGravity() {
+		return this.isUnderWater() ? false : true;
 	}
 
-	public SoundEvent hitSound = this.getHitSound();
+	public SoundEvent hitSound = this.getDefaultHitGroundSoundEvent();
 
 	@Override
-	public void setSound(SoundEvent soundIn) {
+	public void setSoundEvent(SoundEvent soundIn) {
 		this.hitSound = soundIn;
 	}
 
 	@Override
-	protected SoundEvent getHitSound() {
-		return SoundEvents.ITEM_ARMOR_EQUIP_IRON;
+	protected SoundEvent getDefaultHitGroundSoundEvent() {
+		return SoundEvents.ARMOR_EQUIP_IRON;
 	}
 
 	@Override
-	protected void onBlockHit(BlockHitResult blockHitResult) {
-		super.onBlockHit(blockHitResult);
-		if (!this.world.isClient) {
+	protected void onHitBlock(BlockHitResult blockHitResult) {
+		super.onHitBlock(blockHitResult);
+		if (!this.level.isClientSide) 
 			this.remove(Entity.RemovalReason.DISCARDED);
-		}
-		this.setSound(SoundEvents.ITEM_ARMOR_EQUIP_IRON);
+		this.setSoundEvent(SoundEvents.ARMOR_EQUIP_IRON);
 	}
 
 	@Override
-	protected void onEntityHit(EntityHitResult entityHitResult) {
-		Entity entity = entityHitResult.getEntity();
+	protected void onHitEntity(EntityHitResult entityHitResult) {
+		var entity = entityHitResult.getEntity();
 		if (entityHitResult.getType() != HitResult.Type.ENTITY
-				|| !((EntityHitResult) entityHitResult).getEntity().isPartOf(entity)) {
-			if (!this.world.isClient) {
+				|| !((EntityHitResult) entityHitResult).getEntity().is(entity)) 
+			if (!this.level.isClientSide) 
 				this.remove(Entity.RemovalReason.DISCARDED);
-			}
-		}
-		Entity entity2 = this.getOwner();
+		var entity2 = this.getOwner();
 		DamageSource damageSource2;
-		if (entity2 == null) {
-			damageSource2 = DamageSource.arrow(this, this);
-		} else {
-			damageSource2 = DamageSource.arrow(this, entity2);
-			if (entity2 instanceof LivingEntity) {
-				((LivingEntity) entity2).onAttacking(entity);
-			}
+		if (entity2 == null)
+			damageSource2 = damageSources().arrow(this, this);
+		else {
+			damageSource2 = damageSources().arrow(this, entity2);
+			if (entity2 instanceof LivingEntity) 
+				((LivingEntity) entity2).setLastHurtMob(entity);
 		}
-		if (entity.damage(damageSource2, bulletdamage)) {
+		if (entity.hurt(damageSource2, bulletdamage)) {
 			if (entity instanceof LivingEntity) {
-				LivingEntity livingEntity = (LivingEntity) entity;
-				if (!this.world.isClient && entity2 instanceof LivingEntity) {
-					EnchantmentHelper.onUserDamaged(livingEntity, entity2);
-					EnchantmentHelper.onTargetDamaged((LivingEntity) entity2, livingEntity);
+				var livingEntity = (LivingEntity) entity;
+				if (!this.level.isClientSide && entity2 instanceof LivingEntity) {
+					EnchantmentHelper.doPostHurtEffects(livingEntity, entity2);
+					EnchantmentHelper.doPostDamageEffects((LivingEntity) entity2, livingEntity);
 				}
-
-				this.onHit(livingEntity);
-				if (entity2 != null && livingEntity != entity2 && livingEntity instanceof PlayerEntity
-						&& entity2 instanceof ServerPlayerEntity && !this.isSilent()) {
-					((ServerPlayerEntity) entity2).networkHandler.sendPacket(
-							new GameStateChangeS2CPacket(GameStateChangeS2CPacket.PROJECTILE_HIT_PLAYER, 0.0F));
-				}
+				this.doPostHurtEffects(livingEntity);
+				if (entity2 != null && livingEntity != entity2 && livingEntity instanceof Player
+						&& entity2 instanceof ServerPlayer && !this.isSilent()) 
+					((ServerPlayer) entity2).connection.send(
+							new ClientboundGameEventPacket(ClientboundGameEventPacket.ARROW_HIT_PLAYER, 0.0F));
 			}
 		} else {
-			if (!this.world.isClient) {
+			if (!this.level.isClientSide) 
 				this.remove(Entity.RemovalReason.DISCARDED);
-			}
 		}
 	}
 
 	@Override
-	public ItemStack asItemStack() {
+	public ItemStack getPickupItem() {
 		return new ItemStack(HaloItems.SNIPER_ROUND);
 	}
 
 	@Override
 	@Environment(EnvType.CLIENT)
-	public boolean shouldRender(double distance) {
+	public boolean shouldRenderAtSqrDistance(double distance) {
 		return true;
 	}
 

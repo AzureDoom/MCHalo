@@ -12,71 +12,73 @@ import mod.azure.mchalo.util.HaloItems;
 import mod.azure.mchalo.util.ProjectilesEntityRegister;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.entity.AreaEffectCloudEntity;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.data.DataTracker;
-import net.minecraft.entity.data.TrackedData;
-import net.minecraft.entity.data.TrackedDataHandlerRegistry;
-import net.minecraft.entity.projectile.PersistentProjectileEntity;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
-import net.minecraft.nbt.NbtCompound;
-import net.minecraft.network.Packet;
-import net.minecraft.network.listener.ClientPlayPacketListener;
-import net.minecraft.particle.ParticleTypes;
-import net.minecraft.sound.SoundEvent;
-import net.minecraft.sound.SoundEvents;
-import net.minecraft.util.hit.BlockHitResult;
-import net.minecraft.util.hit.EntityHitResult;
-import net.minecraft.world.World;
+import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.protocol.Packet;
+import net.minecraft.network.protocol.game.ClientGamePacketListener;
+import net.minecraft.network.syncher.EntityDataAccessor;
+import net.minecraft.network.syncher.EntityDataSerializers;
+import net.minecraft.network.syncher.SynchedEntityData;
+import net.minecraft.sounds.SoundEvent;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.world.entity.AreaEffectCloud;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.entity.projectile.AbstractArrow;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.EntityHitResult;
 
-public class GrenadeEntity extends PersistentProjectileEntity implements GeoEntity {
+public class GrenadeEntity extends AbstractArrow implements GeoEntity {
 
 	protected int timeInAir;
 	protected boolean inAir;
 	protected String type;
 	private int ticksInAir;
-	private static final TrackedData<Boolean> SPINNING = DataTracker.registerData(GrenadeEntity.class,
-			TrackedDataHandlerRegistry.BOOLEAN);
+	private static final EntityDataAccessor<Boolean> SPINNING = SynchedEntityData.defineId(GrenadeEntity.class,
+			EntityDataSerializers.BOOLEAN);
 	private final AnimatableInstanceCache cache = AzureLibUtil.createInstanceCache(this);
 
-	public GrenadeEntity(EntityType<? extends GrenadeEntity> entityType, World world) {
+	public GrenadeEntity(EntityType<? extends GrenadeEntity> entityType, Level world) {
 		super(entityType, world);
-		this.pickupType = PersistentProjectileEntity.PickupPermission.DISALLOWED;
+		this.pickup = AbstractArrow.Pickup.DISALLOWED;
 	}
 
-	public GrenadeEntity(World world, LivingEntity owner) {
+	public GrenadeEntity(Level world, LivingEntity owner) {
 		super(ProjectilesEntityRegister.GRENADE, owner, world);
 	}
 
-	protected GrenadeEntity(EntityType<? extends GrenadeEntity> type, double x, double y, double z, World world) {
+	protected GrenadeEntity(EntityType<? extends GrenadeEntity> type, double x, double y, double z, Level world) {
 		this(type, world);
 	}
 
-	protected GrenadeEntity(EntityType<? extends GrenadeEntity> type, LivingEntity owner, World world) {
+	protected GrenadeEntity(EntityType<? extends GrenadeEntity> type, LivingEntity owner, Level world) {
 		this(type, owner.getX(), owner.getEyeY() - 0.10000000149011612D, owner.getZ(), world);
 		this.setOwner(owner);
-		this.pickupType = PersistentProjectileEntity.PickupPermission.DISALLOWED;
+		this.pickup = AbstractArrow.Pickup.DISALLOWED;
 	}
 
-	public GrenadeEntity(World world, LivingEntity user, boolean spinning) {
+	public GrenadeEntity(Level world, LivingEntity user, boolean spinning) {
 		super(ProjectilesEntityRegister.GRENADE, user, world);
-		this.dataTracker.set(SPINNING, spinning);
+		this.entityData.set(SPINNING, spinning);
 	}
 
-	protected void initDataTracker() {
-		super.initDataTracker();
-		this.dataTracker.startTracking(SPINNING, false);
+	protected void defineSynchedData() {
+		super.defineSynchedData();
+		this.entityData.define(SPINNING, false);
 	}
 
 	public boolean isSpinning() {
-		return (Boolean) this.dataTracker.get(SPINNING);
+		return (Boolean) this.entityData.get(SPINNING);
 	}
 
 	public void setSpinning(boolean spin) {
-		this.dataTracker.set(SPINNING, spin);
+		this.entityData.set(SPINNING, spin);
 	}
 
 	@Override
@@ -92,45 +94,44 @@ public class GrenadeEntity extends PersistentProjectileEntity implements GeoEnti
 	}
 
 	@Override
-	public Packet<ClientPlayPacketListener> createSpawnPacket() {
+	public Packet<ClientGamePacketListener> getAddEntityPacket() {
 		return EntityPacket.createPacket(this);
 	}
 
 	@Override
 	public void remove(RemovalReason reason) {
-		AreaEffectCloudEntity areaeffectcloudentity = new AreaEffectCloudEntity(this.world, this.getX(), this.getY(),
-				this.getZ());
-		areaeffectcloudentity.setParticleType(ParticleTypes.EXPLOSION);
+		var areaeffectcloudentity = new AreaEffectCloud(this.level, this.getX(), this.getY(), this.getZ());
+		areaeffectcloudentity.setParticle(ParticleTypes.EXPLOSION);
 		areaeffectcloudentity.setRadius(HaloConfig.mauler_bullet_damage + 2);
 		areaeffectcloudentity.setDuration(1);
-		areaeffectcloudentity.updatePosition(this.getX(), this.getEyeY(), this.getZ());
-		this.world.spawnEntity(areaeffectcloudentity);
+		areaeffectcloudentity.absMoveTo(this.getX(), this.getEyeY(), this.getZ());
+		this.level.addFreshEntity(areaeffectcloudentity);
+		this.explode();
 		super.remove(reason);
 	}
 
 	@Override
-	public void age() {
+	public void tickDespawn() {
 		++this.ticksInAir;
-		if (this.ticksInAir >= 80) {
+		if (this.ticksInAir >= 80)
 			this.remove(Entity.RemovalReason.DISCARDED);
-		}
 	}
 
 	@Override
-	public void setVelocity(double x, double y, double z, float speed, float divergence) {
-		super.setVelocity(x, y, z, speed, divergence);
+	public void shoot(double x, double y, double z, float speed, float divergence) {
+		super.shoot(x, y, z, speed, divergence);
 		this.ticksInAir = 0;
 	}
 
 	@Override
-	public void writeCustomDataToNbt(NbtCompound tag) {
-		super.writeCustomDataToNbt(tag);
+	public void addAdditionalSaveData(CompoundTag tag) {
+		super.addAdditionalSaveData(tag);
 		tag.putShort("life", (short) this.ticksInAir);
 	}
 
 	@Override
-	public void readCustomDataFromNbt(NbtCompound tag) {
-		super.readCustomDataFromNbt(tag);
+	public void readAdditionalSaveData(CompoundTag tag) {
+		super.readAdditionalSaveData(tag);
 		this.ticksInAir = tag.getShort("life");
 	}
 
@@ -144,63 +145,59 @@ public class GrenadeEntity extends PersistentProjectileEntity implements GeoEnti
 		}
 	}
 
-	public SoundEvent hitSound = this.getHitSound();
+	public SoundEvent hitSound = this.getDefaultHitGroundSoundEvent();
 
 	@Override
-	public void setSound(SoundEvent soundIn) {
+	public void setSoundEvent(SoundEvent soundIn) {
 		this.hitSound = soundIn;
 	}
 
 	@Override
-	protected SoundEvent getHitSound() {
-		return SoundEvents.PARTICLE_SOUL_ESCAPE;
+	protected SoundEvent getDefaultHitGroundSoundEvent() {
+		return SoundEvents.SOUL_ESCAPE;
 	}
 
 	@Override
-	protected void onBlockHit(BlockHitResult blockHitResult) {
-		super.onBlockHit(blockHitResult);
-		if (!this.world.isClient) {
-			if (this.age >= 45) {
-				this.explode();
-				this.dataTracker.set(SPINNING, false);
+	protected void onHitBlock(BlockHitResult blockHitResult) {
+		super.onHitBlock(blockHitResult);
+		if (!this.level.isClientSide)
+			if (this.tickCount >= 45) {
+				this.entityData.set(SPINNING, false);
 				this.remove(Entity.RemovalReason.DISCARDED);
 			}
-		}
-		this.setSound(SoundEvents.ENTITY_GENERIC_EXPLODE);
+		this.setSoundEvent(SoundEvents.GENERIC_EXPLODE);
 	}
 
 	@Override
-	protected void onEntityHit(EntityHitResult entityHitResult) {
-		super.onEntityHit(entityHitResult);
-		if (!this.world.isClient) {
-			this.explode();
-			if (this.age >= 45) {
-				this.explode();
-				this.dataTracker.set(SPINNING, false);
-				this.remove(Entity.RemovalReason.DISCARDED);
-			}
+	protected void onHitEntity(EntityHitResult entityHitResult) {
+		super.onHitEntity(entityHitResult);
+		if (!this.level.isClientSide) {
+			this.entityData.set(SPINNING, false);
+			this.remove(Entity.RemovalReason.DISCARDED);
 		}
 	}
 
 	protected void explode() {
-		this.world.createExplosion(this, this.getX(), this.getBodyY(0.0625D), this.getZ(),
-				HaloConfig.mauler_bullet_damage, (HaloConfig.grenades_cause_fire ? true : false),
-				(HaloConfig.grenades_break_blocks ? World.ExplosionSourceType.BLOCK : World.ExplosionSourceType.NONE));
+		var aabb = new AABB(this.blockPosition().above()).inflate(6D, 6D, 6D);
+		this.getCommandSenderWorld().getEntities(this, aabb).forEach(e -> {
+			if (e.isAlive() && e instanceof LivingEntity)
+				e.hurt(damageSources().arrow(this, (Player) this.getOwner()), HaloConfig.mauler_bullet_damage);
+		});
 	}
 
 	@Override
-	public ItemStack asItemStack() {
+	public ItemStack getPickupItem() {
 		return new ItemStack(Items.AIR);
 	}
 
 	@Override
 	@Environment(EnvType.CLIENT)
-	public boolean shouldRender(double distance) {
+	public boolean shouldRenderAtSqrDistance(double distance) {
 		return true;
 	}
 
 	@Override
-	public boolean doesRenderOnFire() {
+	public boolean displayFireAnimation() {
 		return false;
 	}
 

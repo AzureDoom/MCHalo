@@ -15,11 +15,11 @@ import mod.azure.mchalo.item.guns.PlasmaRifleItem;
 import mod.azure.mchalo.item.guns.RocketLauncherItem;
 import mod.azure.mchalo.item.guns.ShotgunItem;
 import mod.azure.mchalo.item.guns.SniperItem;
-import net.minecraft.item.BlockItem;
-import net.minecraft.item.Item;
-import net.minecraft.registry.Registries;
-import net.minecraft.registry.Registry;
-import net.minecraft.util.Identifier;
+import net.minecraft.core.Registry;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.item.BlockItem;
+import net.minecraft.world.item.Item;
 
 public class HaloItems {
 
@@ -47,10 +47,10 @@ public class HaloItems {
 
 	/* Blocks */
 	public static PropShieldItem PROPSHIELD = item(new PropShieldItem(), "prop_shield_h2");
-	public static BlockItem GUN_TABLE = item(new BlockItem(MCHaloMod.GUN_TABLE, new Item.Settings()), "gun_table");
+	public static BlockItem GUN_TABLE = item(new BlockItem(MCHaloMod.GUN_TABLE, new Item.Properties()), "gun_table");
 
 	static <T extends Item> T item(T c, String id) {
-		Registry.register(Registries.ITEM, new Identifier(MCHaloMod.MODID, id), c);
+		Registry.register(BuiltInRegistries.ITEM, new ResourceLocation(MCHaloMod.MODID, id), c);
 		return c;
 	}
 }

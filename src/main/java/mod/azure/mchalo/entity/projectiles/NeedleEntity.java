@@ -16,32 +16,30 @@ import mod.azure.mchalo.util.HaloSounds;
 import mod.azure.mchalo.util.ProjectilesEntityRegister;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.entity.BlockEntity;
-import net.minecraft.enchantment.EnchantmentHelper;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.damage.DamageSource;
-import net.minecraft.entity.mob.HostileEntity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.projectile.PersistentProjectileEntity;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NbtCompound;
-import net.minecraft.network.Packet;
-import net.minecraft.network.listener.ClientPlayPacketListener;
-import net.minecraft.network.packet.s2c.play.GameStateChangeS2CPacket;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.sound.SoundEvent;
-import net.minecraft.util.hit.BlockHitResult;
-import net.minecraft.util.hit.EntityHitResult;
-import net.minecraft.util.hit.HitResult;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Box;
-import net.minecraft.util.math.Vec3d;
-import net.minecraft.world.World;
+import net.minecraft.core.BlockPos;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.protocol.Packet;
+import net.minecraft.network.protocol.game.ClientGamePacketListener;
+import net.minecraft.network.protocol.game.ClientboundGameEventPacket;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.sounds.SoundEvent;
+import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.monster.Monster;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.entity.projectile.AbstractArrow;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.enchantment.EnchantmentHelper;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.EntityHitResult;
+import net.minecraft.world.phys.HitResult;
+import net.minecraft.world.phys.Vec3;
 
-public class NeedleEntity extends PersistentProjectileEntity implements GeoEntity {
+public class NeedleEntity extends AbstractArrow implements GeoEntity {
 
 	protected int timeInAir;
 	protected boolean inAir;
@@ -51,27 +49,25 @@ public class NeedleEntity extends PersistentProjectileEntity implements GeoEntit
 	private int idleTicks = 0;
 	private final AnimatableInstanceCache cache = AzureLibUtil.createInstanceCache(this);
 
-	public NeedleEntity(EntityType<? extends NeedleEntity> entityType, World world) {
+	public NeedleEntity(EntityType<? extends NeedleEntity> entityType, Level world) {
 		super(entityType, world);
-		this.pickupType = PersistentProjectileEntity.PickupPermission.DISALLOWED;
+		this.pickup = AbstractArrow.Pickup.DISALLOWED;
 	}
 
-	public NeedleEntity(World world, LivingEntity owner, Float damage) {
+	public NeedleEntity(Level world, LivingEntity owner, Float damage) {
 		super(ProjectilesEntityRegister.NEEDLE, owner, world);
 		bulletdamage = damage;
 	}
 
-	protected NeedleEntity(EntityType<? extends NeedleEntity> type, double x, double y, double z, World world) {
+	protected NeedleEntity(EntityType<? extends NeedleEntity> type, double x, double y, double z, Level world) {
 		this(type, world);
 	}
 
-	protected NeedleEntity(EntityType<? extends NeedleEntity> type, LivingEntity owner, World world) {
+	protected NeedleEntity(EntityType<? extends NeedleEntity> type, LivingEntity owner, Level world) {
 		this(type, owner.getX(), owner.getEyeY() - 0.10000000149011612D, owner.getZ(), world);
 		this.setOwner(owner);
-		if (owner instanceof PlayerEntity) {
-			this.pickupType = PersistentProjectileEntity.PickupPermission.ALLOWED;
-		}
-
+		if (owner instanceof Player)
+			this.pickup = AbstractArrow.Pickup.DISALLOWED;
 	}
 
 	@Override
@@ -87,87 +83,85 @@ public class NeedleEntity extends PersistentProjectileEntity implements GeoEntit
 	}
 
 	@Override
-	public Packet<ClientPlayPacketListener> createSpawnPacket() {
+	public Packet<ClientGamePacketListener> getAddEntityPacket() {
 		return EntityPacket.createPacket(this);
 	}
 
 	@Override
-	protected void onHit(LivingEntity living) {
-		super.onHit(living);
+	protected void doPostHurtEffects(LivingEntity living) {
+		super.doPostHurtEffects(living);
 		this.remove(Entity.RemovalReason.DISCARDED);
-		if (!(living instanceof PlayerEntity)) {
-			living.timeUntilRegen = 0;
-			living.setVelocity(0, 0, 0);
+		if (!(living instanceof Player)) {
+			living.invulnerableTime = 0;
+			living.setDeltaMovement(0, 0, 0);
 		}
 	}
 
 	@Override
-	public void age() {
+	public void tickDespawn() {
 		++this.ticksInAir;
-		if (this.ticksInAir >= 40) {
+		if (this.ticksInAir >= 40)
 			this.remove(Entity.RemovalReason.DISCARDED);
-		}
 	}
 
 	@Override
-	public void setVelocity(double x, double y, double z, float speed, float divergence) {
-		super.setVelocity(x, y, z, speed, divergence);
+	public void shoot(double x, double y, double z, float speed, float divergence) {
+		super.shoot(x, y, z, speed, divergence);
 		this.ticksInAir = 0;
 	}
 
 	@Override
-	public void writeCustomDataToNbt(NbtCompound tag) {
-		super.writeCustomDataToNbt(tag);
+	public void addAdditionalSaveData(CompoundTag tag) {
+		super.addAdditionalSaveData(tag);
 		tag.putShort("life", (short) this.ticksInAir);
 	}
 
 	@Override
-	public void readCustomDataFromNbt(NbtCompound tag) {
-		super.readCustomDataFromNbt(tag);
+	public void readAdditionalSaveData(CompoundTag tag) {
+		super.readAdditionalSaveData(tag);
 		this.ticksInAir = tag.getShort("life");
 	}
 
 	@Override
 	public void tick() {
-		int idleOpt = 100;
-		if (getVelocity().lengthSquared() < 0.01)
+		var idleOpt = 100;
+		if (getDeltaMovement().lengthSqr() < 0.01)
 			idleTicks++;
 		else
 			idleTicks = 0;
 		if (idleOpt <= 0 || idleTicks < idleOpt)
 			super.tick();
 		++this.ticksInAir;
-		if (this.ticksInAir >= 40) {
+		if (this.ticksInAir >= 40)
 			this.remove(Entity.RemovalReason.DISCARDED);
-		}
-		boolean isInsideWaterBlock = world.isWater(getBlockPos());
+		var isInsideWaterBlock = level.isWaterAt(blockPosition());
 		spawnLightSource(isInsideWaterBlock);
-		final World world = this.world;
-		final List<HostileEntity> livingEntities = (List<HostileEntity>) world.getEntitiesByClass(
-				HostileEntity.class, new Box(this.getX() - 6.0, this.getY() - 6.0, this.getZ() - 6.0, this.getX() + 6.0,
-						this.getY() + 6.0, this.getZ() + 6.0),
-				entity1 -> entity1 != ((PersistentProjectileEntity) this).getOwner());
+		var world = this.level;
+		var livingEntities = (List<Monster>) world
+				.getEntitiesOfClass(Monster.class,
+						new AABB(this.getX() - 6.0, this.getY() - 6.0, this.getZ() - 6.0, this.getX() + 6.0,
+								this.getY() + 6.0, this.getZ() + 6.0),
+						entity1 -> entity1 != ((AbstractArrow) this).getOwner());
 		if (!livingEntities.isEmpty()) {
-			final HostileEntity first = livingEntities.get(0);
-			final Vec3d entityPos = new Vec3d(first.getX(), first.getY() + first.getStandingEyeHeight(), first.getZ());
-			final Vec3d distance = entityPos.subtract(this.getX(), this.getY() + this.getStandingEyeHeight(),
-					this.getZ());
-			final Vec3d entityDirect = distance.normalize();
-			final Vec3d arrowDirect = this.getVelocity().normalize();
-			final Vec3d newPath = entityDirect.add(arrowDirect.multiply(4.0, 4.0, 4.0)).normalize();
-			final double speed = this.getVelocity().length();
-			this.setVelocity(newPath.multiply(speed, speed, speed));
+			var first = livingEntities.get(0);
+			var entityPos = new Vec3(first.getX(), first.getY() + first.getEyeHeight(), first.getZ());
+			var distance = entityPos.subtract(this.getX(), this.getY() + this.getEyeHeight(), this.getZ());
+			var entityDirect = distance.normalize();
+			var arrowDirect = this.getDeltaMovement().normalize();
+			var newPath = entityDirect.add(arrowDirect.multiply(4.0, 4.0, 4.0)).normalize();
+			var speed = this.getDeltaMovement().length();
+			this.setDeltaMovement(newPath.multiply(speed, speed, speed));
 		}
 	}
 
 	private void spawnLightSource(boolean isInWaterBlock) {
 		if (lightBlockPos == null) {
-			lightBlockPos = findFreeSpace(world, getBlockPos(), 2);
+			lightBlockPos = findFreeSpace(level, blockPosition(), 2);
 			if (lightBlockPos == null)
 				return;
-			world.setBlockState(lightBlockPos, AzureLibMod.TICKING_LIGHT_BLOCK.getDefaultState());
-		} else if (checkDistance(lightBlockPos, getBlockPos(), 2)) {
-			BlockEntity blockEntity = world.getBlockEntity(lightBlockPos);
+			level.setBlockAndUpdate(lightBlockPos, AzureLibMod.TICKING_LIGHT_BLOCK.defaultBlockState());
+		} else if (checkDistance(lightBlockPos, blockPosition(), 2)) {
+			var blockEntity = level.getBlockEntity(lightBlockPos);
 			if (blockEntity instanceof TickingLightEntity) {
 				((TickingLightEntity) blockEntity).refresh(isInWaterBlock ? 20 : 0);
 			} else
@@ -182,11 +176,11 @@ public class NeedleEntity extends PersistentProjectileEntity implements GeoEntit
 				&& Math.abs(blockPosA.getZ() - blockPosB.getZ()) <= distance;
 	}
 
-	private BlockPos findFreeSpace(World world, BlockPos blockPos, int maxDistance) {
+	private BlockPos findFreeSpace(Level world, BlockPos blockPos, int maxDistance) {
 		if (blockPos == null)
 			return null;
 
-		int[] offsets = new int[maxDistance * 2 + 1];
+		var offsets = new int[maxDistance * 2 + 1];
 		offsets[0] = 0;
 		for (int i = 2; i <= maxDistance * 2; i += 2) {
 			offsets[i - 1] = i / 2;
@@ -195,8 +189,8 @@ public class NeedleEntity extends PersistentProjectileEntity implements GeoEntit
 		for (int x : offsets)
 			for (int y : offsets)
 				for (int z : offsets) {
-					BlockPos offsetPos = blockPos.add(x, y, z);
-					BlockState state = world.getBlockState(offsetPos);
+					var offsetPos = blockPos.offset(x, y, z);
+					var state = world.getBlockState(offsetPos);
 					if (state.isAir() || state.getBlock().equals(AzureLibMod.TICKING_LIGHT_BLOCK))
 						return offsetPos;
 				}
@@ -205,7 +199,7 @@ public class NeedleEntity extends PersistentProjectileEntity implements GeoEntit
 	}
 
 	@Override
-	protected boolean tryPickup(PlayerEntity player) {
+	protected boolean tryPickup(Player player) {
 		return false;
 	}
 
@@ -215,84 +209,79 @@ public class NeedleEntity extends PersistentProjectileEntity implements GeoEntit
 	}
 
 	@Override
-	public boolean hasNoGravity() {
-		return this.isSubmergedInWater() ? false : true;
+	public boolean isNoGravity() {
+		return this.isUnderWater() ? false : true;
 	}
 
-	public SoundEvent hitSound = this.getHitSound();
+	public SoundEvent hitSound = this.getDefaultHitGroundSoundEvent();
 
 	@Override
-	public void setSound(SoundEvent soundIn) {
+	public void setSoundEvent(SoundEvent soundIn) {
 		this.hitSound = soundIn;
 	}
 
 	@Override
-	protected SoundEvent getHitSound() {
+	protected SoundEvent getDefaultHitGroundSoundEvent() {
 		return HaloSounds.NEEDLER;
 	}
 
 	@Override
-	protected void onBlockHit(BlockHitResult blockHitResult) {
-		super.onBlockHit(blockHitResult);
-		if (!this.world.isClient) {
+	protected void onHitBlock(BlockHitResult blockHitResult) {
+		super.onHitBlock(blockHitResult);
+		if (!this.level.isClientSide) {
 			this.remove(Entity.RemovalReason.DISCARDED);
 		}
-		this.setSound(HaloSounds.NEEDLER);
+		this.setSoundEvent(HaloSounds.NEEDLER);
 	}
 
 	@Override
-	protected void onEntityHit(EntityHitResult entityHitResult) {
-		Entity entity = entityHitResult.getEntity();
+	protected void onHitEntity(EntityHitResult entityHitResult) {
+		var entity = entityHitResult.getEntity();
 		if (entityHitResult.getType() != HitResult.Type.ENTITY
-				|| !((EntityHitResult) entityHitResult).getEntity().isPartOf(entity)) {
-			if (!this.world.isClient) {
+				|| !((EntityHitResult) entityHitResult).getEntity().is(entity))
+			if (!this.level.isClientSide)
 				this.remove(Entity.RemovalReason.DISCARDED);
-			}
-		}
-		Entity entity2 = this.getOwner();
+		var entity2 = this.getOwner();
 		DamageSource damageSource2;
-		if (entity2 == null) {
-			damageSource2 = DamageSource.arrow(this, this);
-		} else {
-			damageSource2 = DamageSource.arrow(this, entity2);
-			if (entity2 instanceof LivingEntity) {
-				((LivingEntity) entity2).onAttacking(entity);
-			}
+		if (entity2 == null)
+			damageSource2 = damageSources().arrow(this, this);
+		else {
+			damageSource2 = damageSources().arrow(this, entity2);
+			if (entity2 instanceof LivingEntity)
+				((LivingEntity) entity2).setLastHurtMob(entity);
 		}
-		if (entity.damage(damageSource2, bulletdamage)) {
+		if (entity.hurt(damageSource2, bulletdamage)) {
 			if (entity instanceof LivingEntity) {
-				LivingEntity livingEntity = (LivingEntity) entity;
-				if (!this.world.isClient) {
-					livingEntity.setStuckArrowCount(livingEntity.getStuckArrowCount() + 1);
+				var livingEntity = (LivingEntity) entity;
+				if (!this.level.isClientSide) {
+					livingEntity.setArrowCount(livingEntity.getArrowCount() + 1);
 				}
-				if (!this.world.isClient && entity2 instanceof LivingEntity) {
-					EnchantmentHelper.onUserDamaged(livingEntity, entity2);
-					EnchantmentHelper.onTargetDamaged((LivingEntity) entity2, livingEntity);
+				if (!this.level.isClientSide && entity2 instanceof LivingEntity) {
+					EnchantmentHelper.doPostHurtEffects(livingEntity, entity2);
+					EnchantmentHelper.doPostDamageEffects((LivingEntity) entity2, livingEntity);
 				}
 
-				this.onHit(livingEntity);
-				if (entity2 != null && livingEntity != entity2 && livingEntity instanceof PlayerEntity
-						&& entity2 instanceof ServerPlayerEntity && !this.isSilent()) {
-					((ServerPlayerEntity) entity2).networkHandler.sendPacket(new GameStateChangeS2CPacket(
-							GameStateChangeS2CPacket.PROJECTILE_HIT_PLAYER, GameStateChangeS2CPacket.DEMO_OPEN_SCREEN));
-				}
+				this.doPostHurtEffects(livingEntity);
+				if (entity2 != null && livingEntity != entity2 && livingEntity instanceof Player
+						&& entity2 instanceof ServerPlayer && !this.isSilent())
+					((ServerPlayer) entity2).connection.send(new ClientboundGameEventPacket(
+							ClientboundGameEventPacket.ARROW_HIT_PLAYER, ClientboundGameEventPacket.DEMO_PARAM_INTRO));
 				this.remove(RemovalReason.KILLED);
 			}
 		} else {
-			if (!this.world.isClient) {
+			if (!this.level.isClientSide)
 				this.remove(RemovalReason.KILLED);
-			}
 		}
 	}
 
 	@Override
-	public ItemStack asItemStack() {
+	public ItemStack getPickupItem() {
 		return new ItemStack(HaloItems.NEEDLES);
 	}
 
 	@Override
 	@Environment(EnvType.CLIENT)
-	public boolean shouldRender(double distance) {
+	public boolean shouldRenderAtSqrDistance(double distance) {
 		return true;
 	}
 

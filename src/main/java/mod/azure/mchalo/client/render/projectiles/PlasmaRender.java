@@ -1,33 +1,33 @@
 package mod.azure.mchalo.client.render.projectiles;
 
+import com.mojang.blaze3d.vertex.PoseStack;
 import mod.azure.mchalo.MCHaloMod;
 import mod.azure.mchalo.entity.projectiles.PlasmaEntity;
-import net.minecraft.client.render.VertexConsumerProvider;
-import net.minecraft.client.render.entity.EntityRendererFactory;
-import net.minecraft.client.render.entity.ProjectileEntityRenderer;
-import net.minecraft.client.util.math.MatrixStack;
-import net.minecraft.util.Identifier;
+import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.entity.ArrowRenderer;
+import net.minecraft.client.renderer.entity.EntityRendererProvider;
+import net.minecraft.resources.ResourceLocation;
 
-public class PlasmaRender extends ProjectileEntityRenderer<PlasmaEntity> {
+public class PlasmaRender extends ArrowRenderer<PlasmaEntity> {
 
-	private static final Identifier TEXTURE = new Identifier(MCHaloMod.MODID, "textures/item/empty.png");
+	private static final ResourceLocation TEXTURE = new ResourceLocation(MCHaloMod.MODID, "textures/item/empty.png");
 
-	public PlasmaRender(EntityRendererFactory.Context renderManagerIn) {
+	public PlasmaRender(EntityRendererProvider.Context renderManagerIn) {
 		super(renderManagerIn);
 	}
 
 	@Override
-	public Identifier getTexture(PlasmaEntity entity) {
+	public ResourceLocation getTextureLocation(PlasmaEntity entity) {
 		return TEXTURE;
 	}
 
 	@Override
-	public void render(PlasmaEntity persistentProjectileEntity, float f, float g, MatrixStack matrixStack,
-			VertexConsumerProvider vertexConsumerProvider, int i) {
+	public void render(PlasmaEntity persistentProjectileEntity, float f, float g, PoseStack matrixStack,
+			MultiBufferSource vertexConsumerProvider, int i) {
 		super.render(persistentProjectileEntity, f, g, matrixStack, vertexConsumerProvider, i);
-		matrixStack.push();
+		matrixStack.pushPose();
 		matrixStack.scale(0, 0, 0);
-		matrixStack.pop();
+		matrixStack.popPose();
 	}
 
 }

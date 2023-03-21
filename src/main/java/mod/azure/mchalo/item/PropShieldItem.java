@@ -4,20 +4,6 @@ import java.util.List;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
-import mod.azure.mchalo.client.render.PropShieldRender;
-import mod.azure.mchalo.config.HaloConfig;
-import net.minecraft.client.item.TooltipContext;
-import net.minecraft.client.render.item.BuiltinModelItemRenderer;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.registry.tag.ItemTags;
-import net.minecraft.text.Text;
-import net.minecraft.util.Formatting;
-import net.minecraft.util.Hand;
-import net.minecraft.util.TypedActionResult;
-import net.minecraft.util.UseAction;
-import net.minecraft.world.World;
 import mod.azure.azurelib.animatable.GeoItem;
 import mod.azure.azurelib.animatable.SingletonGeoAnimatable;
 import mod.azure.azurelib.animatable.client.RenderProvider;
@@ -26,6 +12,20 @@ import mod.azure.azurelib.core.animation.AnimatableManager.ControllerRegistrar;
 import mod.azure.azurelib.core.animation.AnimationController;
 import mod.azure.azurelib.core.object.PlayState;
 import mod.azure.azurelib.util.AzureLibUtil;
+import mod.azure.mchalo.client.render.PropShieldRender;
+import mod.azure.mchalo.config.HaloConfig;
+import net.minecraft.ChatFormatting;
+import net.minecraft.client.renderer.BlockEntityWithoutLevelRenderer;
+import net.minecraft.network.chat.Component;
+import net.minecraft.tags.ItemTags;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResultHolder;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.TooltipFlag;
+import net.minecraft.world.item.UseAnim;
+import net.minecraft.world.level.Level;
 
 public class PropShieldItem extends Item implements GeoItem {
 
@@ -33,34 +33,34 @@ public class PropShieldItem extends Item implements GeoItem {
 	private final Supplier<Object> renderProvider = GeoItem.makeRenderer(this);
 
 	public PropShieldItem() {
-		super(new Item.Settings().maxCount(1).maxDamage(HaloConfig.propshield_max_damage + 1));
+		super(new Item.Properties().stacksTo(1).durability(HaloConfig.propshield_max_damage + 1));
 		SingletonGeoAnimatable.registerSyncedAnimatable(this);
 	}
 
-	public UseAction getUseAction(ItemStack stack) {
-		return UseAction.BLOCK;
+	public UseAnim getUseAnimation(ItemStack stack) {
+		return UseAnim.BLOCK;
 	}
 
-	public int getMaxUseTime(ItemStack stack) {
+	public int getUseDuration(ItemStack stack) {
 		return 72000;
 	}
 
-	public TypedActionResult<ItemStack> use(World world, PlayerEntity user, Hand hand) {
-		ItemStack itemStack = user.getStackInHand(hand);
-		user.setCurrentHand(hand);
-		return TypedActionResult.consume(itemStack);
+	public InteractionResultHolder<ItemStack> use(Level world, Player user, InteractionHand hand) {
+		var itemStack = user.getItemInHand(hand);
+		user.startUsingItem(hand);
+		return InteractionResultHolder.consume(itemStack);
 	}
 
-	public boolean canRepair(ItemStack stack, ItemStack ingredient) {
-		return ingredient.isIn(ItemTags.IRON_ORES) || super.canRepair(stack, ingredient);
+	public boolean isValidRepairItem(ItemStack stack, ItemStack ingredient) {
+		return ingredient.is(ItemTags.IRON_ORES) || super.isValidRepairItem(stack, ingredient);
 	}
 
 	@Override
-	public void appendTooltip(ItemStack stack, World world, List<Text> tooltip, TooltipContext context) {
-		tooltip.add(Text
+	public void appendHoverText(ItemStack stack, Level world, List<Component> tooltip, TooltipFlag context) {
+		tooltip.add(Component
 				.translatable(
-				"Item Health: " + (stack.getMaxDamage() - stack.getDamage() - 1) + " / " + (stack.getMaxDamage() - 1))
-				.formatted(Formatting.ITALIC));
+				"Item Health: " + (stack.getMaxDamage() - stack.getDamageValue() - 1) + " / " + (stack.getMaxDamage() - 1))
+				.withStyle(ChatFormatting.ITALIC));
 	}
 
 	@Override
@@ -76,11 +76,13 @@ public class PropShieldItem extends Item implements GeoItem {
 	@Override
 	public void createRenderer(Consumer<Object> consumer) {
 		consumer.accept(new RenderProvider() {
-			private final PropShieldRender renderer = new PropShieldRender();
+			private PropShieldRender renderer = null;
 
 			@Override
-			public BuiltinModelItemRenderer getCustomRenderer() {
-				return this.renderer;
+			public BlockEntityWithoutLevelRenderer getCustomRenderer() {
+				if (renderer == null) 
+					return new PropShieldRender();
+				return renderer;
 			}
 		});
 	}

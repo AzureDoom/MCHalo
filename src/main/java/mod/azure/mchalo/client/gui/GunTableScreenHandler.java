@@ -2,41 +2,41 @@ package mod.azure.mchalo.client.gui;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 import mod.azure.mchalo.MCHaloMod;
 import mod.azure.mchalo.mixin.IngredientAccess;
 import mod.azure.mchalo.util.recipe.GunTableRecipe;
 import mod.azure.mchalo.util.recipe.GunTableRecipe.Type;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.player.PlayerInventory;
-import net.minecraft.inventory.Inventory;
-import net.minecraft.item.ItemStack;
-import net.minecraft.network.packet.s2c.play.ScreenHandlerSlotUpdateS2CPacket;
-import net.minecraft.recipe.Ingredient;
-import net.minecraft.screen.ScreenHandler;
-import net.minecraft.screen.ScreenHandlerContext;
-import net.minecraft.screen.slot.Slot;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.world.World;
+import net.minecraft.network.protocol.game.ClientboundContainerSetSlotPacket;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.Container;
+import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.inventory.AbstractContainerMenu;
+import net.minecraft.world.inventory.ContainerLevelAccess;
+import net.minecraft.world.inventory.Slot;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.Level;
 
-public class GunTableScreenHandler extends ScreenHandler {
-	private final PlayerInventory playerInventory;
+public class GunTableScreenHandler extends AbstractContainerMenu {
+	private final Inventory playerInventory;
 	private final GunTableInventory gunTableInventory;
-	private final ScreenHandlerContext context;
+	private final ContainerLevelAccess context;
 	@SuppressWarnings("unused")
 	private int recipeIndex;
+	private static Level level;
 
 	// client
-	public GunTableScreenHandler(int syncId, PlayerInventory playerInventory) {
-		this(syncId, playerInventory, ScreenHandlerContext.EMPTY);
+	public GunTableScreenHandler(int syncId, Inventory playerInventory) {
+		this(syncId, playerInventory, ContainerLevelAccess.NULL);
 	}
 
 	// server
-	public GunTableScreenHandler(int syncId, PlayerInventory playerInventory, ScreenHandlerContext context) {
+	public GunTableScreenHandler(int syncId, Inventory playerInventory, ContainerLevelAccess context) {
 		super(MCHaloMod.SCREEN_HANDLER_TYPE, syncId);
 		this.playerInventory = playerInventory;
 		this.gunTableInventory = new GunTableInventory(this);
+		GunTableScreenHandler.level = playerInventory.player.level;
 		this.context = context;
 		this.addSlot(new Slot(this.gunTableInventory, 0, 155, 13));
 		this.addSlot(new Slot(this.gunTableInventory, 1, 175, 33));
@@ -46,93 +46,81 @@ public class GunTableScreenHandler extends ScreenHandler {
 		this.addSlot(new GunTableOutputSlot(playerInventory.player, this.gunTableInventory, 5, 238, 38));
 
 		int k;
-		for (k = 0; k < 3; ++k) {
-			for (int j = 0; j < 9; ++j) {
+		for (k = 0; k < 3; ++k)
+			for (int j = 0; j < 9; ++j)
 				this.addSlot(new Slot(playerInventory, j + k * 9 + 9, 127 + j * 18, 84 + k * 18));
-			}
-		}
 
-		for (k = 0; k < 9; ++k) {
+		for (k = 0; k < 9; ++k)
 			this.addSlot(new Slot(playerInventory, k, 127 + k * 18, 142));
-		}
 
 	}
 
-	protected static void updateResult(int syncId, World world, PlayerEntity player,
-			GunTableInventory craftingInventory) {
-		if (!world.isClient) {
-			ServerPlayerEntity serverPlayerEntity = (ServerPlayerEntity) player;
-			ItemStack itemStack = ItemStack.EMPTY;
-			Optional<GunTableRecipe> optional = world.getServer().getRecipeManager()
-					.getFirstMatch(Type.INSTANCE, craftingInventory, world);
+	protected static void updateResult(int syncId, Level world, Player player, GunTableInventory craftingInventory) {
+		if (!world.isClientSide) {
+			var serverPlayerEntity = (ServerPlayer) player;
+			var itemStack = ItemStack.EMPTY;
+			var optional = world.getServer().getRecipeManager().getRecipeFor(Type.INSTANCE, craftingInventory, world);
 			if (optional.isPresent()) {
-				GunTableRecipe craftingRecipe = optional.get();
-				itemStack = craftingRecipe.craft(craftingInventory);
+				var craftingRecipe = optional.get();
+				itemStack = craftingRecipe.assemble(craftingInventory, level.registryAccess());
 			}
 
-			craftingInventory.setStack(5, itemStack);
-			serverPlayerEntity.networkHandler.sendPacket(new ScreenHandlerSlotUpdateS2CPacket(syncId, 0, 5, itemStack));
+			craftingInventory.setItem(5, itemStack);
+			serverPlayerEntity.connection.send(new ClientboundContainerSetSlotPacket(syncId, 0, 5, itemStack));
 		}
 	}
 
-	public void onContentChanged(Inventory inventory) {
-		this.context.run((world, blockPos) -> {
-			updateResult(this.syncId, world, this.playerInventory.player, this.gunTableInventory);
+	public void slotsChanged(Container inventory) {
+		this.context.execute((world, blockPos) -> {
+			updateResult(this.containerId, world, this.playerInventory.player, this.gunTableInventory);
 		});
 	}
 
 	@Override
-	public boolean canUse(PlayerEntity player) {
-		return canUse(context, player, MCHaloMod.GUN_TABLE);
+	public boolean stillValid(Player player) {
+		return stillValid(context, player, MCHaloMod.GUN_TABLE);
 	}
 
-	public boolean canInsertIntoSlot(ItemStack stack, Slot slot) {
+	public boolean canTakeItemForPickAll(ItemStack stack, Slot slot) {
 		return false;
 	}
 
 	@Override
-	public ItemStack quickMove(PlayerEntity player, int index) {
-		ItemStack itemStack = ItemStack.EMPTY;
-		Slot slot = this.slots.get(index);
-		if (slot != null && slot.hasStack()) {
-			ItemStack itemStack2 = slot.getStack();
+	public ItemStack quickMoveStack(Player player, int index) {
+		var itemStack = ItemStack.EMPTY;
+		var slot = this.slots.get(index);
+		if (slot != null && slot.hasItem()) {
+			var itemStack2 = slot.getItem();
 			itemStack = itemStack2.copy();
 			if (index == 2) {
-				if (!this.insertItem(itemStack2, 3, 39, true)) {
+				if (!this.moveItemStackTo(itemStack2, 3, 39, true))
 					return ItemStack.EMPTY;
-				}
-				slot.onQuickTransfer(itemStack2, itemStack);
+				slot.onQuickCraft(itemStack2, itemStack);
 			} else if (index != 0 && index != 1) {
 				if (index >= 3 && index < 30) {
-					if (!this.insertItem(itemStack2, 30, 39, false)) {
+					if (!this.moveItemStackTo(itemStack2, 30, 39, false))
 						return ItemStack.EMPTY;
-					}
-				} else if (index >= 30 && index < 39 && !this.insertItem(itemStack2, 3, 30, false)) {
+				} else if (index >= 30 && index < 39 && !this.moveItemStackTo(itemStack2, 3, 30, false))
 					return ItemStack.EMPTY;
-				}
-			} else if (!this.insertItem(itemStack2, 3, 39, false)) {
+			} else if (!this.moveItemStackTo(itemStack2, 3, 39, false))
 				return ItemStack.EMPTY;
-			}
 
-			if (itemStack2.isEmpty()) {
-				slot.setStack(ItemStack.EMPTY);
-			} else {
-				slot.markDirty();
-			}
+			if (itemStack2.isEmpty())
+				slot.setByPlayer(ItemStack.EMPTY);
+			else
+				slot.setChanged();
 
-			if (itemStack2.getCount() == itemStack.getCount()) {
+			if (itemStack2.getCount() == itemStack.getCount())
 				return ItemStack.EMPTY;
-			}
 
-			slot.onTakeItem(player, itemStack2);
+			slot.onTake(player, itemStack2);
 		}
 
 		return itemStack;
 	}
 
 	public List<GunTableRecipe> getRecipes() {
-		List<GunTableRecipe> list = new ArrayList<>(
-				playerInventory.player.world.getRecipeManager().listAllOfType(Type.INSTANCE));
+		var list = new ArrayList<>(playerInventory.player.level.getRecipeManager().getAllRecipesFor(Type.INSTANCE));
 		list.sort(null);
 		return list;
 	}
@@ -142,26 +130,23 @@ public class GunTableScreenHandler extends ScreenHandler {
 	}
 
 	public void switchTo(int recipeIndex) {
-		// index out of bounds
 		if (this.getRecipes().size() > recipeIndex) {
-			GunTableRecipe gunTableRecipe = getRecipes().get(recipeIndex);
+			var gunTableRecipe = getRecipes().get(recipeIndex);
 			for (int i = 0; i < 5; i++) {
-				ItemStack slotStack = gunTableInventory.getStack(i);
+				var slotStack = gunTableInventory.getItem(i);
 				if (!slotStack.isEmpty()) {
-					// if all positions can't be filled, transfer nothing
-					if (!this.insertItem(slotStack, 6, 39, false)) {
+					if (!this.moveItemStackTo(slotStack, 6, 39, false))
 						return;
-					}
-					gunTableInventory.setStack(i, slotStack);
+					gunTableInventory.setItem(i, slotStack);
 				}
 			}
 
 			for (int i = 0; i < 5; i++) {
-				Ingredient ingredient = gunTableRecipe.getIngredientForSlot(i);
+				var ingredient = gunTableRecipe.getIngredientForSlot(i);
 				if (!ingredient.isEmpty()) {
-					ItemStack[] possibleItems = ((IngredientAccess) (Object) ingredient).getMatchingStacksMod();
+					var possibleItems = ((IngredientAccess) (Object) ingredient).getMatchingStacksMod();
 					if (possibleItems != null) {
-						ItemStack first = new ItemStack(possibleItems[0].getItem(), gunTableRecipe.countRequired(i));
+						var first = new ItemStack(possibleItems[0].getItem(), gunTableRecipe.countRequired(i));
 						autofill(i, first);
 					}
 				}
@@ -171,65 +156,58 @@ public class GunTableScreenHandler extends ScreenHandler {
 
 	private void autofill(int slot, ItemStack stack) {
 		if (!stack.isEmpty()) {
-			int ingCount = stack.getCount();
+			var ingCount = stack.getCount();
 			for (int index = 6; index < 42; ++index) {
-				ItemStack slotStack = this.slots.get(index).getStack();
+				var slotStack = this.slots.get(index).getItem();
 				if (!slotStack.isEmpty() && this.equals(stack, slotStack)) {
-					ItemStack invStack = this.gunTableInventory.getStack(slot);
-					int invStackCount = invStack.isEmpty() ? 0 : invStack.getCount();
-					int countToMove = Math.min(ingCount - invStackCount, slotStack.getCount());
-					ItemStack slotStackCopy = slotStack.copy();
-					int l = invStackCount + countToMove;
-					slotStack.decrement(countToMove);
+					var invStack = this.gunTableInventory.getItem(slot);
+					var invStackCount = invStack.isEmpty() ? 0 : invStack.getCount();
+					var countToMove = Math.min(ingCount - invStackCount, slotStack.getCount());
+					var slotStackCopy = slotStack.copy();
+					var l = invStackCount + countToMove;
+					slotStack.shrink(countToMove);
 					slotStackCopy.setCount(l);
-					this.gunTableInventory.setStack(slot, slotStackCopy);
-					if (l >= stack.getMaxCount()) {
+					this.gunTableInventory.setItem(slot, slotStackCopy);
+					if (l >= stack.getMaxStackSize())
 						break;
-					}
 				}
 			}
 		}
 	}
 
 	private boolean equals(ItemStack itemStack, ItemStack otherItemStack) {
-		return itemStack.getItem() == otherItemStack.getItem() && ItemStack.areNbtEqual(itemStack, otherItemStack);
+		return itemStack.getItem() == otherItemStack.getItem() && ItemStack.tagMatches(itemStack, otherItemStack);
 	}
 
-	public void close(PlayerEntity player) {
-		super.close(player);
-		if (!this.playerInventory.player.world.isClient) {
-			if (player.isAlive()
-					&& (!(player instanceof ServerPlayerEntity) || !((ServerPlayerEntity) player).isDisconnected())) {
-				player.getInventory().offerOrDrop(this.gunTableInventory.removeStack(0));
-				player.getInventory().offerOrDrop(this.gunTableInventory.removeStack(1));
-				player.getInventory().offerOrDrop(this.gunTableInventory.removeStack(2));
-				player.getInventory().offerOrDrop(this.gunTableInventory.removeStack(3));
-				player.getInventory().offerOrDrop(this.gunTableInventory.removeStack(4));
+	public void removed(Player player) {
+		super.removed(player);
+		if (!this.playerInventory.player.level.isClientSide) {
+			if (player.isAlive() && (!(player instanceof ServerPlayer) || !((ServerPlayer) player).hasDisconnected())) {
+				player.getInventory().placeItemBackInInventory(this.gunTableInventory.removeItemNoUpdate(0));
+				player.getInventory().placeItemBackInInventory(this.gunTableInventory.removeItemNoUpdate(1));
+				player.getInventory().placeItemBackInInventory(this.gunTableInventory.removeItemNoUpdate(2));
+				player.getInventory().placeItemBackInInventory(this.gunTableInventory.removeItemNoUpdate(3));
+				player.getInventory().placeItemBackInInventory(this.gunTableInventory.removeItemNoUpdate(4));
 			} else {
-				ItemStack itemStack0 = this.gunTableInventory.removeStack(0);
-				ItemStack itemStack1 = this.gunTableInventory.removeStack(1);
-				ItemStack itemStack2 = this.gunTableInventory.removeStack(2);
-				ItemStack itemStack3 = this.gunTableInventory.removeStack(3);
-				ItemStack itemStack4 = this.gunTableInventory.removeStack(4);
-				if (!itemStack0.isEmpty()) {
-					player.dropItem(itemStack0, false);
-				}
+				var itemStack0 = this.gunTableInventory.removeItemNoUpdate(0);
+				var itemStack1 = this.gunTableInventory.removeItemNoUpdate(1);
+				var itemStack2 = this.gunTableInventory.removeItemNoUpdate(2);
+				var itemStack3 = this.gunTableInventory.removeItemNoUpdate(3);
+				var itemStack4 = this.gunTableInventory.removeItemNoUpdate(4);
+				if (!itemStack0.isEmpty())
+					player.drop(itemStack0, false);
 
-				if (!itemStack1.isEmpty()) {
-					player.dropItem(itemStack1, false);
-				}
+				if (!itemStack1.isEmpty())
+					player.drop(itemStack1, false);
 
-				if (!itemStack2.isEmpty()) {
-					player.dropItem(itemStack2, false);
-				}
+				if (!itemStack2.isEmpty())
+					player.drop(itemStack2, false);
 
-				if (!itemStack3.isEmpty()) {
-					player.dropItem(itemStack3, false);
-				}
+				if (!itemStack3.isEmpty())
+					player.drop(itemStack3, false);
 
-				if (!itemStack4.isEmpty()) {
-					player.dropItem(itemStack4, false);
-				}
+				if (!itemStack4.isEmpty())
+					player.drop(itemStack4, false);
 			}
 		}
 	}

@@ -1,7 +1,5 @@
 package mod.azure.mchalo.entity.projectiles;
 
-import java.util.List;
-
 import mod.azure.azurelib.AzureLibMod;
 import mod.azure.azurelib.animatable.GeoEntity;
 import mod.azure.azurelib.core.animatable.instance.AnimatableInstanceCache;
@@ -17,45 +15,40 @@ import mod.azure.mchalo.util.HaloSounds;
 import mod.azure.mchalo.util.ProjectilesEntityRegister;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.entity.BlockEntity;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.damage.DamageSource;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.projectile.PersistentProjectileEntity;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NbtCompound;
-import net.minecraft.network.Packet;
-import net.minecraft.network.listener.ClientPlayPacketListener;
-import net.minecraft.sound.SoundEvent;
-import net.minecraft.util.hit.BlockHitResult;
-import net.minecraft.util.hit.EntityHitResult;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Box;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.Vec3d;
-import net.minecraft.world.World;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.protocol.Packet;
+import net.minecraft.network.protocol.game.ClientGamePacketListener;
+import net.minecraft.sounds.SoundEvent;
+import net.minecraft.world.entity.AreaEffectCloud;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.entity.projectile.AbstractArrow;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.EntityHitResult;
 
-public class RocketEntity extends PersistentProjectileEntity implements GeoEntity {
+public class RocketEntity extends AbstractArrow implements GeoEntity {
 
 	protected int timeInAir;
 	protected boolean inAir;
 	private int ticksInAir;
-	private LivingEntity shooter;
 	private BlockPos lightBlockPos = null;
 	private int idleTicks = 0;
 	private final AnimatableInstanceCache cache = AzureLibUtil.createInstanceCache(this);
 
-	public RocketEntity(EntityType<? extends RocketEntity> entityType, World world) {
+	public RocketEntity(EntityType<? extends RocketEntity> entityType, Level world) {
 		super(entityType, world);
-		this.pickupType = PersistentProjectileEntity.PickupPermission.DISALLOWED;
+		this.pickup = AbstractArrow.Pickup.DISALLOWED;
 	}
 
-	public RocketEntity(World world, LivingEntity owner) {
+	public RocketEntity(Level world, LivingEntity owner) {
 		super(ProjectilesEntityRegister.ROCKET, owner, world);
-		this.shooter = owner;
 	}
 
 	@Override
@@ -70,26 +63,36 @@ public class RocketEntity extends PersistentProjectileEntity implements GeoEntit
 		return this.cache;
 	}
 
-	protected RocketEntity(EntityType<? extends RocketEntity> type, double x, double y, double z, World world) {
+	protected RocketEntity(EntityType<? extends RocketEntity> type, double x, double y, double z, Level world) {
 		this(type, world);
 	}
 
-	protected RocketEntity(EntityType<? extends RocketEntity> type, LivingEntity owner, World world) {
+	protected RocketEntity(EntityType<? extends RocketEntity> type, LivingEntity owner, Level world) {
 		this(type, owner.getX(), owner.getEyeY() - 0.10000000149011612D, owner.getZ(), world);
 		this.setOwner(owner);
-		if (owner instanceof PlayerEntity) {
-			this.pickupType = PersistentProjectileEntity.PickupPermission.ALLOWED;
-		}
-
+		if (owner instanceof Player)
+			this.pickup = AbstractArrow.Pickup.DISALLOWED;
 	}
 
 	@Override
-	public Packet<ClientPlayPacketListener> createSpawnPacket() {
+	public Packet<ClientGamePacketListener> getAddEntityPacket() {
 		return EntityPacket.createPacket(this);
 	}
 
 	@Override
-	protected void age() {
+	public void remove(RemovalReason reason) {
+		var areaeffectcloudentity = new AreaEffectCloud(this.level, this.getX(), this.getY(), this.getZ());
+		areaeffectcloudentity.setParticle(ParticleTypes.EXPLOSION);
+		areaeffectcloudentity.setRadius(6);
+		areaeffectcloudentity.setDuration(1);
+		areaeffectcloudentity.absMoveTo(this.getX(), this.getEyeY(), this.getZ());
+		this.level.addFreshEntity(areaeffectcloudentity);
+		this.doDamage();
+		super.remove(reason);
+	}
+
+	@Override
+	protected void tickDespawn() {
 		++this.ticksInAir;
 		if (this.ticksInAir >= 40) {
 			this.remove(Entity.RemovalReason.DISCARDED);
@@ -98,36 +101,36 @@ public class RocketEntity extends PersistentProjectileEntity implements GeoEntit
 	}
 
 	@Override
-	protected void onHit(LivingEntity living) {
-		super.onHit(living);
-		if (!(living instanceof PlayerEntity)) {
-			living.setVelocity(0, 0, 0);
-			living.timeUntilRegen = 0;
+	protected void doPostHurtEffects(LivingEntity living) {
+		super.doPostHurtEffects(living);
+		if (!(living instanceof Player)) {
+			living.setDeltaMovement(0, 0, 0);
+			living.invulnerableTime = 0;
 		}
 	}
 
 	@Override
-	public void setVelocity(double x, double y, double z, float speed, float divergence) {
-		super.setVelocity(x, y, z, speed, divergence);
+	public void shoot(double x, double y, double z, float speed, float divergence) {
+		super.shoot(x, y, z, speed, divergence);
 		this.ticksInAir = 0;
 	}
 
 	@Override
-	public void writeCustomDataToNbt(NbtCompound tag) {
-		super.writeCustomDataToNbt(tag);
+	public void addAdditionalSaveData(CompoundTag tag) {
+		super.addAdditionalSaveData(tag);
 		tag.putShort("life", (short) this.ticksInAir);
 	}
 
 	@Override
-	public void readCustomDataFromNbt(NbtCompound tag) {
-		super.readCustomDataFromNbt(tag);
+	public void readAdditionalSaveData(CompoundTag tag) {
+		super.readAdditionalSaveData(tag);
 		this.ticksInAir = tag.getShort("life");
 	}
 
 	@Override
 	public void tick() {
-		int idleOpt = 100;
-		if (getVelocity().lengthSquared() < 0.01)
+		var idleOpt = 100;
+		if (getDeltaMovement().lengthSqr() < 0.01)
 			idleTicks++;
 		else
 			idleTicks = 0;
@@ -138,21 +141,21 @@ public class RocketEntity extends PersistentProjectileEntity implements GeoEntit
 			this.remove(Entity.RemovalReason.DISCARDED);
 			this.doDamage();
 		}
-		boolean isInsideWaterBlock = world.isWater(getBlockPos());
+		var isInsideWaterBlock = level.isWaterAt(blockPosition());
 		spawnLightSource(isInsideWaterBlock);
 	}
 
 	private void spawnLightSource(boolean isInWaterBlock) {
 		if (lightBlockPos == null) {
-			lightBlockPos = findFreeSpace(world, getBlockPos(), 2);
+			lightBlockPos = findFreeSpace(level, blockPosition(), 2);
 			if (lightBlockPos == null)
 				return;
-			world.setBlockState(lightBlockPos, AzureLibMod.TICKING_LIGHT_BLOCK.getDefaultState());
-		} else if (checkDistance(lightBlockPos, getBlockPos(), 2)) {
-			BlockEntity blockEntity = world.getBlockEntity(lightBlockPos);
-			if (blockEntity instanceof TickingLightEntity) {
+			level.setBlockAndUpdate(lightBlockPos, AzureLibMod.TICKING_LIGHT_BLOCK.defaultBlockState());
+		} else if (checkDistance(lightBlockPos, blockPosition(), 2)) {
+			var blockEntity = level.getBlockEntity(lightBlockPos);
+			if (blockEntity instanceof TickingLightEntity)
 				((TickingLightEntity) blockEntity).refresh(isInWaterBlock ? 20 : 0);
-			} else
+			else
 				lightBlockPos = null;
 		} else
 			lightBlockPos = null;
@@ -164,11 +167,11 @@ public class RocketEntity extends PersistentProjectileEntity implements GeoEntit
 				&& Math.abs(blockPosA.getZ() - blockPosB.getZ()) <= distance;
 	}
 
-	private BlockPos findFreeSpace(World world, BlockPos blockPos, int maxDistance) {
+	private BlockPos findFreeSpace(Level world, BlockPos blockPos, int maxDistance) {
 		if (blockPos == null)
 			return null;
 
-		int[] offsets = new int[maxDistance * 2 + 1];
+		var offsets = new int[maxDistance * 2 + 1];
 		offsets[0] = 0;
 		for (int i = 2; i <= maxDistance * 2; i += 2) {
 			offsets[i - 1] = i / 2;
@@ -177,8 +180,8 @@ public class RocketEntity extends PersistentProjectileEntity implements GeoEntit
 		for (int x : offsets)
 			for (int y : offsets)
 				for (int z : offsets) {
-					BlockPos offsetPos = blockPos.add(x, y, z);
-					BlockState state = world.getBlockState(offsetPos);
+					var offsetPos = blockPos.offset(x, y, z);
+					var state = world.getBlockState(offsetPos);
 					if (state.isAir() || state.getBlock().equals(AzureLibMod.TICKING_LIGHT_BLOCK))
 						return offsetPos;
 				}
@@ -192,81 +195,61 @@ public class RocketEntity extends PersistentProjectileEntity implements GeoEntit
 	}
 
 	@Override
-	public boolean hasNoGravity() {
-		if (this.isSubmergedInWater()) {
-			return false;
-		} else {
-			return true;
-		}
+	public boolean isNoGravity() {
+		return this.isUnderWater() ? false : true;
 	}
 
-	public SoundEvent hitSound = this.getHitSound();
+	public SoundEvent hitSound = this.getDefaultHitGroundSoundEvent();
 
 	@Override
-	public void setSound(SoundEvent soundIn) {
+	public void setSoundEvent(SoundEvent soundIn) {
 		this.hitSound = soundIn;
 	}
 
 	@Override
-	protected SoundEvent getHitSound() {
+	protected SoundEvent getDefaultHitGroundSoundEvent() {
 		return HaloSounds.ROCKET;
 	}
 
 	@Override
-	protected void onBlockHit(BlockHitResult blockHitResult) {
-		super.onBlockHit(blockHitResult);
-		if (!this.world.isClient) {
+	protected void onHitBlock(BlockHitResult blockHitResult) {
+		super.onHitBlock(blockHitResult);
+		if (!this.level.isClientSide) {
 			this.doDamage();
 			this.remove(Entity.RemovalReason.DISCARDED);
 		}
-		this.setSound(HaloSounds.ROCKET);
+		this.setSoundEvent(HaloSounds.ROCKET);
 	}
 
 	@Override
-	protected void onEntityHit(EntityHitResult entityHitResult) {
-		if (!this.world.isClient) {
+	protected void onHitEntity(EntityHitResult entityHitResult) {
+		if (!this.level.isClientSide) {
 			this.doDamage();
 			this.remove(Entity.RemovalReason.DISCARDED);
 		}
 	}
 
 	@Override
-	public ItemStack asItemStack() {
+	public ItemStack getPickupItem() {
 		return new ItemStack(HaloItems.ROCKET);
 	}
 
 	@Override
 	@Environment(EnvType.CLIENT)
-	public boolean shouldRender(double distance) {
+	public boolean shouldRenderAtSqrDistance(double distance) {
 		return true;
 	}
 
 	public void doDamage() {
-		float q = 8.0F;
-		int k = MathHelper.floor(this.getX() - (double) q - 1.0D);
-		int l = MathHelper.floor(this.getX() + (double) q + 1.0D);
-		int t = MathHelper.floor(this.getY() - (double) q - 1.0D);
-		int u = MathHelper.floor(this.getY() + (double) q + 1.0D);
-		int v = MathHelper.floor(this.getZ() - (double) q - 1.0D);
-		int w = MathHelper.floor(this.getZ() + (double) q + 1.0D);
-		List<Entity> list = this.world.getOtherEntities(this,
-				new Box((double) k, (double) t, (double) v, (double) l, (double) u, (double) w));
-		Vec3d vec3d = new Vec3d(this.getX(), this.getY(), this.getZ());
-		for (int x = 0; x < list.size(); ++x) {
-			Entity entity = (Entity) list.get(x);
-			double y = (double) (MathHelper.sqrt((float) entity.squaredDistanceTo(vec3d)) / q);
-			if (y <= 1.0D) {
-				if (entity instanceof LivingEntity) {
-					entity.damage(DamageSource.player((PlayerEntity) this.shooter), HaloConfig.rocketlauncher_damage);
-				}
-				this.world.createExplosion(this, this.getX(), this.getBodyY(0.0625D), this.getZ(), 0.0F,
-						World.ExplosionSourceType.NONE);
-			}
-		}
+		var aabb = new AABB(this.blockPosition().above()).inflate(6D, 6D, 6D);
+		this.getCommandSenderWorld().getEntities(this, aabb).forEach(e -> {
+			if (e.isAlive() && e instanceof LivingEntity) 
+				e.hurt(damageSources().playerAttack((Player) this.getOwner()), HaloConfig.rocketlauncher_damage);
+		});
 	}
 
 	@Override
-	public boolean doesRenderOnFire() {
+	public boolean displayFireAnimation() {
 		return false;
 	}
 }

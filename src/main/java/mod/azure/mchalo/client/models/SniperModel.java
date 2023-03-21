@@ -2,28 +2,28 @@ package mod.azure.mchalo.client.models;
 
 import mod.azure.mchalo.MCHaloMod;
 import mod.azure.mchalo.item.guns.SniperItem;
-import net.minecraft.client.render.RenderLayer;
-import net.minecraft.util.Identifier;
+import net.minecraft.client.renderer.RenderType;
+import net.minecraft.resources.ResourceLocation;
 import mod.azure.azurelib.model.GeoModel;
 
 public class SniperModel extends GeoModel<SniperItem> {
 	@Override
-	public Identifier getModelResource(SniperItem object) {
-		return new Identifier(MCHaloMod.MODID, "geo/sniper_h3.geo.json");
+	public ResourceLocation getModelResource(SniperItem object) {
+		return new ResourceLocation(MCHaloMod.MODID, "geo/sniper_h3.geo.json");
 	}
 
 	@Override
-	public Identifier getTextureResource(SniperItem object) {
-		return new Identifier(MCHaloMod.MODID, "textures/item/sniper_h3.png");
+	public ResourceLocation getTextureResource(SniperItem object) {
+		return new ResourceLocation(MCHaloMod.MODID, "textures/item/sniper_h3.png");
 	}
 
 	@Override
-	public Identifier getAnimationResource(SniperItem animatable) {
-		return new Identifier(MCHaloMod.MODID, "animations/sniper_h3.animation.json");
+	public ResourceLocation getAnimationResource(SniperItem animatable) {
+		return new ResourceLocation(MCHaloMod.MODID, "animations/sniper_h3.animation.json");
 	}
 
 	@Override
-	public RenderLayer getRenderType(SniperItem animatable, Identifier texture) {
-		return RenderLayer.getEntityTranslucent(getTextureResource(animatable));
+	public RenderType getRenderType(SniperItem animatable, ResourceLocation texture) {
+		return RenderType.entityTranslucent(getTextureResource(animatable));
 	}
 }

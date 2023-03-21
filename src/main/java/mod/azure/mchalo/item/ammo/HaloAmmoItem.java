@@ -1,11 +1,11 @@
 package mod.azure.mchalo.item.ammo;
 
-import net.minecraft.item.Item;
+import net.minecraft.world.item.Item;
 
 public class HaloAmmoItem extends Item {
 
 	public HaloAmmoItem() {
-		super(new Item.Settings());
+		super(new Item.Properties());
 	}
 
 }

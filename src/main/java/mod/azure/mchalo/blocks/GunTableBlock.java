@@ -2,112 +2,111 @@ package mod.azure.mchalo.blocks;
 
 import mod.azure.mchalo.blocks.blockentity.GunBlockEntity;
 import net.fabricmc.fabric.api.object.builder.v1.block.FabricBlockSettings;
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockEntityProvider;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.Material;
-import net.minecraft.block.ShapeContext;
-import net.minecraft.block.entity.BlockEntity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.ItemPlacementContext;
-import net.minecraft.screen.NamedScreenHandlerFactory;
-import net.minecraft.screen.ScreenHandler;
-import net.minecraft.state.StateManager;
-import net.minecraft.state.property.DirectionProperty;
-import net.minecraft.state.property.Properties;
-import net.minecraft.util.ActionResult;
-import net.minecraft.util.BlockMirror;
-import net.minecraft.util.BlockRotation;
-import net.minecraft.util.Hand;
-import net.minecraft.util.ItemScatterer;
-import net.minecraft.util.hit.BlockHitResult;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Direction;
-import net.minecraft.util.shape.VoxelShape;
-import net.minecraft.util.shape.VoxelShapes;
-import net.minecraft.world.BlockView;
-import net.minecraft.world.World;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.world.Containers;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.MenuProvider;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.inventory.AbstractContainerMenu;
+import net.minecraft.world.item.context.BlockPlaceContext;
+import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.EntityBlock;
+import net.minecraft.world.level.block.Mirror;
+import net.minecraft.world.level.block.Rotation;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.StateDefinition;
+import net.minecraft.world.level.block.state.properties.BlockStateProperties;
+import net.minecraft.world.level.block.state.properties.DirectionProperty;
+import net.minecraft.world.level.material.Material;
+import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.shapes.CollisionContext;
+import net.minecraft.world.phys.shapes.Shapes;
+import net.minecraft.world.phys.shapes.VoxelShape;
 
-public class GunTableBlock extends Block implements BlockEntityProvider {
+public class GunTableBlock extends Block implements EntityBlock {
 
-	public static final DirectionProperty FACING = Properties.HORIZONTAL_FACING;
-	private static final VoxelShape X_LENGTH1 = Block.createCuboidShape(1, 0, 3, 15, 7, 13);
-	private static final VoxelShape X_LENGTH2 = Block.createCuboidShape(3, 7, 3, 13, 9, 13);
-	private static final VoxelShape Y_LENGTH1 = Block.createCuboidShape(3, 0, 1, 13, 7, 15);
-	private static final VoxelShape Y_LENGTH2 = Block.createCuboidShape(3, 7, 3, 13, 9, 13);
-	private static final VoxelShape X_AXIS_AABB = VoxelShapes.union(X_LENGTH1, X_LENGTH2);
-	private static final VoxelShape Z_AXIS_AABB = VoxelShapes.union(Y_LENGTH1, Y_LENGTH2);
+	public static final DirectionProperty FACING = BlockStateProperties.HORIZONTAL_FACING;
+	private static final VoxelShape X_LENGTH1 = Block.box(1, 0, 3, 15, 7, 13);
+	private static final VoxelShape X_LENGTH2 = Block.box(3, 7, 3, 13, 9, 13);
+	private static final VoxelShape Y_LENGTH1 = Block.box(3, 0, 1, 13, 7, 15);
+	private static final VoxelShape Y_LENGTH2 = Block.box(3, 7, 3, 13, 9, 13);
+	private static final VoxelShape X_AXIS_AABB = Shapes.or(X_LENGTH1, X_LENGTH2);
+	private static final VoxelShape Z_AXIS_AABB = Shapes.or(Y_LENGTH1, Y_LENGTH2);
 
 	public GunTableBlock() {
-		super(FabricBlockSettings.of(Material.METAL).strength(4.0f).nonOpaque());
-		this.setDefaultState(this.stateManager.getDefaultState().with(FACING, Direction.NORTH));
+		super(FabricBlockSettings.of(Material.METAL).strength(4.0f).noOcclusion());
+		this.registerDefaultState(this.stateDefinition.any().setValue(FACING, Direction.NORTH));
 	}
 
 	@Override
-	protected void appendProperties(StateManager.Builder<Block, BlockState> builder) {
+	protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
 		builder.add(FACING);
 	}
 
 	@Override
-	public BlockEntity createBlockEntity(BlockPos pos, BlockState state) {
+	public BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
 		return new GunBlockEntity(pos, state);
 	}
 
 	@Override
-	public ActionResult onUse(BlockState state, World world, BlockPos pos, PlayerEntity player, Hand hand,
+	public InteractionResult use(BlockState state, Level world, BlockPos pos, Player player, InteractionHand hand,
 			BlockHitResult hit) {
-		if (!world.isClient) {
-			NamedScreenHandlerFactory screenHandlerFactory = state.createScreenHandlerFactory(world, pos);
-			if (screenHandlerFactory != null) {
-				player.openHandledScreen(screenHandlerFactory);
-			}
+		if (!world.isClientSide) {
+			var screenHandlerFactory = state.getMenuProvider(world, pos);
+			if (screenHandlerFactory != null) 
+				player.openMenu(screenHandlerFactory);
 		}
-		return ActionResult.SUCCESS;
+		return InteractionResult.SUCCESS;
 	}
 
 	@Override
-	public NamedScreenHandlerFactory createScreenHandlerFactory(BlockState state, World world, BlockPos pos) {
-		return (NamedScreenHandlerFactory) world.getBlockEntity(pos);
+	public MenuProvider getMenuProvider(BlockState state, Level world, BlockPos pos) {
+		return (MenuProvider) world.getBlockEntity(pos);
 	}
 
 	@Override
-	public void onStateReplaced(BlockState state, World world, BlockPos pos, BlockState newState, boolean moved) {
+	public void onRemove(BlockState state, Level world, BlockPos pos, BlockState newState, boolean moved) {
 		if (state.getBlock() != newState.getBlock()) {
-			BlockEntity blockEntity = world.getBlockEntity(pos);
+			var blockEntity = world.getBlockEntity(pos);
 			if (blockEntity instanceof GunBlockEntity) {
-				ItemScatterer.spawn(world, pos, (GunBlockEntity) blockEntity);
-				world.updateComparators(pos, this);
+				Containers.dropContents(world, pos, (GunBlockEntity) blockEntity);
+				world.updateNeighbourForOutputSignal(pos, this);
 			}
-			super.onStateReplaced(state, world, pos, newState, moved);
+			super.onRemove(state, world, pos, newState, moved);
 		}
 	}
 
 	@Override
-	public boolean hasComparatorOutput(BlockState state) {
+	public boolean hasAnalogOutputSignal(BlockState state) {
 		return true;
 	}
 
 	@Override
-	public int getComparatorOutput(BlockState state, World world, BlockPos pos) {
-		return ScreenHandler.calculateComparatorOutput(world.getBlockEntity(pos));
+	public int getAnalogOutputSignal(BlockState state, Level world, BlockPos pos) {
+		return AbstractContainerMenu.getRedstoneSignalFromBlockEntity(world.getBlockEntity(pos));
 	}
 
-	public BlockState rotate(BlockState state, BlockRotation rotation) {
-		return (BlockState) state.with(FACING, rotation.rotate((Direction) state.get(FACING)));
+	public BlockState rotate(BlockState state, Rotation rotation) {
+		return (BlockState) state.setValue(FACING, rotation.rotate((Direction) state.getValue(FACING)));
 	}
 
-	public VoxelShape getOutlineShape(BlockState state, BlockView world, BlockPos pos, ShapeContext context) {
-		Direction direction = (Direction) state.get(FACING);
+	public VoxelShape getShape(BlockState state, BlockGetter world, BlockPos pos, CollisionContext context) {
+		var direction = (Direction) state.getValue(FACING);
 		return direction.getAxis() == Direction.Axis.X ? Z_AXIS_AABB : X_AXIS_AABB;
 	}
 
-	public BlockState mirror(BlockState state, BlockMirror mirror) {
-		return state.rotate(mirror.getRotation((Direction) state.get(FACING)));
+	public BlockState mirror(BlockState state, Mirror mirror) {
+		return state.rotate(mirror.getRotation((Direction) state.getValue(FACING)));
 	}
 
 	@Override
-	public BlockState getPlacementState(ItemPlacementContext context) {
-		return this.getDefaultState().with(FACING, context.getPlayerFacing());
+	public BlockState getStateForPlacement(BlockPlaceContext context) {
+		return this.defaultBlockState().setValue(FACING, context.getPlayer().getDirection());
 	}
 
 }

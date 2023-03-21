@@ -2,28 +2,28 @@ package mod.azure.mchalo.client.models;
 
 import mod.azure.mchalo.MCHaloMod;
 import mod.azure.mchalo.item.guns.PlasmaPistolItem;
-import net.minecraft.client.render.RenderLayer;
-import net.minecraft.util.Identifier;
+import net.minecraft.client.renderer.RenderType;
+import net.minecraft.resources.ResourceLocation;
 import mod.azure.azurelib.model.GeoModel;
 
 public class PlasmaPistolModel extends GeoModel<PlasmaPistolItem> {
 	@Override
-	public Identifier getModelResource(PlasmaPistolItem object) {
-		return new Identifier(MCHaloMod.MODID, "geo/plasma_pistol.geo.json");
+	public ResourceLocation getModelResource(PlasmaPistolItem object) {
+		return new ResourceLocation(MCHaloMod.MODID, "geo/plasma_pistol.geo.json");
 	}
 
 	@Override
-	public Identifier getTextureResource(PlasmaPistolItem object) {
-		return new Identifier(MCHaloMod.MODID, "textures/item/plasma_pistol.png");
+	public ResourceLocation getTextureResource(PlasmaPistolItem object) {
+		return new ResourceLocation(MCHaloMod.MODID, "textures/item/plasma_pistol.png");
 	}
 
 	@Override
-	public Identifier getAnimationResource(PlasmaPistolItem animatable) {
-		return new Identifier(MCHaloMod.MODID, "animations/plasma_pistol.animation.json");
+	public ResourceLocation getAnimationResource(PlasmaPistolItem animatable) {
+		return new ResourceLocation(MCHaloMod.MODID, "animations/plasma_pistol.animation.json");
 	}
 
 	@Override
-	public RenderLayer getRenderType(PlasmaPistolItem animatable, Identifier texture) {
-		return RenderLayer.getEntityTranslucent(getTextureResource(animatable));
+	public RenderType getRenderType(PlasmaPistolItem animatable, ResourceLocation texture) {
+		return RenderType.entityTranslucent(getTextureResource(animatable));
 	}
 }

@@ -11,13 +11,13 @@ import mod.azure.mchalo.entity.projectiles.PlasmaEntity;
 import mod.azure.mchalo.entity.projectiles.PlasmaGEntity;
 import mod.azure.mchalo.entity.projectiles.RocketEntity;
 import net.fabricmc.fabric.api.object.builder.v1.entity.FabricEntityTypeBuilder;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityDimensions;
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.SpawnGroup;
-import net.minecraft.registry.Registries;
-import net.minecraft.registry.Registry;
-import net.minecraft.util.Identifier;
+import net.minecraft.core.Registry;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityDimensions;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.MobCategory;
 
 public class ProjectilesEntityRegister {
 
@@ -39,17 +39,16 @@ public class ProjectilesEntityRegister {
 	public static <T extends Entity> EntityType<T> projectile(EntityType.EntityFactory<T> factory, String id,
 			boolean itemRender) {
 
-		EntityType<T> type = FabricEntityTypeBuilder.<T>create(SpawnGroup.MISC, factory)
+		var type = FabricEntityTypeBuilder.<T>create(MobCategory.MISC, factory)
 				.dimensions(new EntityDimensions(0.5F, 0.5F, true)).disableSummon().spawnableFarFromPlayer()
 				.trackRangeBlocks(90).trackedUpdateRate(1).build();
 
-		Registry.register(Registries.ENTITY_TYPE, new Identifier(MCHaloMod.MODID, id), type);
+		Registry.register(BuiltInRegistries.ENTITY_TYPE, new ResourceLocation(MCHaloMod.MODID, id), type);
 
 		ENTITY_TYPES.add(type);
 
-		if (itemRender) {
+		if (itemRender)
 			ENTITY_THAT_USE_ITEM_RENDERS.add(type);
-		}
 
 		return type;
 	}

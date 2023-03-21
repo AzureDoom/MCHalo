@@ -8,36 +8,36 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import mod.azure.mchalo.item.EnergySwordItem;
 import mod.azure.mchalo.item.HaloGunBase;
 import mod.azure.mchalo.item.PropShieldItem;
-import net.minecraft.enchantment.EnchantmentHelper;
-import net.minecraft.enchantment.Enchantments;
-import net.minecraft.entity.player.PlayerInventory;
-import net.minecraft.item.ItemStack;
-import net.minecraft.screen.AnvilScreenHandler;
-import net.minecraft.screen.ForgingScreenHandler;
-import net.minecraft.screen.ScreenHandlerContext;
-import net.minecraft.screen.ScreenHandlerType;
+import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.inventory.AnvilMenu;
+import net.minecraft.world.inventory.ContainerLevelAccess;
+import net.minecraft.world.inventory.ItemCombinerMenu;
+import net.minecraft.world.inventory.MenuType;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.enchantment.EnchantmentHelper;
+import net.minecraft.world.item.enchantment.Enchantments;
 
-@Mixin(value = AnvilScreenHandler.class)
-public abstract class AnvilScreenHandlerMixin extends ForgingScreenHandler {
+@Mixin(value = AnvilMenu.class)
+public abstract class AnvilScreenHandlerMixin extends ItemCombinerMenu {
 
-	public AnvilScreenHandlerMixin(ScreenHandlerType<?> type, int syncId, PlayerInventory playerInventory,
-			ScreenHandlerContext context) {
+	public AnvilScreenHandlerMixin(MenuType<?> type, int syncId, Inventory playerInventory,
+			ContainerLevelAccess context) {
 		super(type, syncId, playerInventory, context);
 	}
 
-	@Inject(method = "updateResult", at = @At(value = "RETURN"))
+	@Inject(method = "createResult", at = @At(value = "RETURN"))
 	private void blockMending(CallbackInfo ci) {
-		ItemStack leftStack = this.input.getStack(0).copy();
-		ItemStack rightStack = this.input.getStack(1).copy();
+		var leftStack = this.inputSlots.getItem(0).copy();
+		var rightStack = this.inputSlots.getItem(1).copy();
 		if ((leftStack.getItem() instanceof HaloGunBase || leftStack.getItem() instanceof EnergySwordItem
 				|| leftStack.getItem() instanceof PropShieldItem)
-				&& (EnchantmentHelper.getLevel(Enchantments.MENDING, rightStack) > 0
-						|| EnchantmentHelper.getLevel(Enchantments.UNBREAKING, rightStack) > 0
-						|| EnchantmentHelper.get(rightStack).containsKey(Enchantments.MENDING)
-						|| EnchantmentHelper.get(rightStack).containsKey(Enchantments.UNBREAKING))) {
-			ItemStack repaired = ItemStack.EMPTY;
-			this.output.setStack(0, repaired);
-			this.sendContentUpdates();
+				&& (EnchantmentHelper.getItemEnchantmentLevel(Enchantments.MENDING, rightStack) > 0
+						|| EnchantmentHelper.getItemEnchantmentLevel(Enchantments.UNBREAKING, rightStack) > 0
+						|| EnchantmentHelper.getEnchantments(rightStack).containsKey(Enchantments.MENDING)
+						|| EnchantmentHelper.getEnchantments(rightStack).containsKey(Enchantments.UNBREAKING))) {
+			var repaired = ItemStack.EMPTY;
+			this.resultSlots.setItem(0, repaired);
+			this.broadcastChanges();
 		}
 	}
 }

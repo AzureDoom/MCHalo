@@ -1,5 +1,6 @@
 package mod.azure.mchalo.client;
 
+import com.mojang.blaze3d.platform.InputConstants;
 import java.util.UUID;
 
 import org.lwjgl.glfw.GLFW;
@@ -22,29 +23,28 @@ import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
 import net.fabricmc.fabric.api.client.particle.v1.ParticleFactoryRegistry;
 import net.fabricmc.fabric.api.client.rendering.v1.EntityRendererRegistry;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gui.screen.ingame.HandledScreens;
-import net.minecraft.client.item.ModelPredicateProviderRegistry;
-import net.minecraft.client.option.KeyBinding;
-import net.minecraft.client.util.InputUtil;
-import net.minecraft.client.world.ClientWorld;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityType;
-import net.minecraft.network.PacketByteBuf;
-import net.minecraft.registry.Registries;
-import net.minecraft.util.Identifier;
+import net.minecraft.client.KeyMapping;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.screens.MenuScreens;
+import net.minecraft.client.multiplayer.ClientLevel;
+import net.minecraft.client.renderer.item.ItemProperties;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityType;
 
 public class ClientInit implements ClientModInitializer {
 
-	public static KeyBinding reload = new KeyBinding("key.mchalo.reload", InputUtil.Type.KEYSYM, GLFW.GLFW_KEY_R,
+	public static KeyMapping reload = new KeyMapping("key.mchalo.reload", InputConstants.Type.KEYSYM, GLFW.GLFW_KEY_R,
 			"category.mchalo.binds");
 
-	public static KeyBinding scope = new KeyBinding("key.mchalo.scope", InputUtil.Type.KEYSYM, GLFW.GLFW_KEY_LEFT_ALT,
+	public static KeyMapping scope = new KeyMapping("key.mchalo.scope", InputConstants.Type.KEYSYM, GLFW.GLFW_KEY_LEFT_ALT,
 			"category.mchalo.binds");
 
 	@Override
 	public void onInitializeClient() {
-		HandledScreens.register(MCHaloMod.SCREEN_HANDLER_TYPE, GunTableScreen::new);
+		MenuScreens.register(MCHaloMod.SCREEN_HANDLER_TYPE, GunTableScreen::new);
 		KeyBindingHelper.registerKeyBinding(reload);
 		KeyBindingHelper.registerKeyBinding(scope);
 		EntityRendererRegistry.register(ProjectilesEntityRegister.BULLET, (ctx) -> new BulletRender(ctx));
@@ -53,13 +53,13 @@ public class ClientInit implements ClientModInitializer {
 		EntityRendererRegistry.register(ProjectilesEntityRegister.PLASMA, (ctx) -> new PlasmaRender(ctx));
 		EntityRendererRegistry.register(ProjectilesEntityRegister.PLASMAG, (ctx) -> new PlasmaGRender(ctx));
 		EntityRendererRegistry.register(ProjectilesEntityRegister.GRENADE, (ctx) -> new GrenadeRender(ctx));
-		ModelPredicateProviderRegistry.register(HaloItems.SNIPER, new Identifier("scoped"),
+		ItemProperties.register(HaloItems.SNIPER, new ResourceLocation("scoped"),
 				(itemStack, clientWorld, livingEntity, seed) -> {
 					if (livingEntity != null)
 						return isScoped() ? 1.0F : 0.0F;
 					return 0.0F;
 				});
-		ModelPredicateProviderRegistry.register(HaloItems.BATTLERIFLE, new Identifier("scoped"),
+		ItemProperties.register(HaloItems.BATTLERIFLE, new ResourceLocation("scoped"),
 				(itemStack, clientWorld, livingEntity, seed) -> {
 					if (livingEntity != null)
 						return isScoped() ? 1.0F : 0.0F;
@@ -70,13 +70,13 @@ public class ClientInit implements ClientModInitializer {
 	}
 
 	private static boolean isScoped() {
-		return scope.isPressed();
+		return scope.isDown();
 	}
 
 	@Environment(EnvType.CLIENT)
-	public static void onPacket(MinecraftClient context, PacketByteBuf byteBuf) {
-		EntityType<?> type = Registries.ENTITY_TYPE.get(byteBuf.readVarInt());
-		UUID entityUUID = byteBuf.readUuid();
+	public static void onPacket(Minecraft context, FriendlyByteBuf byteBuf) {
+		EntityType<?> type = BuiltInRegistries.ENTITY_TYPE.byId(byteBuf.readVarInt());
+		UUID entityUUID = byteBuf.readUUID();
 		int entityID = byteBuf.readVarInt();
 		double x = byteBuf.readDouble();
 		double y = byteBuf.readDouble();
@@ -84,16 +84,16 @@ public class ClientInit implements ClientModInitializer {
 		float pitch = (byteBuf.readByte() * 360) / 256.0F;
 		float yaw = (byteBuf.readByte() * 360) / 256.0F;
 		context.execute(() -> {
-			ClientWorld world = MinecraftClient.getInstance().world;
+			ClientLevel world = Minecraft.getInstance().level;
 			Entity entity = type.create(world);
 			if (entity != null) {
-				entity.updatePosition(x, y, z);
-				entity.updateTrackedPosition(x, y, z);
-				entity.setPitch(pitch);
-				entity.setYaw(yaw);
+				entity.absMoveTo(x, y, z);
+				entity.syncPacketPositionCodec(x, y, z);
+				entity.setXRot(pitch);
+				entity.setYRot(yaw);
 				entity.setId(entityID);
-				entity.setUuid(entityUUID);
-				world.addEntity(entityID, entity);
+				entity.setUUID(entityUUID);
+				world.putNonPlayerEntity(entityID, entity);
 			}
 		});
 	}
