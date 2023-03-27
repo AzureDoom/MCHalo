@@ -48,7 +48,7 @@ dependencies {
 	//mappings "net.fabricmc:yarn:${project.yarn_mappings}:v2"
 	modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
 	modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
-  	modImplementation 'mod.azure.azurelib:azurelib-fabric-1.19.4:1.0.4a'
+  	modImplementation 'mod.azure.azurelib:azurelib-fabric-1.19.4:1.0.7'
 	modImplementation "maven.modrinth:midnightlib:1.2.0-fabric"
     shade group: 'maven.modrinth', name: 'midnightlib', version: '1.2.0-fabric'
 	modImplementation ("com.terraformersmc:modmenu:6.1.0-rc.4")
@@ -167,7 +167,7 @@ if (file('key.properties').exists()) {
 		token = modrinthProp.getProperty('modrinthKey')
 		projectId = 'JUk0DjJ2' 
 		versionNumber = project.mod_version 
-		versionName = '1.19.3'
+		versionName = '1.19.4'
 		uploadFile = remapJar 
 		changelog = rootProject.file("changelog.txt").text
 		gameVersions = ['1.19.4']
