@@ -12,8 +12,8 @@ import mod.azure.azurelib.core.animation.AnimatableManager.ControllerRegistrar;
 import mod.azure.azurelib.core.animation.AnimationController;
 import mod.azure.azurelib.core.object.PlayState;
 import mod.azure.azurelib.util.AzureLibUtil;
+import mod.azure.mchalo.MCHaloMod;
 import mod.azure.mchalo.client.render.PropShieldRender;
-import mod.azure.mchalo.config.HaloConfig;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.renderer.BlockEntityWithoutLevelRenderer;
 import net.minecraft.network.chat.Component;
@@ -33,7 +33,7 @@ public class PropShieldItem extends Item implements GeoItem {
 	private final Supplier<Object> renderProvider = GeoItem.makeRenderer(this);
 
 	public PropShieldItem() {
-		super(new Item.Properties().stacksTo(1).durability(HaloConfig.propshield_max_damage + 1));
+		super(new Item.Properties().stacksTo(1).durability(MCHaloMod.config.propshield_max_damage + 1));
 		SingletonGeoAnimatable.registerSyncedAnimatable(this);
 	}
 

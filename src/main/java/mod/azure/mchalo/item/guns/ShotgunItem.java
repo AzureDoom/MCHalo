@@ -11,7 +11,6 @@ import mod.azure.azurelib.animatable.client.RenderProvider;
 import mod.azure.mchalo.MCHaloMod;
 import mod.azure.mchalo.client.ClientInit;
 import mod.azure.mchalo.client.render.ShotgunRender;
-import mod.azure.mchalo.config.HaloConfig;
 import mod.azure.mchalo.item.HaloGunBase;
 import mod.azure.mchalo.util.HaloItems;
 import mod.azure.mchalo.util.HaloSounds;
@@ -39,7 +38,7 @@ public class ShotgunItem extends HaloGunBase {
 	private final Supplier<Object> renderProvider = GeoItem.makeRenderer(this);
 
 	public ShotgunItem() {
-		super(new Item.Properties().stacksTo(1).durability(HaloConfig.shotgun_max_ammo + 1));
+		super(new Item.Properties().stacksTo(1).durability(MCHaloMod.config.shotgun_max_ammo + 1));
 		SingletonGeoAnimatable.registerSyncedAnimatable(this);
 	}
 
@@ -52,7 +51,7 @@ public class ShotgunItem extends HaloGunBase {
 				playerentity.getCooldowns().addCooldown(this, 18);
 				if (!worldIn.isClientSide) {
 					for (int y = 0; y < 4; ++y) {
-						var shellEntity = createBullet(worldIn, stack, playerentity, HaloConfig.shotgun_bullet_damage);
+						var shellEntity = createBullet(worldIn, stack, playerentity, MCHaloMod.config.shotgun_bullet_damage);
 						shellEntity.shootFromRotation(playerentity,
 								playerentity.getXRot() + (y == 3 ? 1 : y == 4 ? -1 : 0),
 								playerentity.getYRot() + (y == 3 ? 1 : y == 2 ? -1 : y == 4 ? -1 : 0), 0.5F,
@@ -88,7 +87,7 @@ public class ShotgunItem extends HaloGunBase {
 			while (!user.isCreative() && user.getItemInHand(hand).getDamageValue() != 0
 					&& user.getInventory().countItem(HaloItems.SHOTGUN_CLIP) > 0) {
 				removeAmmo(HaloItems.SHOTGUN_CLIP, user);
-				user.getItemInHand(hand).hurtAndBreak(-HaloConfig.shotgun_mag_size, user,
+				user.getItemInHand(hand).hurtAndBreak(-MCHaloMod.config.shotgun_mag_size, user,
 						s -> user.broadcastBreakEvent(hand));
 				user.getItemInHand(hand).setPopTime(3);
 				user.getCommandSenderWorld().playSound((Player) null, user.getX(), user.getY(), user.getZ(),
@@ -102,7 +101,7 @@ public class ShotgunItem extends HaloGunBase {
 		var j = EnchantmentHelper.getItemEnchantmentLevel(Enchantments.POWER_ARROWS, stack);
 		super.appendHoverText(stack, world, tooltip, context);
 		tooltip.add(Component.translatable("Damage: "
-				+ ((j > 0 ? (HaloConfig.shotgun_bullet_damage + (j * 1.5F + 0.5F)) : HaloConfig.shotgun_bullet_damage)
+				+ ((j > 0 ? (MCHaloMod.config.shotgun_bullet_damage + (j * 1.5F + 0.5F)) : MCHaloMod.config.shotgun_bullet_damage)
 						* 4))
 				.withStyle(ChatFormatting.ITALIC));
 	}

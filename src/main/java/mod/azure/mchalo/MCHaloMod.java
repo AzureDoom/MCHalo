@@ -1,6 +1,7 @@
 package mod.azure.mchalo;
 
-import eu.midnightdust.lib.config.MidnightConfig;
+import dev.toma.configuration.Configuration;
+import dev.toma.configuration.config.format.ConfigFormats;
 import mod.azure.azurelib.AzureLib;
 import mod.azure.mchalo.blocks.GunTableBlock;
 import mod.azure.mchalo.blocks.blockentity.GunBlockEntity;
@@ -60,104 +61,85 @@ public class MCHaloMod implements ModInitializer {
 	public static final ResourceLocation ROCKETLAUNCHER = new ResourceLocation(MODID, "rocketlauncher");
 	public static final ResourceLocation lock_slot = new ResourceLocation(MODID, "select_craft");
 	public static MenuType<GunTableScreenHandler> SCREEN_HANDLER_TYPE;
-	public static final CreativeModeTab HALOTAB = FabricItemGroup.builder(new ResourceLocation(MODID, "items"))
-			.icon(() -> new ItemStack(HaloItems.ENERGYSWORD)).displayItems((context, entries) -> {
-				entries.accept(HaloItems.ENERGYSWORD);
-				entries.accept(HaloItems.MAGNUM);
-				entries.accept(HaloItems.BATTLERIFLE);
-				entries.accept(HaloItems.BULLETCLIP);
-				entries.accept(HaloItems.SHOTGUN);
-				entries.accept(HaloItems.MAULER);
-				entries.accept(HaloItems.SHOTGUN_CLIP);
-				entries.accept(HaloItems.SNIPER);
-				entries.accept(HaloItems.SNIPER_ROUND);
-				entries.accept(HaloItems.BRUTESHOT);
-				entries.accept(HaloItems.GRENADE);
-				entries.accept(HaloItems.NEEDLER);
-				entries.accept(HaloItems.NEEDLES);
-				entries.accept(HaloItems.PLASMAPISTOL);
-				entries.accept(HaloItems.PLASMARIFLE);
-				entries.accept(HaloItems.BATTERIES);
-				entries.accept(HaloItems.ROCKETLAUNCHER);
-				entries.accept(HaloItems.ROCKET);
-				entries.accept(HaloItems.PROPSHIELD);
-				entries.accept(HaloItems.GUN_TABLE);
-			}).build();
-	public static final RecipeSerializer<GunTableRecipe> GUN_TABLE_RECIPE_SERIALIZER = Registry.register(
-			BuiltInRegistries.RECIPE_SERIALIZER, new ResourceLocation(MODID, "gun_table"), new GunTableRecipe.Serializer());
+	public static final CreativeModeTab HALOTAB = FabricItemGroup.builder(new ResourceLocation(MODID, "items")).icon(() -> new ItemStack(HaloItems.ENERGYSWORD)).displayItems((context, entries) -> {
+		entries.accept(HaloItems.ENERGYSWORD);
+		entries.accept(HaloItems.MAGNUM);
+		entries.accept(HaloItems.BATTLERIFLE);
+		entries.accept(HaloItems.BULLETCLIP);
+		entries.accept(HaloItems.SHOTGUN);
+		entries.accept(HaloItems.MAULER);
+		entries.accept(HaloItems.SHOTGUN_CLIP);
+		entries.accept(HaloItems.SNIPER);
+		entries.accept(HaloItems.SNIPER_ROUND);
+		entries.accept(HaloItems.BRUTESHOT);
+		entries.accept(HaloItems.GRENADE);
+		entries.accept(HaloItems.NEEDLER);
+		entries.accept(HaloItems.NEEDLES);
+		entries.accept(HaloItems.PLASMAPISTOL);
+		entries.accept(HaloItems.PLASMARIFLE);
+		entries.accept(HaloItems.BATTERIES);
+		entries.accept(HaloItems.ROCKETLAUNCHER);
+		entries.accept(HaloItems.ROCKET);
+		entries.accept(HaloItems.PROPSHIELD);
+		entries.accept(HaloItems.GUN_TABLE);
+	}).build();
+	public static final RecipeSerializer<GunTableRecipe> GUN_TABLE_RECIPE_SERIALIZER = Registry.register(BuiltInRegistries.RECIPE_SERIALIZER, new ResourceLocation(MODID, "gun_table"), new GunTableRecipe.Serializer());
 
 	@Override
 	public void onInitialize() {
-		MidnightConfig.init(MODID, HaloConfig.class);
+		config = Configuration.registerConfig(HaloConfig.class, ConfigFormats.json()).getConfigInstance();
 		Registry.register(BuiltInRegistries.BLOCK, new ResourceLocation(MODID, "gun_table"), GUN_TABLE);
 		ITEMS = new HaloItems();
 		SOUNDS = new HaloSounds();
 		PROJECTILES = new ProjectilesEntityRegister();
-		GUN_TABLE_ENTITY = Registry.register(BuiltInRegistries.BLOCK_ENTITY_TYPE, MODID + ":guntable",
-				FabricBlockEntityTypeBuilder.create(GunBlockEntity::new, GUN_TABLE).build(null));
+		GUN_TABLE_ENTITY = Registry.register(BuiltInRegistries.BLOCK_ENTITY_TYPE, MODID + ":guntable", FabricBlockEntityTypeBuilder.create(GunBlockEntity::new, GUN_TABLE).build(null));
 		SCREEN_HANDLER_TYPE = new MenuType<>(GunTableScreenHandler::new, FeatureFlags.VANILLA_SET);
-		Registry.register(BuiltInRegistries.MENU, new ResourceLocation(MODID, "guntable_screen_type"),
-				SCREEN_HANDLER_TYPE);
+		Registry.register(BuiltInRegistries.MENU, new ResourceLocation(MODID, "guntable_screen_type"), SCREEN_HANDLER_TYPE);
 		AzureLib.initialize();
 		ServerPlayNetworking.registerGlobalReceiver(lock_slot, new C2SMessageSelectCraft());
-		ServerPlayNetworking.registerGlobalReceiver(MCHaloMod.SNIPER,
-				(server, player, serverPlayNetworkHandler, inputPacket, packetSender) -> {
-					if (player.getMainHandItem().getItem() instanceof SniperItem) 
-						((SniperItem) player.getMainHandItem().getItem()).reload(player, InteractionHand.MAIN_HAND);
-				});
-		ServerPlayNetworking.registerGlobalReceiver(MCHaloMod.SHOTGUN,
-				(server, player, serverPlayNetworkHandler, inputPacket, packetSender) -> {
-					if (player.getMainHandItem().getItem() instanceof ShotgunItem) 
-						((ShotgunItem) player.getMainHandItem().getItem()).reload(player, InteractionHand.MAIN_HAND);
-				});
-		ServerPlayNetworking.registerGlobalReceiver(MCHaloMod.MAGNUM,
-				(server, player, serverPlayNetworkHandler, inputPacket, packetSender) -> {
-					if (player.getMainHandItem().getItem() instanceof MagnumItem) 
-						((MagnumItem) player.getMainHandItem().getItem()).reload(player, InteractionHand.MAIN_HAND);
-				});
-		ServerPlayNetworking.registerGlobalReceiver(MCHaloMod.BATTLERIFLE,
-				(server, player, serverPlayNetworkHandler, inputPacket, packetSender) -> {
-					if (player.getMainHandItem().getItem() instanceof BattleRifleItem) 
-						((BattleRifleItem) player.getMainHandItem().getItem()).reload(player, InteractionHand.MAIN_HAND);
-				});
-		ServerPlayNetworking.registerGlobalReceiver(MCHaloMod.ROCKETLAUNCHER,
-				(server, player, serverPlayNetworkHandler, inputPacket, packetSender) -> {
-					if (player.getMainHandItem().getItem() instanceof RocketLauncherItem) 
-						((RocketLauncherItem) player.getMainHandItem().getItem()).reload(player, InteractionHand.MAIN_HAND);
-				});
-		ServerPlayNetworking.registerGlobalReceiver(MCHaloMod.ENERGYSWORD,
-				(server, player, serverPlayNetworkHandler, inputPacket, packetSender) -> {
-					if (player.getMainHandItem().getItem() instanceof EnergySwordItem) 
-						((EnergySwordItem) player.getMainHandItem().getItem()).reload(player, InteractionHand.MAIN_HAND);
-				});
-		ServerPlayNetworking.registerGlobalReceiver(MCHaloMod.PLASMAPISTOL,
-				(server, player, serverPlayNetworkHandler, inputPacket, packetSender) -> {
-					if (player.getMainHandItem().getItem() instanceof PlasmaPistolItem) 
-						((PlasmaPistolItem) player.getMainHandItem().getItem()).reload(player, InteractionHand.MAIN_HAND);
-				});
-		;
-		ServerPlayNetworking.registerGlobalReceiver(MCHaloMod.PLASMARIFLE,
-				(server, player, serverPlayNetworkHandler, inputPacket, packetSender) -> {
-					if (player.getMainHandItem().getItem() instanceof PlasmaRifleItem) 
-						((PlasmaRifleItem) player.getMainHandItem().getItem()).reload(player, InteractionHand.MAIN_HAND);
-				});
-		;
-		ServerPlayNetworking.registerGlobalReceiver(MCHaloMod.NEEDLER,
-				(server, player, serverPlayNetworkHandler, inputPacket, packetSender) -> {
-					if (player.getMainHandItem().getItem() instanceof NeedlerItem) 
-						((NeedlerItem) player.getMainHandItem().getItem()).reload(player, InteractionHand.MAIN_HAND);
-				});
-		;
-		ServerPlayNetworking.registerGlobalReceiver(MCHaloMod.MAULER,
-				(server, player, serverPlayNetworkHandler, inputPacket, packetSender) -> {
-					if (player.getMainHandItem().getItem() instanceof MaulerItem) 
-						((MaulerItem) player.getMainHandItem().getItem()).reload(player, InteractionHand.MAIN_HAND);
-				});
-		;
-		ServerPlayNetworking.registerGlobalReceiver(MCHaloMod.BRUTESHOT,
-				(server, player, serverPlayNetworkHandler, inputPacket, packetSender) -> {
-					if (player.getMainHandItem().getItem() instanceof BruteShotItem) 
-						((BruteShotItem) player.getMainHandItem().getItem()).reload(player, InteractionHand.MAIN_HAND);
-				});
+		ServerPlayNetworking.registerGlobalReceiver(MCHaloMod.SNIPER, (server, player, serverPlayNetworkHandler, inputPacket, packetSender) -> {
+			if (player.getMainHandItem().getItem() instanceof SniperItem)
+				((SniperItem) player.getMainHandItem().getItem()).reload(player, InteractionHand.MAIN_HAND);
+		});
+		ServerPlayNetworking.registerGlobalReceiver(MCHaloMod.SHOTGUN, (server, player, serverPlayNetworkHandler, inputPacket, packetSender) -> {
+			if (player.getMainHandItem().getItem() instanceof ShotgunItem)
+				((ShotgunItem) player.getMainHandItem().getItem()).reload(player, InteractionHand.MAIN_HAND);
+		});
+		ServerPlayNetworking.registerGlobalReceiver(MCHaloMod.MAGNUM, (server, player, serverPlayNetworkHandler, inputPacket, packetSender) -> {
+			if (player.getMainHandItem().getItem() instanceof MagnumItem)
+				((MagnumItem) player.getMainHandItem().getItem()).reload(player, InteractionHand.MAIN_HAND);
+		});
+		ServerPlayNetworking.registerGlobalReceiver(MCHaloMod.BATTLERIFLE, (server, player, serverPlayNetworkHandler, inputPacket, packetSender) -> {
+			if (player.getMainHandItem().getItem() instanceof BattleRifleItem)
+				((BattleRifleItem) player.getMainHandItem().getItem()).reload(player, InteractionHand.MAIN_HAND);
+		});
+		ServerPlayNetworking.registerGlobalReceiver(MCHaloMod.ROCKETLAUNCHER, (server, player, serverPlayNetworkHandler, inputPacket, packetSender) -> {
+			if (player.getMainHandItem().getItem() instanceof RocketLauncherItem)
+				((RocketLauncherItem) player.getMainHandItem().getItem()).reload(player, InteractionHand.MAIN_HAND);
+		});
+		ServerPlayNetworking.registerGlobalReceiver(MCHaloMod.ENERGYSWORD, (server, player, serverPlayNetworkHandler, inputPacket, packetSender) -> {
+			if (player.getMainHandItem().getItem() instanceof EnergySwordItem)
+				((EnergySwordItem) player.getMainHandItem().getItem()).reload(player, InteractionHand.MAIN_HAND);
+		});
+		ServerPlayNetworking.registerGlobalReceiver(MCHaloMod.PLASMAPISTOL, (server, player, serverPlayNetworkHandler, inputPacket, packetSender) -> {
+			if (player.getMainHandItem().getItem() instanceof PlasmaPistolItem)
+				((PlasmaPistolItem) player.getMainHandItem().getItem()).reload(player, InteractionHand.MAIN_HAND);
+		});;
+		ServerPlayNetworking.registerGlobalReceiver(MCHaloMod.PLASMARIFLE, (server, player, serverPlayNetworkHandler, inputPacket, packetSender) -> {
+			if (player.getMainHandItem().getItem() instanceof PlasmaRifleItem)
+				((PlasmaRifleItem) player.getMainHandItem().getItem()).reload(player, InteractionHand.MAIN_HAND);
+		});;
+		ServerPlayNetworking.registerGlobalReceiver(MCHaloMod.NEEDLER, (server, player, serverPlayNetworkHandler, inputPacket, packetSender) -> {
+			if (player.getMainHandItem().getItem() instanceof NeedlerItem)
+				((NeedlerItem) player.getMainHandItem().getItem()).reload(player, InteractionHand.MAIN_HAND);
+		});;
+		ServerPlayNetworking.registerGlobalReceiver(MCHaloMod.MAULER, (server, player, serverPlayNetworkHandler, inputPacket, packetSender) -> {
+			if (player.getMainHandItem().getItem() instanceof MaulerItem)
+				((MaulerItem) player.getMainHandItem().getItem()).reload(player, InteractionHand.MAIN_HAND);
+		});;
+		ServerPlayNetworking.registerGlobalReceiver(MCHaloMod.BRUTESHOT, (server, player, serverPlayNetworkHandler, inputPacket, packetSender) -> {
+			if (player.getMainHandItem().getItem() instanceof BruteShotItem)
+				((BruteShotItem) player.getMainHandItem().getItem()).reload(player, InteractionHand.MAIN_HAND);
+		});
 	}
 }

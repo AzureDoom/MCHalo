@@ -11,7 +11,6 @@ import mod.azure.azurelib.animatable.client.RenderProvider;
 import mod.azure.mchalo.MCHaloMod;
 import mod.azure.mchalo.client.ClientInit;
 import mod.azure.mchalo.client.render.SniperRender;
-import mod.azure.mchalo.config.HaloConfig;
 import mod.azure.mchalo.item.HaloGunBase;
 import mod.azure.mchalo.util.HaloItems;
 import mod.azure.mchalo.util.HaloSounds;
@@ -39,7 +38,7 @@ public class SniperItem extends HaloGunBase {
 	private final Supplier<Object> renderProvider = GeoItem.makeRenderer(this);
 
 	public SniperItem() {
-		super(new Item.Properties().stacksTo(1).durability(HaloConfig.sniper_max_ammo + 1));
+		super(new Item.Properties().stacksTo(1).durability(MCHaloMod.config.sniper_max_ammo + 1));
 		SingletonGeoAnimatable.registerSyncedAnimatable(this);
 	}
 
@@ -50,7 +49,7 @@ public class SniperItem extends HaloGunBase {
 			if (stack.getDamageValue() < (stack.getMaxDamage() - 1)) {
 				playerentity.getCooldowns().addCooldown(this, 35);
 				if (!worldIn.isClientSide) {
-					var bulletEntity = createBullet(worldIn, stack, playerentity, HaloConfig.sniper_bullet_damage);
+					var bulletEntity = createBullet(worldIn, stack, playerentity, MCHaloMod.config.sniper_bullet_damage);
 					bulletEntity.shootFromRotation(playerentity, playerentity.getXRot(), playerentity.getYRot(), 0.0F,
 							1.0F * 3.0F, 1.0F);
 					stack.hurtAndBreak(1, entityLiving, p -> p.broadcastBreakEvent(entityLiving.getUsedItemHand()));
@@ -83,7 +82,7 @@ public class SniperItem extends HaloGunBase {
 			while (!user.isCreative() && user.getItemInHand(hand).getDamageValue() != 0
 					&& user.getInventory().countItem(HaloItems.SNIPER_ROUND) > 0) {
 				removeAmmo(HaloItems.SNIPER_ROUND, user);
-				user.getItemInHand(hand).hurtAndBreak(-HaloConfig.sniper_mag_size, user,
+				user.getItemInHand(hand).hurtAndBreak(-MCHaloMod.config.sniper_mag_size, user,
 						s -> user.broadcastBreakEvent(hand));
 				user.getItemInHand(hand).setPopTime(3);
 				user.getCommandSenderWorld().playSound((Player) null, user.getX(), user.getY(), user.getZ(),
@@ -97,7 +96,7 @@ public class SniperItem extends HaloGunBase {
 		var j = EnchantmentHelper.getItemEnchantmentLevel(Enchantments.POWER_ARROWS, stack);
 		super.appendHoverText(stack, world, tooltip, context);
 		tooltip.add(Component.translatable("Damage: "
-				+ (j > 0 ? (HaloConfig.sniper_bullet_damage + (j * 1.5F + 0.5F)) : HaloConfig.sniper_bullet_damage))
+				+ (j > 0 ? (MCHaloMod.config.sniper_bullet_damage + (j * 1.5F + 0.5F)) : MCHaloMod.config.sniper_bullet_damage))
 				.withStyle(ChatFormatting.ITALIC));
 	}
 

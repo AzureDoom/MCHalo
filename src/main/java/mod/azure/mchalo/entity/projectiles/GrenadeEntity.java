@@ -7,7 +7,7 @@ import mod.azure.azurelib.core.animation.AnimationController;
 import mod.azure.azurelib.core.object.PlayState;
 import mod.azure.azurelib.network.packet.EntityPacket;
 import mod.azure.azurelib.util.AzureLibUtil;
-import mod.azure.mchalo.config.HaloConfig;
+import mod.azure.mchalo.MCHaloMod;
 import mod.azure.mchalo.util.HaloItems;
 import mod.azure.mchalo.util.ProjectilesEntityRegister;
 import net.fabricmc.api.EnvType;
@@ -102,7 +102,7 @@ public class GrenadeEntity extends AbstractArrow implements GeoEntity {
 	public void remove(RemovalReason reason) {
 		var areaeffectcloudentity = new AreaEffectCloud(this.level, this.getX(), this.getY(), this.getZ());
 		areaeffectcloudentity.setParticle(ParticleTypes.EXPLOSION);
-		areaeffectcloudentity.setRadius(HaloConfig.mauler_bullet_damage + 2);
+		areaeffectcloudentity.setRadius(MCHaloMod.config.mauler_bullet_damage + 2);
 		areaeffectcloudentity.setDuration(1);
 		areaeffectcloudentity.absMoveTo(this.getX(), this.getEyeY(), this.getZ());
 		this.level.addFreshEntity(areaeffectcloudentity);
@@ -181,7 +181,7 @@ public class GrenadeEntity extends AbstractArrow implements GeoEntity {
 		var aabb = new AABB(this.blockPosition().above()).inflate(6D, 6D, 6D);
 		this.getCommandSenderWorld().getEntities(this, aabb).forEach(e -> {
 			if (e.isAlive() && e instanceof LivingEntity)
-				e.hurt(damageSources().arrow(this, (Player) this.getOwner()), HaloConfig.mauler_bullet_damage);
+				e.hurt(damageSources().arrow(this, (Player) this.getOwner()), MCHaloMod.config.mauler_bullet_damage);
 		});
 	}
 

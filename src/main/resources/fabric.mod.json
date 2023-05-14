@@ -21,9 +21,6 @@
 		"client": [
 			"mod.azure.mchalo.client.ClientInit"
 		],
-		"modmenu": [
-			"mod.azure.mchalo.config.ModMenuHalo"
-		],
 		"rei_client": [
 			"mod.azure.mchalo.rei.ReiPlugin"
 		]

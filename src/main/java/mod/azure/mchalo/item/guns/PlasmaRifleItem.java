@@ -11,7 +11,6 @@ import mod.azure.azurelib.animatable.client.RenderProvider;
 import mod.azure.mchalo.MCHaloMod;
 import mod.azure.mchalo.client.ClientInit;
 import mod.azure.mchalo.client.render.PlasmaRifleRender;
-import mod.azure.mchalo.config.HaloConfig;
 import mod.azure.mchalo.item.HaloGunBase;
 import mod.azure.mchalo.util.HaloItems;
 import mod.azure.mchalo.util.HaloSounds;
@@ -39,7 +38,7 @@ public class PlasmaRifleItem extends HaloGunBase {
 	private final Supplier<Object> renderProvider = GeoItem.makeRenderer(this);
 
 	public PlasmaRifleItem() {
-		super(new Item.Properties().stacksTo(1).durability(HaloConfig.plasmarifle_max_ammo + 1));
+		super(new Item.Properties().stacksTo(1).durability(MCHaloMod.config.plasmarifle_max_ammo + 1));
 		SingletonGeoAnimatable.registerSyncedAnimatable(this);
 	}
 
@@ -51,7 +50,7 @@ public class PlasmaRifleItem extends HaloGunBase {
 					&& !playerentity.getCooldowns().isOnCooldown(this)) {
 				playerentity.getCooldowns().addCooldown(this, 8);
 				if (!worldIn.isClientSide) {
-					var plamsaEntity = createPlamsa(worldIn, stack, playerentity, HaloConfig.plasmarifle_bullet_damage);
+					var plamsaEntity = createPlamsa(worldIn, stack, playerentity, MCHaloMod.config.plasmarifle_bullet_damage);
 					plamsaEntity.shootFromRotation(playerentity, playerentity.getXRot(), playerentity.getYRot(), 0.0F,
 							0.5F * 3.0F, 1.0F);
 					if (EnchantmentHelper.getItemEnchantmentLevel(Enchantments.FLAMING_ARROWS, stack) > 0) {
@@ -86,7 +85,7 @@ public class PlasmaRifleItem extends HaloGunBase {
 			while (!user.isCreative() && user.getItemInHand(hand).getDamageValue() != 0
 					&& user.getInventory().countItem(HaloItems.BATTERIES) > 0) {
 				removeAmmo(HaloItems.BATTERIES, user);
-				user.getItemInHand(hand).hurtAndBreak(-HaloConfig.plasmarifle_mag_size, user,
+				user.getItemInHand(hand).hurtAndBreak(-MCHaloMod.config.plasmarifle_mag_size, user,
 						s -> user.broadcastBreakEvent(hand));
 				user.getItemInHand(hand).setPopTime(3);
 				user.getCommandSenderWorld().playSound((Player) null, user.getX(), user.getY(), user.getZ(),
@@ -100,8 +99,8 @@ public class PlasmaRifleItem extends HaloGunBase {
 		var j = EnchantmentHelper.getItemEnchantmentLevel(Enchantments.POWER_ARROWS, stack);
 		super.appendHoverText(stack, world, tooltip, context);
 		tooltip.add(
-				Component.translatable("Damage: " + (j > 0 ? (HaloConfig.plasmarifle_bullet_damage + (j * 1.5F + 0.5F))
-						: HaloConfig.plasmarifle_bullet_damage)).withStyle(ChatFormatting.ITALIC));
+				Component.translatable("Damage: " + (j > 0 ? (MCHaloMod.config.plasmarifle_bullet_damage + (j * 1.5F + 0.5F))
+						: MCHaloMod.config.plasmarifle_bullet_damage)).withStyle(ChatFormatting.ITALIC));
 	}
 
 	@Override

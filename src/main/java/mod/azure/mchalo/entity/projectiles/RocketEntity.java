@@ -9,7 +9,7 @@ import mod.azure.azurelib.core.object.PlayState;
 import mod.azure.azurelib.entities.TickingLightEntity;
 import mod.azure.azurelib.network.packet.EntityPacket;
 import mod.azure.azurelib.util.AzureLibUtil;
-import mod.azure.mchalo.config.HaloConfig;
+import mod.azure.mchalo.MCHaloMod;
 import mod.azure.mchalo.util.HaloItems;
 import mod.azure.mchalo.util.HaloSounds;
 import mod.azure.mchalo.util.ProjectilesEntityRegister;
@@ -244,7 +244,7 @@ public class RocketEntity extends AbstractArrow implements GeoEntity {
 		var aabb = new AABB(this.blockPosition().above()).inflate(6D, 6D, 6D);
 		this.getCommandSenderWorld().getEntities(this, aabb).forEach(e -> {
 			if (e.isAlive() && e instanceof LivingEntity) 
-				e.hurt(damageSources().playerAttack((Player) this.getOwner()), HaloConfig.rocketlauncher_damage);
+				e.hurt(damageSources().playerAttack((Player) this.getOwner()), MCHaloMod.config.rocketlauncher_damage);
 		});
 	}
 

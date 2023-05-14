@@ -10,7 +10,6 @@ import mod.azure.azurelib.animatable.client.RenderProvider;
 import mod.azure.mchalo.MCHaloMod;
 import mod.azure.mchalo.client.ClientInit;
 import mod.azure.mchalo.client.render.RocketLauncherRender;
-import mod.azure.mchalo.config.HaloConfig;
 import mod.azure.mchalo.item.HaloGunBase;
 import mod.azure.mchalo.util.HaloSounds;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
@@ -33,7 +32,7 @@ public class RocketLauncherItem extends HaloGunBase {
 	private final Supplier<Object> renderProvider = GeoItem.makeRenderer(this);
 
 	public RocketLauncherItem() {
-		super(new Item.Properties().stacksTo(1).durability(HaloConfig.rocketlauncher_max_ammo + 1));
+		super(new Item.Properties().stacksTo(1).durability(MCHaloMod.config.rocketlauncher_max_ammo + 1));
 		SingletonGeoAnimatable.registerSyncedAnimatable(this);
 	}
 
@@ -78,7 +77,7 @@ public class RocketLauncherItem extends HaloGunBase {
 			while (!user.isCreative() && user.getItemInHand(hand).getDamageValue() != 0
 					&& user.getInventory().countItem(Items.TNT) > 0) {
 				removeAmmo(Items.TNT, user);
-				user.getItemInHand(hand).hurtAndBreak(-HaloConfig.rocketlauncher_mag_size, user,
+				user.getItemInHand(hand).hurtAndBreak(-MCHaloMod.config.rocketlauncher_mag_size, user,
 						s -> user.broadcastBreakEvent(hand));
 				user.getItemInHand(hand).setPopTime(3);
 				user.getCommandSenderWorld().playSound((Player) null, user.getX(), user.getY(), user.getZ(),

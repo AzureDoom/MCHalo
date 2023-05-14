@@ -1,3 +1,3 @@
-v.1.1.16
+v.1.1.17
 
-- Updated Midnight Lib version shadowed.
+- Moved from Midnight Lib to Configuration

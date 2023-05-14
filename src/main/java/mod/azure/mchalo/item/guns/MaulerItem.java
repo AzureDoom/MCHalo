@@ -11,7 +11,6 @@ import mod.azure.azurelib.animatable.client.RenderProvider;
 import mod.azure.mchalo.MCHaloMod;
 import mod.azure.mchalo.client.ClientInit;
 import mod.azure.mchalo.client.render.MaulerRender;
-import mod.azure.mchalo.config.HaloConfig;
 import mod.azure.mchalo.item.HaloGunBase;
 import mod.azure.mchalo.util.HaloItems;
 import mod.azure.mchalo.util.HaloSounds;
@@ -39,7 +38,7 @@ public class MaulerItem extends HaloGunBase {
 	private final Supplier<Object> renderProvider = GeoItem.makeRenderer(this);
 
 	public MaulerItem() {
-		super(new Item.Properties().stacksTo(1).durability(HaloConfig.mauler_max_ammo + 1));
+		super(new Item.Properties().stacksTo(1).durability(MCHaloMod.config.mauler_max_ammo + 1));
 		SingletonGeoAnimatable.registerSyncedAnimatable(this);
 	}
 
@@ -51,7 +50,7 @@ public class MaulerItem extends HaloGunBase {
 				playerentity.getCooldowns().addCooldown(this, 18);
 				if (!worldIn.isClientSide) {
 					for (int y = 0; y < 8; ++y) {
-						var bulletEntity = createBullet(worldIn, stack, playerentity, HaloConfig.mauler_bullet_damage);
+						var bulletEntity = createBullet(worldIn, stack, playerentity, MCHaloMod.config.mauler_bullet_damage);
 						bulletEntity.shootFromRotation(playerentity,
 								playerentity.getXRot() + (y == 3 ? 3 : y == 4 ? -3 : 0),
 								playerentity.getYRot() + (y == 3 ? 3 : y == 2 ? -3 : y == 4 ? -3 : 0), 0.5F,
@@ -87,7 +86,7 @@ public class MaulerItem extends HaloGunBase {
 			while (!user.isCreative() && user.getItemInHand(hand).getDamageValue() != 0
 					&& user.getInventory().countItem(HaloItems.SHOTGUN_CLIP) > 0) {
 				removeAmmo(HaloItems.SHOTGUN_CLIP, user);
-				user.getItemInHand(hand).hurtAndBreak(-HaloConfig.mauler_mag_size, user,
+				user.getItemInHand(hand).hurtAndBreak(-MCHaloMod.config.mauler_mag_size, user,
 						s -> user.broadcastBreakEvent(hand));
 				user.getItemInHand(hand).setPopTime(3);
 				user.getCommandSenderWorld().playSound((Player) null, user.getX(), user.getY(), user.getZ(),
@@ -101,7 +100,7 @@ public class MaulerItem extends HaloGunBase {
 		var j = EnchantmentHelper.getItemEnchantmentLevel(Enchantments.POWER_ARROWS, stack);
 		super.appendHoverText(stack, world, tooltip, context);
 		tooltip.add(Component.translatable("Damage: "
-				+ (j > 0 ? (HaloConfig.mauler_bullet_damage + (j * 1.5F + 0.5F)) : HaloConfig.mauler_bullet_damage) * 8)
+				+ (j > 0 ? (MCHaloMod.config.mauler_bullet_damage + (j * 1.5F + 0.5F)) : MCHaloMod.config.mauler_bullet_damage) * 8)
 				.withStyle(ChatFormatting.ITALIC));
 	}
 
