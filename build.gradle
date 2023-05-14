@@ -2,15 +2,11 @@ buildscript {
     repositories {
     	maven { url  = 'https://plugins.gradle.org/m2/' }
     }
-    dependencies {
-        classpath "gradle.plugin.com.github.johnrengelman:shadow:7.1.0"
-    }
 }
 
 plugins {
     id 'fabric-loom' version '1.0-SNAPSHOT'
 	id 'maven-publish'
-    id 'com.github.johnrengelman.shadow' version '7.1.0'
     id 'com.matthewprenger.cursegradle' version '1.4.0'
     id "com.modrinth.minotaur" version "2.+"
 }
@@ -48,9 +44,7 @@ dependencies {
 	//mappings "net.fabricmc:yarn:${project.yarn_mappings}:v2"
 	modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
 	modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
-  	modImplementation 'mod.azure.azurelib:azurelib-fabric-1.19.4:1.0.12'
-	modImplementation 'dev.toma.configuration:Configuration:2.1.0'
-    shade group: 'dev.toma.configuration', name: 'Configuration', version: '2.1.0'
+  	modImplementation 'mod.azure.azurelib:azurelib-fabric-1.19.4:1.0.13'
 	modImplementation ("com.terraformersmc:modmenu:6.1.0-rc.4")
     modCompileOnly("me.shedaniel:RoughlyEnoughItems-api-fabric:11.0.597") {
         exclude(group: "net.fabricmc.fabric-api")
@@ -64,14 +58,6 @@ dependencies {
     modApi("me.shedaniel.cloth:cloth-config-fabric:10.0.96") {
         exclude(group: "net.fabricmc.fabric-api")
     }
-}
-
-shadowJar {
-    configurations = [project.configurations.shade]
-    from sourceSets.main.output
-    duplicatesStrategy = 'exclude'
-    relocate 'dev.toma', 'mod.azure.mchalo.shadowed.configuration'
-    classifier 'dev'
 }
 
 processResources {
@@ -110,15 +96,6 @@ jar {
 	from("LICENSE") {
 		rename { "${it}_${project.archivesBaseName}"}
 	}
-}
-
-artifacts {
-    archives shadowJar
-}
-
-remapJar {
-    dependsOn(shadowJar)
-    inputFile = shadowJar.archiveFile
 }
 
 if (file('key.properties').exists()) {

@@ -1,8 +1,8 @@
 package mod.azure.mchalo;
 
-import dev.toma.configuration.Configuration;
-import dev.toma.configuration.config.format.ConfigFormats;
 import mod.azure.azurelib.AzureLib;
+import mod.azure.azurelib.AzureLibMod;
+import mod.azure.azurelib.config.format.ConfigFormats;
 import mod.azure.mchalo.blocks.GunTableBlock;
 import mod.azure.mchalo.blocks.blockentity.GunBlockEntity;
 import mod.azure.mchalo.client.gui.GunTableScreenHandler;
@@ -87,7 +87,7 @@ public class MCHaloMod implements ModInitializer {
 
 	@Override
 	public void onInitialize() {
-		config = Configuration.registerConfig(HaloConfig.class, ConfigFormats.json()).getConfigInstance();
+		config = AzureLibMod.registerConfig(HaloConfig.class, ConfigFormats.json()).getConfigInstance();
 		Registry.register(BuiltInRegistries.BLOCK, new ResourceLocation(MODID, "gun_table"), GUN_TABLE);
 		ITEMS = new HaloItems();
 		SOUNDS = new HaloSounds();
