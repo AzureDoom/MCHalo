@@ -100,12 +100,12 @@ public class GrenadeEntity extends AbstractArrow implements GeoEntity {
 
 	@Override
 	public void remove(RemovalReason reason) {
-		var areaeffectcloudentity = new AreaEffectCloud(this.level, this.getX(), this.getY(), this.getZ());
+		var areaeffectcloudentity = new AreaEffectCloud(this.getCommandSenderWorld(), this.getX(), this.getY(), this.getZ());
 		areaeffectcloudentity.setParticle(ParticleTypes.EXPLOSION);
 		areaeffectcloudentity.setRadius(MCHaloMod.config.mauler_bullet_damage + 2);
 		areaeffectcloudentity.setDuration(1);
 		areaeffectcloudentity.absMoveTo(this.getX(), this.getEyeY(), this.getZ());
-		this.level.addFreshEntity(areaeffectcloudentity);
+		this.getCommandSenderWorld().addFreshEntity(areaeffectcloudentity);
 		this.explode();
 		super.remove(reason);
 	}
@@ -160,7 +160,7 @@ public class GrenadeEntity extends AbstractArrow implements GeoEntity {
 	@Override
 	protected void onHitBlock(BlockHitResult blockHitResult) {
 		super.onHitBlock(blockHitResult);
-		if (!this.level.isClientSide)
+		if (!this.getCommandSenderWorld().isClientSide)
 			if (this.tickCount >= 45) {
 				this.entityData.set(SPINNING, false);
 				this.remove(Entity.RemovalReason.DISCARDED);
@@ -171,7 +171,7 @@ public class GrenadeEntity extends AbstractArrow implements GeoEntity {
 	@Override
 	protected void onHitEntity(EntityHitResult entityHitResult) {
 		super.onHitEntity(entityHitResult);
-		if (!this.level.isClientSide) {
+		if (!this.getCommandSenderWorld().isClientSide) {
 			this.entityData.set(SPINNING, false);
 			this.remove(Entity.RemovalReason.DISCARDED);
 		}

@@ -17,12 +17,11 @@ import mod.azure.mchalo.item.guns.BattleRifleItem;
 import mod.azure.mchalo.item.guns.SniperItem;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Gui;
-import net.minecraft.client.gui.GuiComponent;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.resources.ResourceLocation;
 
 @Mixin(Gui.class)
-public abstract class SniperMixin extends GuiComponent {
+public abstract class SniperMixin {
 
 	private static final ResourceLocation SNIPER = new ResourceLocation(MCHaloMod.MODID,
 			"textures/gui/sniper_scope.png");

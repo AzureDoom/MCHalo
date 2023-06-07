@@ -29,6 +29,9 @@ import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.fabricmc.fabric.api.object.builder.v1.block.entity.FabricBlockEntityTypeBuilder;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.flag.FeatureFlags;
@@ -61,28 +64,7 @@ public class MCHaloMod implements ModInitializer {
 	public static final ResourceLocation ROCKETLAUNCHER = new ResourceLocation(MODID, "rocketlauncher");
 	public static final ResourceLocation lock_slot = new ResourceLocation(MODID, "select_craft");
 	public static MenuType<GunTableScreenHandler> SCREEN_HANDLER_TYPE;
-	public static final CreativeModeTab HALOTAB = FabricItemGroup.builder(new ResourceLocation(MODID, "items")).icon(() -> new ItemStack(HaloItems.ENERGYSWORD)).displayItems((context, entries) -> {
-		entries.accept(HaloItems.ENERGYSWORD);
-		entries.accept(HaloItems.MAGNUM);
-		entries.accept(HaloItems.BATTLERIFLE);
-		entries.accept(HaloItems.BULLETCLIP);
-		entries.accept(HaloItems.SHOTGUN);
-		entries.accept(HaloItems.MAULER);
-		entries.accept(HaloItems.SHOTGUN_CLIP);
-		entries.accept(HaloItems.SNIPER);
-		entries.accept(HaloItems.SNIPER_ROUND);
-		entries.accept(HaloItems.BRUTESHOT);
-		entries.accept(HaloItems.GRENADE);
-		entries.accept(HaloItems.NEEDLER);
-		entries.accept(HaloItems.NEEDLES);
-		entries.accept(HaloItems.PLASMAPISTOL);
-		entries.accept(HaloItems.PLASMARIFLE);
-		entries.accept(HaloItems.BATTERIES);
-		entries.accept(HaloItems.ROCKETLAUNCHER);
-		entries.accept(HaloItems.ROCKET);
-		entries.accept(HaloItems.PROPSHIELD);
-		entries.accept(HaloItems.GUN_TABLE);
-	}).build();
+	public static final ResourceKey<CreativeModeTab> ITEM_GROUP = ResourceKey.create(Registries.CREATIVE_MODE_TAB, new ResourceLocation(MODID, "items"));
 	public static final RecipeSerializer<GunTableRecipe> GUN_TABLE_RECIPE_SERIALIZER = Registry.register(BuiltInRegistries.RECIPE_SERIALIZER, new ResourceLocation(MODID, "gun_table"), new GunTableRecipe.Serializer());
 
 	@Override
@@ -95,6 +77,30 @@ public class MCHaloMod implements ModInitializer {
 		GUN_TABLE_ENTITY = Registry.register(BuiltInRegistries.BLOCK_ENTITY_TYPE, MODID + ":guntable", FabricBlockEntityTypeBuilder.create(GunBlockEntity::new, GUN_TABLE).build(null));
 		SCREEN_HANDLER_TYPE = new MenuType<>(GunTableScreenHandler::new, FeatureFlags.VANILLA_SET);
 		Registry.register(BuiltInRegistries.MENU, new ResourceLocation(MODID, "guntable_screen_type"), SCREEN_HANDLER_TYPE);
+		Registry.register(BuiltInRegistries.CREATIVE_MODE_TAB, ITEM_GROUP, FabricItemGroup.builder().icon(() -> new ItemStack(HaloItems.ENERGYSWORD)) // icon
+				.title(Component.translatable("itemGroup.mchalo.items")) // title
+				.displayItems((context, entries) -> {
+					entries.accept(HaloItems.ENERGYSWORD);
+					entries.accept(HaloItems.MAGNUM);
+					entries.accept(HaloItems.BATTLERIFLE);
+					entries.accept(HaloItems.BULLETCLIP);
+					entries.accept(HaloItems.SHOTGUN);
+					entries.accept(HaloItems.MAULER);
+					entries.accept(HaloItems.SHOTGUN_CLIP);
+					entries.accept(HaloItems.SNIPER);
+					entries.accept(HaloItems.SNIPER_ROUND);
+					entries.accept(HaloItems.BRUTESHOT);
+					entries.accept(HaloItems.GRENADE);
+					entries.accept(HaloItems.NEEDLER);
+					entries.accept(HaloItems.NEEDLES);
+					entries.accept(HaloItems.PLASMAPISTOL);
+					entries.accept(HaloItems.PLASMARIFLE);
+					entries.accept(HaloItems.BATTERIES);
+					entries.accept(HaloItems.ROCKETLAUNCHER);
+					entries.accept(HaloItems.ROCKET);
+					entries.accept(HaloItems.PROPSHIELD);
+					entries.accept(HaloItems.GUN_TABLE);
+				}).build()); // build() no longer registers by itself
 		AzureLib.initialize();
 		ServerPlayNetworking.registerGlobalReceiver(lock_slot, new C2SMessageSelectCraft());
 		ServerPlayNetworking.registerGlobalReceiver(MCHaloMod.SNIPER, (server, player, serverPlayNetworkHandler, inputPacket, packetSender) -> {

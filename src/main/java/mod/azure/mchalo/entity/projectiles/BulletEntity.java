@@ -100,10 +100,10 @@ public class BulletEntity extends AbstractArrow {
 		++this.ticksInAir;
 		if (this.ticksInAir >= 80) 
 			this.remove(Entity.RemovalReason.DISCARDED);
-		if (this.level.isClientSide) {
+		if (this.getCommandSenderWorld().isClientSide) {
 			var x = this.getX() + (this.random.nextDouble()) * (double) this.getBbWidth() * 0.5D;
 			var y = this.getZ() + (this.random.nextDouble()) * (double) this.getBbWidth() * 0.5D;
-			this.level.addParticle(ParticleTypes.SMOKE, true, x, this.getY(), y, 0, 0, 0);
+			this.getCommandSenderWorld().addParticle(ParticleTypes.SMOKE, true, x, this.getY(), y, 0, 0, 0);
 		}
 	}
 
@@ -132,7 +132,7 @@ public class BulletEntity extends AbstractArrow {
 	@Override
 	protected void onHitBlock(BlockHitResult blockHitResult) {
 		super.onHitBlock(blockHitResult);
-		if (!this.level.isClientSide) 
+		if (!this.getCommandSenderWorld().isClientSide) 
 			this.remove(Entity.RemovalReason.DISCARDED);
 		this.setSoundEvent(SoundEvents.ARMOR_EQUIP_IRON);
 	}
@@ -142,7 +142,7 @@ public class BulletEntity extends AbstractArrow {
 		var entity = entityHitResult.getEntity();
 		if (entityHitResult.getType() != HitResult.Type.ENTITY
 				|| !((EntityHitResult) entityHitResult).getEntity().is(entity)) 
-			if (!this.level.isClientSide) 
+			if (!this.getCommandSenderWorld().isClientSide) 
 				this.remove(Entity.RemovalReason.DISCARDED);
 		var entity2 = this.getOwner();
 		DamageSource damageSource2;
@@ -156,7 +156,7 @@ public class BulletEntity extends AbstractArrow {
 		if (entity.hurt(damageSource2, bulletdamage)) {
 			if (entity instanceof LivingEntity) {
 				var livingEntity = (LivingEntity) entity;
-				if (!this.level.isClientSide && entity2 instanceof LivingEntity) {
+				if (!this.getCommandSenderWorld().isClientSide && entity2 instanceof LivingEntity) {
 					EnchantmentHelper.doPostHurtEffects(livingEntity, entity2);
 					EnchantmentHelper.doPostDamageEffects((LivingEntity) entity2, livingEntity);
 				}
@@ -167,7 +167,7 @@ public class BulletEntity extends AbstractArrow {
 							new ClientboundGameEventPacket(ClientboundGameEventPacket.ARROW_HIT_PLAYER, 0.0F));
 			}
 		} else {
-			if (!this.level.isClientSide) 
+			if (!this.getCommandSenderWorld().isClientSide) 
 				this.remove(Entity.RemovalReason.DISCARDED);
 		}
 	}

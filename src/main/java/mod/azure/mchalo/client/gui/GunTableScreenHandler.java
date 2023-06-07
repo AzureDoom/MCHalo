@@ -36,7 +36,7 @@ public class GunTableScreenHandler extends AbstractContainerMenu {
 		super(MCHaloMod.SCREEN_HANDLER_TYPE, syncId);
 		this.playerInventory = playerInventory;
 		this.gunTableInventory = new GunTableInventory(this);
-		GunTableScreenHandler.level = playerInventory.player.level;
+		GunTableScreenHandler.level = playerInventory.player.getCommandSenderWorld();
 		this.context = context;
 		this.addSlot(new Slot(this.gunTableInventory, 0, 155, 13));
 		this.addSlot(new Slot(this.gunTableInventory, 1, 175, 33));
@@ -120,7 +120,7 @@ public class GunTableScreenHandler extends AbstractContainerMenu {
 	}
 
 	public List<GunTableRecipe> getRecipes() {
-		var list = new ArrayList<>(playerInventory.player.level.getRecipeManager().getAllRecipesFor(Type.INSTANCE));
+		var list = new ArrayList<>(playerInventory.player.getCommandSenderWorld().getRecipeManager().getAllRecipesFor(Type.INSTANCE));
 		list.sort(null);
 		return list;
 	}
@@ -176,12 +176,12 @@ public class GunTableScreenHandler extends AbstractContainerMenu {
 	}
 
 	private boolean equals(ItemStack itemStack, ItemStack otherItemStack) {
-		return itemStack.getItem() == otherItemStack.getItem() && ItemStack.tagMatches(itemStack, otherItemStack);
+		return itemStack.getItem() == otherItemStack.getItem() && ItemStack.matches(itemStack, otherItemStack);
 	}
 
 	public void removed(Player player) {
 		super.removed(player);
-		if (!this.playerInventory.player.level.isClientSide) {
+		if (!this.playerInventory.player.getCommandSenderWorld().isClientSide) {
 			if (player.isAlive() && (!(player instanceof ServerPlayer) || !((ServerPlayer) player).hasDisconnected())) {
 				player.getInventory().placeItemBackInInventory(this.gunTableInventory.removeItemNoUpdate(0));
 				player.getInventory().placeItemBackInInventory(this.gunTableInventory.removeItemNoUpdate(1));

@@ -54,7 +54,7 @@ public class PlasmaPistolItem extends HaloGunBase {
 							MCHaloMod.config.plasmapistol_bullet_damage);
 					plasmaGEntity.shootFromRotation(playerentity, playerentity.getXRot(), playerentity.getYRot(), 0.0F,
 							0.5F * 3.0F, 1.0F);
-					boolean isInsideWaterBlock = playerentity.level.isWaterAt(playerentity.blockPosition());
+					boolean isInsideWaterBlock = playerentity.getCommandSenderWorld().isWaterAt(playerentity.blockPosition());
 					spawnLightSource(entityLiving, isInsideWaterBlock);
 					plasmaGEntity.tickCount = 33;
 					worldIn.addFreshEntity(plasmaGEntity);
@@ -64,7 +64,7 @@ public class PlasmaPistolItem extends HaloGunBase {
 					triggerAnim(playerentity, GeoItem.getOrAssignId(stack, (ServerLevel) worldIn), "shoot_controller",
 							"firing");
 				}
-				var isInsideWaterBlock = playerentity.level.isWaterAt(playerentity.blockPosition());
+				var isInsideWaterBlock = playerentity.getCommandSenderWorld().isWaterAt(playerentity.blockPosition());
 				spawnLightSource(entityLiving, isInsideWaterBlock);
 			}
 		}

@@ -7,4 +7,4 @@ pluginManagement {
         gradlePluginPortal()
     }
 }
-rootProject.name = 'mchalo-fabric-1.19'
+rootProject.name = 'mchalo-fabric-1.20'

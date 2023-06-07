@@ -111,20 +111,20 @@ public class PlasmaGEntity extends AbstractArrow {
 		++this.ticksInAir;
 		if (this.ticksInAir >= 80)
 			this.remove(Entity.RemovalReason.DISCARDED);
-		var isInsideWaterBlock = level.isWaterAt(blockPosition());
+		var isInsideWaterBlock = this.getCommandSenderWorld().isWaterAt(blockPosition());
 		spawnLightSource(isInsideWaterBlock);
-		if (this.level.isClientSide)
-			this.level.addParticle(HaloParticles.PLASMAG, true, this.getX(), this.getY(), this.getZ(), 0, 0, 0);
+		if (this.getCommandSenderWorld().isClientSide)
+			this.getCommandSenderWorld().addParticle(HaloParticles.PLASMAG, true, this.getX(), this.getY(), this.getZ(), 0, 0, 0);
 	}
 
 	private void spawnLightSource(boolean isInWaterBlock) {
 		if (lightBlockPos == null) {
-			lightBlockPos = findFreeSpace(level, blockPosition(), 2);
+			lightBlockPos = findFreeSpace(this.getCommandSenderWorld(), blockPosition(), 2);
 			if (lightBlockPos == null)
 				return;
-			level.setBlockAndUpdate(lightBlockPos, AzureLibMod.TICKING_LIGHT_BLOCK.defaultBlockState());
+			this.getCommandSenderWorld().setBlockAndUpdate(lightBlockPos, AzureLibMod.TICKING_LIGHT_BLOCK.defaultBlockState());
 		} else if (checkDistance(lightBlockPos, blockPosition(), 2)) {
-			var blockEntity = level.getBlockEntity(lightBlockPos);
+			var blockEntity = this.getCommandSenderWorld().getBlockEntity(lightBlockPos);
 			if (blockEntity instanceof TickingLightEntity)
 				((TickingLightEntity) blockEntity).refresh(isInWaterBlock ? 20 : 0);
 			else
@@ -186,7 +186,7 @@ public class PlasmaGEntity extends AbstractArrow {
 	@Override
 	protected void onHitBlock(BlockHitResult blockHitResult) {
 		super.onHitBlock(blockHitResult);
-		if (!this.level.isClientSide) {
+		if (!this.getCommandSenderWorld().isClientSide) {
 			this.remove(Entity.RemovalReason.DISCARDED);
 		}
 		this.setSoundEvent(SoundEvents.ARMOR_EQUIP_IRON);
@@ -197,7 +197,7 @@ public class PlasmaGEntity extends AbstractArrow {
 		var entity = entityHitResult.getEntity();
 		if (entityHitResult.getType() != HitResult.Type.ENTITY
 				|| !((EntityHitResult) entityHitResult).getEntity().is(entity))
-			if (!this.level.isClientSide)
+			if (!this.getCommandSenderWorld().isClientSide)
 				this.remove(Entity.RemovalReason.DISCARDED);
 		var entity2 = this.getOwner();
 		DamageSource damageSource2;
@@ -211,7 +211,7 @@ public class PlasmaGEntity extends AbstractArrow {
 		if (entity.hurt(damageSource2, bulletdamage)) {
 			if (entity instanceof LivingEntity) {
 				var livingEntity = (LivingEntity) entity;
-				if (!this.level.isClientSide && entity2 instanceof LivingEntity) {
+				if (!this.getCommandSenderWorld().isClientSide && entity2 instanceof LivingEntity) {
 					EnchantmentHelper.doPostHurtEffects(livingEntity, entity2);
 					EnchantmentHelper.doPostDamageEffects((LivingEntity) entity2, livingEntity);
 				}
@@ -223,7 +223,7 @@ public class PlasmaGEntity extends AbstractArrow {
 							.send(new ClientboundGameEventPacket(ClientboundGameEventPacket.ARROW_HIT_PLAYER, 0.0F));
 			}
 		} else {
-			if (!this.level.isClientSide)
+			if (!this.getCommandSenderWorld().isClientSide)
 				this.remove(Entity.RemovalReason.DISCARDED);
 		}
 	}

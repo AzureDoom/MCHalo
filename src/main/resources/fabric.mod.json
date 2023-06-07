@@ -31,9 +31,9 @@
 	"depends": {
 		"fabricloader": ">=0.14.11",
 		"fabric": "*",
-		"minecraft": ">=1.19.4",
+		"minecraft": ">=1.20",
 		"java": ">=17",
-		"azurelib": ">=1.0.13"
+		"azurelib": ">=1.0.9"
 	},
 	"suggests": {
 		"another-mod": "*"

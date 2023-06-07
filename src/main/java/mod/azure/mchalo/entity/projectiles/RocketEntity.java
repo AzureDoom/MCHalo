@@ -81,12 +81,12 @@ public class RocketEntity extends AbstractArrow implements GeoEntity {
 
 	@Override
 	public void remove(RemovalReason reason) {
-		var areaeffectcloudentity = new AreaEffectCloud(this.level, this.getX(), this.getY(), this.getZ());
+		var areaeffectcloudentity = new AreaEffectCloud(this.getCommandSenderWorld(), this.getX(), this.getY(), this.getZ());
 		areaeffectcloudentity.setParticle(ParticleTypes.EXPLOSION);
 		areaeffectcloudentity.setRadius(6);
 		areaeffectcloudentity.setDuration(1);
 		areaeffectcloudentity.absMoveTo(this.getX(), this.getEyeY(), this.getZ());
-		this.level.addFreshEntity(areaeffectcloudentity);
+		this.getCommandSenderWorld().addFreshEntity(areaeffectcloudentity);
 		this.doDamage();
 		super.remove(reason);
 	}
@@ -141,18 +141,18 @@ public class RocketEntity extends AbstractArrow implements GeoEntity {
 			this.remove(Entity.RemovalReason.DISCARDED);
 			this.doDamage();
 		}
-		var isInsideWaterBlock = level.isWaterAt(blockPosition());
+		var isInsideWaterBlock = this.getCommandSenderWorld().isWaterAt(blockPosition());
 		spawnLightSource(isInsideWaterBlock);
 	}
 
 	private void spawnLightSource(boolean isInWaterBlock) {
 		if (lightBlockPos == null) {
-			lightBlockPos = findFreeSpace(level, blockPosition(), 2);
+			lightBlockPos = findFreeSpace(this.getCommandSenderWorld(), blockPosition(), 2);
 			if (lightBlockPos == null)
 				return;
-			level.setBlockAndUpdate(lightBlockPos, AzureLibMod.TICKING_LIGHT_BLOCK.defaultBlockState());
+			this.getCommandSenderWorld().setBlockAndUpdate(lightBlockPos, AzureLibMod.TICKING_LIGHT_BLOCK.defaultBlockState());
 		} else if (checkDistance(lightBlockPos, blockPosition(), 2)) {
-			var blockEntity = level.getBlockEntity(lightBlockPos);
+			var blockEntity = this.getCommandSenderWorld().getBlockEntity(lightBlockPos);
 			if (blockEntity instanceof TickingLightEntity)
 				((TickingLightEntity) blockEntity).refresh(isInWaterBlock ? 20 : 0);
 			else
@@ -214,7 +214,7 @@ public class RocketEntity extends AbstractArrow implements GeoEntity {
 	@Override
 	protected void onHitBlock(BlockHitResult blockHitResult) {
 		super.onHitBlock(blockHitResult);
-		if (!this.level.isClientSide) {
+		if (!this.getCommandSenderWorld().isClientSide) {
 			this.doDamage();
 			this.remove(Entity.RemovalReason.DISCARDED);
 		}
@@ -223,7 +223,7 @@ public class RocketEntity extends AbstractArrow implements GeoEntity {
 
 	@Override
 	protected void onHitEntity(EntityHitResult entityHitResult) {
-		if (!this.level.isClientSide) {
+		if (!this.getCommandSenderWorld().isClientSide) {
 			this.doDamage();
 			this.remove(Entity.RemovalReason.DISCARDED);
 		}

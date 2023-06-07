@@ -134,14 +134,10 @@ public class NeedleEntity extends AbstractArrow implements GeoEntity {
 		++this.ticksInAir;
 		if (this.ticksInAir >= 40)
 			this.remove(Entity.RemovalReason.DISCARDED);
-		var isInsideWaterBlock = level.isWaterAt(blockPosition());
+		var isInsideWaterBlock = this.getCommandSenderWorld().isWaterAt(blockPosition());
 		spawnLightSource(isInsideWaterBlock);
-		var world = this.level;
-		var livingEntities = (List<Monster>) world
-				.getEntitiesOfClass(Monster.class,
-						new AABB(this.getX() - 6.0, this.getY() - 6.0, this.getZ() - 6.0, this.getX() + 6.0,
-								this.getY() + 6.0, this.getZ() + 6.0),
-						entity1 -> entity1 != ((AbstractArrow) this).getOwner());
+		var world = this.getCommandSenderWorld();
+		var livingEntities = (List<Monster>) world.getEntitiesOfClass(Monster.class, new AABB(this.getX() - 6.0, this.getY() - 6.0, this.getZ() - 6.0, this.getX() + 6.0, this.getY() + 6.0, this.getZ() + 6.0), entity1 -> entity1 != ((AbstractArrow) this).getOwner());
 		if (!livingEntities.isEmpty()) {
 			var first = livingEntities.get(0);
 			var entityPos = new Vec3(first.getX(), first.getY() + first.getEyeHeight(), first.getZ());
@@ -156,12 +152,12 @@ public class NeedleEntity extends AbstractArrow implements GeoEntity {
 
 	private void spawnLightSource(boolean isInWaterBlock) {
 		if (lightBlockPos == null) {
-			lightBlockPos = findFreeSpace(level, blockPosition(), 2);
+			lightBlockPos = findFreeSpace(this.getCommandSenderWorld(), blockPosition(), 2);
 			if (lightBlockPos == null)
 				return;
-			level.setBlockAndUpdate(lightBlockPos, AzureLibMod.TICKING_LIGHT_BLOCK.defaultBlockState());
+			this.getCommandSenderWorld().setBlockAndUpdate(lightBlockPos, AzureLibMod.TICKING_LIGHT_BLOCK.defaultBlockState());
 		} else if (checkDistance(lightBlockPos, blockPosition(), 2)) {
-			var blockEntity = level.getBlockEntity(lightBlockPos);
+			var blockEntity = this.getCommandSenderWorld().getBlockEntity(lightBlockPos);
 			if (blockEntity instanceof TickingLightEntity) {
 				((TickingLightEntity) blockEntity).refresh(isInWaterBlock ? 20 : 0);
 			} else
@@ -171,9 +167,7 @@ public class NeedleEntity extends AbstractArrow implements GeoEntity {
 	}
 
 	private boolean checkDistance(BlockPos blockPosA, BlockPos blockPosB, int distance) {
-		return Math.abs(blockPosA.getX() - blockPosB.getX()) <= distance
-				&& Math.abs(blockPosA.getY() - blockPosB.getY()) <= distance
-				&& Math.abs(blockPosA.getZ() - blockPosB.getZ()) <= distance;
+		return Math.abs(blockPosA.getX() - blockPosB.getX()) <= distance && Math.abs(blockPosA.getY() - blockPosB.getY()) <= distance && Math.abs(blockPosA.getZ() - blockPosB.getZ()) <= distance;
 	}
 
 	private BlockPos findFreeSpace(Level world, BlockPos blockPos, int maxDistance) {
@@ -228,7 +222,7 @@ public class NeedleEntity extends AbstractArrow implements GeoEntity {
 	@Override
 	protected void onHitBlock(BlockHitResult blockHitResult) {
 		super.onHitBlock(blockHitResult);
-		if (!this.level.isClientSide) {
+		if (!this.getCommandSenderWorld().isClientSide) {
 			this.remove(Entity.RemovalReason.DISCARDED);
 		}
 		this.setSoundEvent(HaloSounds.NEEDLER);
@@ -237,9 +231,8 @@ public class NeedleEntity extends AbstractArrow implements GeoEntity {
 	@Override
 	protected void onHitEntity(EntityHitResult entityHitResult) {
 		var entity = entityHitResult.getEntity();
-		if (entityHitResult.getType() != HitResult.Type.ENTITY
-				|| !((EntityHitResult) entityHitResult).getEntity().is(entity))
-			if (!this.level.isClientSide)
+		if (entityHitResult.getType() != HitResult.Type.ENTITY || !((EntityHitResult) entityHitResult).getEntity().is(entity))
+			if (!this.getCommandSenderWorld().isClientSide)
 				this.remove(Entity.RemovalReason.DISCARDED);
 		var entity2 = this.getOwner();
 		DamageSource damageSource2;
@@ -253,23 +246,21 @@ public class NeedleEntity extends AbstractArrow implements GeoEntity {
 		if (entity.hurt(damageSource2, bulletdamage)) {
 			if (entity instanceof LivingEntity) {
 				var livingEntity = (LivingEntity) entity;
-				if (!this.level.isClientSide) {
+				if (!this.getCommandSenderWorld().isClientSide) {
 					livingEntity.setArrowCount(livingEntity.getArrowCount() + 1);
 				}
-				if (!this.level.isClientSide && entity2 instanceof LivingEntity) {
+				if (!this.getCommandSenderWorld().isClientSide && entity2 instanceof LivingEntity) {
 					EnchantmentHelper.doPostHurtEffects(livingEntity, entity2);
 					EnchantmentHelper.doPostDamageEffects((LivingEntity) entity2, livingEntity);
 				}
 
 				this.doPostHurtEffects(livingEntity);
-				if (entity2 != null && livingEntity != entity2 && livingEntity instanceof Player
-						&& entity2 instanceof ServerPlayer && !this.isSilent())
-					((ServerPlayer) entity2).connection.send(new ClientboundGameEventPacket(
-							ClientboundGameEventPacket.ARROW_HIT_PLAYER, ClientboundGameEventPacket.DEMO_PARAM_INTRO));
+				if (entity2 != null && livingEntity != entity2 && livingEntity instanceof Player && entity2 instanceof ServerPlayer && !this.isSilent())
+					((ServerPlayer) entity2).connection.send(new ClientboundGameEventPacket(ClientboundGameEventPacket.ARROW_HIT_PLAYER, ClientboundGameEventPacket.DEMO_PARAM_INTRO));
 				this.remove(RemovalReason.KILLED);
 			}
 		} else {
-			if (!this.level.isClientSide)
+			if (!this.getCommandSenderWorld().isClientSide)
 				this.remove(RemovalReason.KILLED);
 		}
 	}
