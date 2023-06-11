@@ -176,7 +176,7 @@ public class GunTableScreenHandler extends AbstractContainerMenu {
 	}
 
 	private boolean equals(ItemStack itemStack, ItemStack otherItemStack) {
-		return itemStack.getItem() == otherItemStack.getItem() && ItemStack.matches(itemStack, otherItemStack);
+		return itemStack.getItem() == otherItemStack.getItem() && ItemStack.isSameItemSameTags(itemStack, otherItemStack);
 	}
 
 	public void removed(Player player) {
