@@ -5,11 +5,11 @@ import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 import io.netty.buffer.Unpooled;
+import mod.azure.azurelib.Keybindings;
 import mod.azure.azurelib.animatable.GeoItem;
 import mod.azure.azurelib.animatable.SingletonGeoAnimatable;
 import mod.azure.azurelib.animatable.client.RenderProvider;
 import mod.azure.mchalo.MCHaloMod;
-import mod.azure.mchalo.client.ClientInit;
 import mod.azure.mchalo.client.render.MaulerRender;
 import mod.azure.mchalo.item.HaloGunBase;
 import mod.azure.mchalo.util.HaloItems;
@@ -74,7 +74,7 @@ public class MaulerItem extends HaloGunBase {
 	public void inventoryTick(ItemStack stack, Level world, Entity entity, int slot, boolean selected) {
 		if (world.isClientSide)
 			if (((Player) entity).getMainHandItem().getItem() instanceof MaulerItem)
-				if (ClientInit.reload.isDown() && selected) {
+				if (Keybindings.RELOAD.isDown() && selected) {
 					var passedData = new FriendlyByteBuf(Unpooled.buffer());
 					passedData.writeBoolean(true);
 					ClientPlayNetworking.send(MCHaloMod.MAULER, passedData);

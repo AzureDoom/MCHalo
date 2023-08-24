@@ -1,9 +1,10 @@
 package mod.azure.mchalo.client;
 
-import com.mojang.blaze3d.platform.InputConstants;
 import java.util.UUID;
 
 import org.lwjgl.glfw.GLFW;
+
+import com.mojang.blaze3d.platform.InputConstants;
 
 import mod.azure.mchalo.MCHaloMod;
 import mod.azure.mchalo.client.gui.GunTableScreen;
@@ -36,16 +37,11 @@ import net.minecraft.world.entity.EntityType;
 
 public class ClientInit implements ClientModInitializer {
 
-	public static KeyMapping reload = new KeyMapping("key.mchalo.reload", InputConstants.Type.KEYSYM, GLFW.GLFW_KEY_R,
-			"category.mchalo.binds");
-
-	public static KeyMapping scope = new KeyMapping("key.mchalo.scope", InputConstants.Type.KEYSYM, GLFW.GLFW_KEY_LEFT_ALT,
-			"category.mchalo.binds");
+	public static KeyMapping scope = new KeyMapping("key.mchalo.scope", InputConstants.Type.KEYSYM, GLFW.GLFW_KEY_LEFT_ALT, "category.mchalo.binds");
 
 	@Override
 	public void onInitializeClient() {
 		MenuScreens.register(MCHaloMod.SCREEN_HANDLER_TYPE, GunTableScreen::new);
-		KeyBindingHelper.registerKeyBinding(reload);
 		KeyBindingHelper.registerKeyBinding(scope);
 		EntityRendererRegistry.register(ProjectilesEntityRegister.BULLET, (ctx) -> new BulletRender(ctx));
 		EntityRendererRegistry.register(ProjectilesEntityRegister.NEEDLE, (ctx) -> new NeedleRender(ctx));
@@ -53,18 +49,16 @@ public class ClientInit implements ClientModInitializer {
 		EntityRendererRegistry.register(ProjectilesEntityRegister.PLASMA, (ctx) -> new PlasmaRender(ctx));
 		EntityRendererRegistry.register(ProjectilesEntityRegister.PLASMAG, (ctx) -> new PlasmaGRender(ctx));
 		EntityRendererRegistry.register(ProjectilesEntityRegister.GRENADE, (ctx) -> new GrenadeRender(ctx));
-		ItemProperties.register(HaloItems.SNIPER, new ResourceLocation("scoped"),
-				(itemStack, clientWorld, livingEntity, seed) -> {
-					if (livingEntity != null)
-						return isScoped() ? 1.0F : 0.0F;
-					return 0.0F;
-				});
-		ItemProperties.register(HaloItems.BATTLERIFLE, new ResourceLocation("scoped"),
-				(itemStack, clientWorld, livingEntity, seed) -> {
-					if (livingEntity != null)
-						return isScoped() ? 1.0F : 0.0F;
-					return 0.0F;
-				});
+		ItemProperties.register(HaloItems.SNIPER, new ResourceLocation("scoped"), (itemStack, clientWorld, livingEntity, seed) -> {
+			if (livingEntity != null)
+				return isScoped() ? 1.0F : 0.0F;
+			return 0.0F;
+		});
+		ItemProperties.register(HaloItems.BATTLERIFLE, new ResourceLocation("scoped"), (itemStack, clientWorld, livingEntity, seed) -> {
+			if (livingEntity != null)
+				return isScoped() ? 1.0F : 0.0F;
+			return 0.0F;
+		});
 		ParticleFactoryRegistry.getInstance().register(HaloParticles.PLASMA, PlasmaParticle.PurpleFactory::new);
 		ParticleFactoryRegistry.getInstance().register(HaloParticles.PLASMAG, PlasmaParticle.GreenFactory::new);
 	}

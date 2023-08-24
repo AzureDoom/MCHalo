@@ -4,6 +4,7 @@ import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 import io.netty.buffer.Unpooled;
+import mod.azure.azurelib.Keybindings;
 import mod.azure.azurelib.animatable.GeoItem;
 import mod.azure.azurelib.animatable.SingletonGeoAnimatable;
 import mod.azure.azurelib.animatable.client.RenderProvider;
@@ -14,7 +15,6 @@ import mod.azure.azurelib.core.animation.RawAnimation;
 import mod.azure.azurelib.core.object.PlayState;
 import mod.azure.azurelib.util.AzureLibUtil;
 import mod.azure.mchalo.MCHaloMod;
-import mod.azure.mchalo.client.ClientInit;
 import mod.azure.mchalo.client.render.EnergySwordRender;
 import mod.azure.mchalo.util.HaloItems;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
@@ -72,7 +72,7 @@ public class EnergySwordItem extends SwordItem implements GeoItem {
 						"close");
 		if (world.isClientSide)
 			if (((Player) entity).getMainHandItem().getItem() instanceof EnergySwordItem)
-				if (ClientInit.reload.isDown() && selected) {
+				if (Keybindings.RELOAD.isDown() && selected) {
 					var passedData = new FriendlyByteBuf(Unpooled.buffer());
 					passedData.writeBoolean(true);
 					ClientPlayNetworking.send(MCHaloMod.ENERGYSWORD, passedData);

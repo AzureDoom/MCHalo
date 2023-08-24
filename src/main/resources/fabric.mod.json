@@ -1,41 +1,31 @@
 {
-	"schemaVersion": 1,
-	"id": "mchalo",
-	"version": "${version}",
-	"name": "MCHalo",
-	"description": "Adds weapons from the Halo franchise to Minecraft!",
-	"authors": [
-		"AzureDoom, yanasakana"
-	],
-	"contact": {
-		"homepage": "https://www.curseforge.com/minecraft/mc-mods/mchalo",
-		"sources": "https://github.com/AzureDoom/mchalo"
-	},
-	"license": "CC-BY-NC-4.0",
-	"icon": "icon.png",
-	"environment": "*",
-	"entrypoints": {
-		"main": [
-			"mod.azure.mchalo.MCHaloMod"
-		],
-		"client": [
-			"mod.azure.mchalo.client.ClientInit"
-		],
-		"rei_client": [
-			"mod.azure.mchalo.rei.ReiPlugin"
-		]
-	},
-	"mixins": [
-		"mchalo.mixins.json"
-	],
-	"depends": {
-		"fabricloader": ">=0.14.11",
-		"fabric": "*",
-		"minecraft": ">=1.20.1",
-		"java": ">=17",
-		"azurelib": ">=1.0.15"
-	},
-	"suggests": {
-		"another-mod": "*"
-	}
+  "schemaVersion" : 1,
+  "id" : "mchalo",
+  "version" : "${version}",
+  "name" : "MCHalo",
+  "description" : "Adds weapons from the Halo franchise to Minecraft!",
+  "authors" : [ "AzureDoom, yanasakana" ],
+  "contact" : {
+    "homepage" : "https://www.curseforge.com/minecraft/mc-mods/mchalo",
+    "sources" : "https://github.com/AzureDoom/mchalo"
+  },
+  "license" : "CC-BY-NC-4.0",
+  "icon" : "icon.png",
+  "environment" : "*",
+  "entrypoints" : {
+    "main" : [ "mod.azure.mchalo.MCHaloMod" ],
+    "client" : [ "mod.azure.mchalo.client.ClientInit" ],
+    "rei_client" : [ "mod.azure.mchalo.rei.ReiPlugin" ]
+  },
+  "mixins" : [ "mchalo.mixins.json" ],
+  "depends" : {
+    "fabricloader" : ">=0.14.11",
+    "fabric" : "*",
+    "minecraft" : ">=1.20.1",
+    "java" : ">=17",
+    "azurelib" : ">=1.0.25"
+  },
+  "suggests" : {
+    "another-mod" : "*"
+  }
 }
