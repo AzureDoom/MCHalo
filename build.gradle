@@ -21,7 +21,7 @@ group = project.mavenGroup
 repositories {
 	maven { url "https://cfa2.cursemaven.com" }
     maven { url 'https://plugins.gradle.org/m2/' }
-    maven { url 'https://dl.cloudsmith.io/public/azuredoom-mods/azurelib/maven/' }
+	maven { url 'https://libs.azuredoom.com:4443/mods'}
     maven { url 'https://maven.shedaniel.me/' }
 	maven { url 'https://maven.terraformersmc.com/' }
 	maven { url 'https://ladysnake.jfrog.io/artifactory/mods' }
