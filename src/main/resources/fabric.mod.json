@@ -23,7 +23,7 @@
     "fabric" : "*",
     "minecraft" : ">=1.20.1",
     "java" : ">=17",
-    "azurelib" : ">=1.0.25"
+    "azurelib" : ">=1.0.32"
   },
   "suggests" : {
     "another-mod" : "*"
