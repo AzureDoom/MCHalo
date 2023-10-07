@@ -1,6 +1,5 @@
 package mod.azure.mchalo;
 
-import mod.azure.azurelib.AzureLib;
 import mod.azure.azurelib.AzureLibMod;
 import mod.azure.azurelib.config.format.ConfigFormats;
 import mod.azure.mchalo.blocks.GunTableBlock;
@@ -101,7 +100,6 @@ public class MCHaloMod implements ModInitializer {
 					entries.accept(HaloItems.PROPSHIELD);
 					entries.accept(HaloItems.GUN_TABLE);
 				}).build()); // build() no longer registers by itself
-		AzureLib.initialize();
 		ServerPlayNetworking.registerGlobalReceiver(lock_slot, new C2SMessageSelectCraft());
 		ServerPlayNetworking.registerGlobalReceiver(MCHaloMod.SNIPER, (server, player, serverPlayNetworkHandler, inputPacket, packetSender) -> {
 			if (player.getMainHandItem().getItem() instanceof SniperItem)
