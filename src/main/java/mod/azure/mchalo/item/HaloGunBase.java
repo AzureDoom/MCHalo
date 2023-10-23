@@ -1,20 +1,22 @@
 package mod.azure.mchalo.item;
 
 import mod.azure.azurelib.items.BaseGunItem;
-import mod.azure.mchalo.entity.projectiles.BulletEntity;
-import mod.azure.mchalo.entity.projectiles.GrenadeEntity;
-import mod.azure.mchalo.entity.projectiles.NeedleEntity;
-import mod.azure.mchalo.entity.projectiles.PlasmaEntity;
-import mod.azure.mchalo.entity.projectiles.PlasmaGEntity;
-import mod.azure.mchalo.entity.projectiles.RocketEntity;
+import mod.azure.mchalo.MCHaloMod;
+import mod.azure.mchalo.blocks.blockentity.TickingLightEntity;
+import mod.azure.mchalo.entity.projectiles.*;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.state.BlockState;
 
 public abstract class HaloGunBase extends BaseGunItem {
 
+	private BlockPos lightBlockPos = null;
 	public HaloGunBase(Properties settings) {
 		super(settings);
 	}
@@ -53,4 +55,46 @@ public abstract class HaloGunBase extends BaseGunItem {
 		return arrowentity;
 	}
 
+	@Override
+	protected void spawnLightSource(Entity entity, boolean isInWaterBlock) {
+		if (lightBlockPos == null) {
+			lightBlockPos = findFreeSpace(entity.level(), entity.blockPosition(), 2);
+			if (lightBlockPos == null)
+				return;
+			entity.level().setBlockAndUpdate(lightBlockPos, MCHaloMod.TICKING_LIGHT_BLOCK.defaultBlockState());
+		} else if (checkDistance(lightBlockPos, entity.blockPosition(), 2)) {
+			BlockEntity blockEntity = entity.level().getBlockEntity(lightBlockPos);
+			if (blockEntity instanceof TickingLightEntity) {
+				((TickingLightEntity) blockEntity).refresh(isInWaterBlock ? 20 : 0);
+			} else
+				lightBlockPos = null;
+		} else
+			lightBlockPos = null;
+	}
+
+	private boolean checkDistance(BlockPos blockPosA, BlockPos blockPosB, int distance) {
+		return Math.abs(blockPosA.getX() - blockPosB.getX()) <= distance && Math.abs(blockPosA.getY() - blockPosB.getY()) <= distance && Math.abs(blockPosA.getZ() - blockPosB.getZ()) <= distance;
+	}
+
+	private BlockPos findFreeSpace(Level world, BlockPos blockPos, int maxDistance) {
+		if (blockPos == null)
+			return null;
+
+		int[] offsets = new int[maxDistance * 2 + 1];
+		offsets[0] = 0;
+		for (int i = 2; i <= maxDistance * 2; i += 2) {
+			offsets[i - 1] = i / 2;
+			offsets[i] = -i / 2;
+		}
+		for (int x : offsets)
+			for (int y : offsets)
+				for (int z : offsets) {
+					BlockPos offsetPos = blockPos.offset(x, y, z);
+					BlockState state = world.getBlockState(offsetPos);
+					if (state.isAir() || state.getBlock().equals(MCHaloMod.TICKING_LIGHT_BLOCK))
+						return offsetPos;
+				}
+
+		return null;
+	}
 }

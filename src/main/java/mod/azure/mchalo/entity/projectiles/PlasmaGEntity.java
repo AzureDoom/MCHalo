@@ -1,8 +1,8 @@
 package mod.azure.mchalo.entity.projectiles;
 
-import mod.azure.azurelib.AzureLibMod;
-import mod.azure.azurelib.entities.TickingLightEntity;
 import mod.azure.azurelib.network.packet.EntityPacket;
+import mod.azure.mchalo.MCHaloMod;
+import mod.azure.mchalo.blocks.blockentity.TickingLightEntity;
 import mod.azure.mchalo.util.HaloItems;
 import mod.azure.mchalo.util.HaloParticles;
 import mod.azure.mchalo.util.ProjectilesEntityRegister;
@@ -122,7 +122,7 @@ public class PlasmaGEntity extends AbstractArrow {
 			lightBlockPos = findFreeSpace(this.getCommandSenderWorld(), blockPosition(), 2);
 			if (lightBlockPos == null)
 				return;
-			this.getCommandSenderWorld().setBlockAndUpdate(lightBlockPos, AzureLibMod.TICKING_LIGHT_BLOCK.defaultBlockState());
+			this.getCommandSenderWorld().setBlockAndUpdate(lightBlockPos, MCHaloMod.TICKING_LIGHT_BLOCK.defaultBlockState());
 		} else if (checkDistance(lightBlockPos, blockPosition(), 2)) {
 			var blockEntity = this.getCommandSenderWorld().getBlockEntity(lightBlockPos);
 			if (blockEntity instanceof TickingLightEntity)
@@ -154,7 +154,7 @@ public class PlasmaGEntity extends AbstractArrow {
 				for (int z : offsets) {
 					BlockPos offsetPos = blockPos.offset(x, y, z);
 					BlockState state = world.getBlockState(offsetPos);
-					if (state.isAir() || state.getBlock().equals(AzureLibMod.TICKING_LIGHT_BLOCK))
+					if (state.isAir() || state.getBlock().equals(MCHaloMod.TICKING_LIGHT_BLOCK))
 						return offsetPos;
 				}
 
