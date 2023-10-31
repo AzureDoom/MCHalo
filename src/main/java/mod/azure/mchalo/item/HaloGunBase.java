@@ -1,8 +1,9 @@
 package mod.azure.mchalo.item;
 
+import mod.azure.azurelib.entities.TickingLightEntity;
 import mod.azure.azurelib.items.BaseGunItem;
+import mod.azure.azurelib.platform.Services;
 import mod.azure.mchalo.MCHaloMod;
-import mod.azure.mchalo.blocks.blockentity.TickingLightEntity;
 import mod.azure.mchalo.entity.projectiles.*;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.Entity;
@@ -61,7 +62,7 @@ public abstract class HaloGunBase extends BaseGunItem {
 			lightBlockPos = findFreeSpace(entity.level(), entity.blockPosition(), 2);
 			if (lightBlockPos == null)
 				return;
-			entity.level().setBlockAndUpdate(lightBlockPos, MCHaloMod.TICKING_LIGHT_BLOCK.defaultBlockState());
+			entity.level().setBlockAndUpdate(lightBlockPos, Services.PLATFORM.getTickingLightBlock().defaultBlockState());
 		} else if (checkDistance(lightBlockPos, entity.blockPosition(), 2)) {
 			BlockEntity blockEntity = entity.level().getBlockEntity(lightBlockPos);
 			if (blockEntity instanceof TickingLightEntity) {
@@ -91,7 +92,7 @@ public abstract class HaloGunBase extends BaseGunItem {
 				for (int z : offsets) {
 					BlockPos offsetPos = blockPos.offset(x, y, z);
 					BlockState state = world.getBlockState(offsetPos);
-					if (state.isAir() || state.getBlock().equals(MCHaloMod.TICKING_LIGHT_BLOCK))
+					if (state.isAir() || state.getBlock().equals(Services.PLATFORM.getTickingLightBlock()))
 						return offsetPos;
 				}
 

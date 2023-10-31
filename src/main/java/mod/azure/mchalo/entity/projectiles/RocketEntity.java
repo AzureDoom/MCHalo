@@ -5,10 +5,11 @@ import mod.azure.azurelib.core.animatable.instance.AnimatableInstanceCache;
 import mod.azure.azurelib.core.animation.AnimatableManager.ControllerRegistrar;
 import mod.azure.azurelib.core.animation.AnimationController;
 import mod.azure.azurelib.core.object.PlayState;
+import mod.azure.azurelib.entities.TickingLightEntity;
 import mod.azure.azurelib.network.packet.EntityPacket;
+import mod.azure.azurelib.platform.Services;
 import mod.azure.azurelib.util.AzureLibUtil;
 import mod.azure.mchalo.MCHaloMod;
-import mod.azure.mchalo.blocks.blockentity.TickingLightEntity;
 import mod.azure.mchalo.util.HaloItems;
 import mod.azure.mchalo.util.HaloSounds;
 import mod.azure.mchalo.util.ProjectilesEntityRegister;
@@ -149,7 +150,7 @@ public class RocketEntity extends AbstractArrow implements GeoEntity {
             lightBlockPos = findFreeSpace(this.getCommandSenderWorld(), blockPosition(), 2);
             if (lightBlockPos == null)
                 return;
-            this.getCommandSenderWorld().setBlockAndUpdate(lightBlockPos, MCHaloMod.TICKING_LIGHT_BLOCK.defaultBlockState());
+            this.getCommandSenderWorld().setBlockAndUpdate(lightBlockPos, Services.PLATFORM.getTickingLightBlock().defaultBlockState());
         } else if (checkDistance(lightBlockPos, blockPosition(), 2)) {
             var blockEntity = this.getCommandSenderWorld().getBlockEntity(lightBlockPos);
             if (blockEntity instanceof TickingLightEntity)
@@ -181,7 +182,7 @@ public class RocketEntity extends AbstractArrow implements GeoEntity {
                 for (int z : offsets) {
                     var offsetPos = blockPos.offset(x, y, z);
                     var state = world.getBlockState(offsetPos);
-                    if (state.isAir() || state.getBlock().equals(MCHaloMod.TICKING_LIGHT_BLOCK))
+                    if (state.isAir() || state.getBlock().equals(Services.PLATFORM.getTickingLightBlock()))
                         return offsetPos;
                 }
 

@@ -3,9 +3,7 @@ package mod.azure.mchalo;
 import mod.azure.azurelib.AzureLibMod;
 import mod.azure.azurelib.config.format.ConfigFormats;
 import mod.azure.mchalo.blocks.GunTableBlock;
-import mod.azure.mchalo.blocks.TickingLightBlock;
 import mod.azure.mchalo.blocks.blockentity.GunBlockEntity;
-import mod.azure.mchalo.blocks.blockentity.TickingLightEntity;
 import mod.azure.mchalo.client.gui.GunTableScreenHandler;
 import mod.azure.mchalo.config.HaloConfig;
 import mod.azure.mchalo.item.EnergySwordItem;
@@ -41,7 +39,6 @@ public class MCHaloMod implements ModInitializer {
     public static final String MODID = "mchalo";
     public static ProjectilesEntityRegister PROJECTILES;
     public static BlockEntityType<GunBlockEntity> GUN_TABLE_ENTITY;
-    public static final TickingLightBlock TICKING_LIGHT_BLOCK = new TickingLightBlock();
     public static final GunTableBlock GUN_TABLE = new GunTableBlock();
     public static final ResourceLocation MAGNUM = new ResourceLocation(MODID, "magnum");
     public static final ResourceLocation MAULER = new ResourceLocation(MODID, "mauler");
@@ -56,7 +53,6 @@ public class MCHaloMod implements ModInitializer {
     public static final ResourceLocation GUN_TABLE_GUI = new ResourceLocation(MODID, "gun_table_gui");
     public static final ResourceLocation ROCKETLAUNCHER = new ResourceLocation(MODID, "rocketlauncher");
     public static final ResourceLocation lock_slot = new ResourceLocation(MODID, "select_craft");
-    public static BlockEntityType<TickingLightEntity> TICKING_LIGHT_ENTITY = Registry.register(BuiltInRegistries.BLOCK_ENTITY_TYPE, MODID + ":lightblock", FabricBlockEntityTypeBuilder.create(TickingLightEntity::new, TICKING_LIGHT_BLOCK).build(null));
     public static MenuType<GunTableScreenHandler> SCREEN_HANDLER_TYPE;
     public static final ResourceKey<CreativeModeTab> ITEM_GROUP = ResourceKey.create(Registries.CREATIVE_MODE_TAB, new ResourceLocation(MODID, "items"));
     public static final RecipeSerializer<GunTableRecipe> GUN_TABLE_RECIPE_SERIALIZER = Registry.register(BuiltInRegistries.RECIPE_SERIALIZER, new ResourceLocation(MODID, "gun_table"), new GunTableRecipe.Serializer());
@@ -65,7 +61,6 @@ public class MCHaloMod implements ModInitializer {
     public void onInitialize() {
         config = AzureLibMod.registerConfig(HaloConfig.class, ConfigFormats.json()).getConfigInstance();
         Registry.register(BuiltInRegistries.BLOCK, new ResourceLocation(MODID, "gun_table"), GUN_TABLE);
-        Registry.register(BuiltInRegistries.BLOCK, new ResourceLocation(MODID, "lightblock"), TICKING_LIGHT_BLOCK);
         ITEMS = new HaloItems();
         SOUNDS = new HaloSounds();
         PROJECTILES = new ProjectilesEntityRegister();
