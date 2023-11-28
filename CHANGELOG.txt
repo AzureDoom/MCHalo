@@ -1,4 +1,0 @@
-v.1.1.23
-
-- Revert back to AzureLib LightBlock/Entity now that it's multiloader compatible.
-- Require at least AzureLib 2.0.3.
