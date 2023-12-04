@@ -1,0 +1,21 @@
+{
+	"type": "mchalo:gun_table",
+	"pattern": "abc",
+	"key": {
+		"a": {
+			"item": "minecraft:iron_ingot",
+			"count": 10
+		},
+		"b": {
+			"item": "minecraft:repeater",
+			"count": 1
+		},
+		"c": {
+			"item": "minecraft:gunpowder",
+			"count": 2
+		}
+	},
+	"result": {
+		"item": "mchalo:battle_rifle"
+	}
+}

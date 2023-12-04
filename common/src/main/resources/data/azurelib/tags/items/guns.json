@@ -1,0 +1,15 @@
+{
+  "replace": false,
+  "values": [
+    "mchalo:shotgun_h2",
+    "mchalo:sniper_rifle",
+    "mchalo:battle_rifle",
+    "mchalo:magnum_h3",
+    "mchalo:rocket_launcher_h3",
+    "mchalo:plasma_pistol",
+    "mchalo:plasma_rifle",
+    "mchalo:needler",
+    "mchalo:brute_shot",
+    "mchalo:mauler"
+  ]
+}

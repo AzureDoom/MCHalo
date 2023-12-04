@@ -1,0 +1,20 @@
+{
+  "required": true,
+  "package": "mod.azure.mchalo.mixins",
+  "compatibilityLevel": "JAVA_17",
+  "refmap": "mchalo.refmap.json",
+  "injectors": {
+    "defaultRequire": 1
+  },
+  "mixins": [
+    "AnvilScreenHandlerMixin",
+    "IngredientAccess",
+    "VillagerMixin"
+  ],
+  "client": [
+    "AbstractClientPlayerEntityMixin",
+    "HeldItemRendererMixin",
+    "SniperMixin",
+    "WeaponRenderingMixin"
+  ]
+}

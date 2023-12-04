@@ -1,0 +1,198 @@
+{
+	"sniper_fire_h3": {
+		"sounds": [
+			{
+				"name": "mchalo:sniper_fire_h3"
+			}
+		]
+	},
+	"sniper_reload": {
+		"sounds": [
+			{
+				"name": "mchalo:sniper_reload"
+			}
+		]
+	},
+	"shotgun": {
+		"sounds": [
+			{
+				"name": "mchalo:shotgun"
+			}
+		]
+	},
+	"shotgunreload": {
+		"sounds": [
+			{
+				"name": "mchalo:shotgunreload"
+			}
+		]
+	},
+	"pistol": {
+		"sounds": [
+			{
+				"name": "mchalo:pistol"
+			}
+		]
+	},
+	"pistolreload": {
+		"sounds": [
+			{
+				"name": "mchalo:pistolreload"
+			}
+		]
+	},
+	"battle_rifle": {
+		"sounds": [
+			{
+				"name": "mchalo:battle_rifle"
+			}
+		]
+	},
+	"battle_rifle_reload": {
+		"sounds": [
+			{
+				"name": "mchalo:battle_rifle_reload"
+			}
+		]
+	},
+	"rocket_h3_1": {
+		"sounds": [
+			{
+				"name": "mchalo:rocket_h3_1"
+			}
+		]
+	},
+	"rocket_reload": {
+		"sounds": [
+			{
+				"name": "mchalo:rocket_reload"
+			}
+		]
+	},
+	"plasmapistol": {
+		"sounds": [
+			{
+				"name": "mchalo:plasmapistol"
+			}
+		]
+	},
+	"plasmapistol_reload": {
+		"sounds": [
+			{
+				"name": "mchalo:plasmapistol_reload"
+			}
+		]
+	},
+	"plasmarifle": {
+		"sounds": [
+			{
+				"name": "mchalo:plasmarifle"
+			}
+		]
+	},
+	"plasmarifle_reload": {
+		"sounds": [
+			{
+				"name": "mchalo:plasmarifle_reload"
+			}
+		]
+	},
+	"needler": {
+		"sounds": [
+			{
+				"name": "mchalo:needler"
+			}
+		]
+	},
+	"needler_reload": {
+		"sounds": [
+			{
+				"name": "mchalo:needler_reload"
+			}
+		]
+	},
+	"mauler": {
+		"sounds": [
+			{
+				"name": "mchalo:mauler"
+			}
+		]
+	},
+	"mauler_reload": {
+		"sounds": [
+			{
+				"name": "mchalo:mauler_reload"
+			}
+		]
+	},
+	"bruteshot": {
+		"sounds": [
+			{
+				"name": "mchalo:bruteshot"
+			}
+		]
+	},
+	"bruteshot_reload": {
+		"sounds": [
+			{
+				"name": "mchalo:bruteshot_reload"
+			}
+		]
+	},
+	"energy_melee1a": {
+		"sounds": [
+			{
+				"name": "mchalo:energy_melee1a"
+			}
+		]
+	},
+	"energy_melee1b": {
+		"sounds": [
+			{
+				"name": "mchalo:energy_melee1b"
+			}
+		]
+	},
+	"energy_melee1c": {
+		"sounds": [
+			{
+				"name": "mchalo:energy_melee1c"
+			}
+		]
+	},
+	"energy_loop": {
+		"sounds": [
+			{
+				"name": "mchalo:energy_loop"
+			}
+		]
+	},
+	"energy_open": {
+		"sounds": [
+			{
+				"name": "mchalo:energy_open"
+			}
+		]
+	},
+	"brute_shot_melee1": {
+		"sounds": [
+			{
+				"name": "mchalo:brute_shot_melee1"
+			}
+		]
+	},
+	"brute_shot_melee2": {
+		"sounds": [
+			{
+				"name": "mchalo:brute_shot_melee2"
+			}
+		]
+	},
+	"brute_shot_melee3": {
+		"sounds": [
+			{
+				"name": "mchalo:brute_shot_melee3"
+			}
+		]
+	}
+}

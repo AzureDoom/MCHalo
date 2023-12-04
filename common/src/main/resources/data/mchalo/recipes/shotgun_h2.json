@@ -1,0 +1,21 @@
+{
+	"type": "mchalo:gun_table",
+	"pattern": "abc",
+	"key": {
+		"a": {
+			"item": "minecraft:iron_ingot",
+			"count": 20
+		},
+		"b": {
+			"item": "minecraft:redstone",
+			"count": 8
+		},
+		"c": {
+			"item": "minecraft:gunpowder",
+			"count": 2
+		}
+	},
+	"result": {
+		"item": "mchalo:shotgun_h2"
+	}
+}
