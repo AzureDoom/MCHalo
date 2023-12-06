@@ -1,12 +1,6 @@
 package mod.azure.mchalo.entity.projectiles;
 
-import mod.azure.azurelib.animatable.GeoEntity;
-import mod.azure.azurelib.core.animatable.instance.AnimatableInstanceCache;
-import mod.azure.azurelib.core.animation.AnimatableManager.ControllerRegistrar;
-import mod.azure.azurelib.core.animation.AnimationController;
-import mod.azure.azurelib.core.object.PlayState;
 import mod.azure.azurelib.network.packet.EntityPacket;
-import mod.azure.azurelib.util.AzureLibUtil;
 import mod.azure.mchalo.CommonMod;
 import mod.azure.mchalo.helper.CommonHelper;
 import mod.azure.mchalo.platform.Services;
@@ -28,9 +22,8 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.EntityHitResult;
 import org.jetbrains.annotations.NotNull;
 
-public class RocketEntity extends AbstractArrow implements GeoEntity {
+public class RocketEntity extends AbstractArrow {
     private int idleTicks = 0;
-    private final AnimatableInstanceCache cache = AzureLibUtil.createInstanceCache(this);
 
     public RocketEntity(EntityType<? extends RocketEntity> entityType, Level world) {
         super(entityType, world);
@@ -39,16 +32,6 @@ public class RocketEntity extends AbstractArrow implements GeoEntity {
 
     public RocketEntity(Level world, LivingEntity owner) {
         super(Services.ENTITIES_HELPER.getRocketEntity(), owner, world);
-    }
-
-    @Override
-    public void registerControllers(ControllerRegistrar controllers) {
-        controllers.add(new AnimationController<>(this, event -> PlayState.CONTINUE));
-    }
-
-    @Override
-    public AnimatableInstanceCache getAnimatableInstanceCache() {
-        return this.cache;
     }
 
     protected RocketEntity(EntityType<? extends RocketEntity> type, double x, double y, double z, Level world) {
@@ -104,6 +87,13 @@ public class RocketEntity extends AbstractArrow implements GeoEntity {
         if (this.tickCount >= 100) {
             this.remove(Entity.RemovalReason.DISCARDED);
             this.doDamage();
+        }
+        if (this.level().isClientSide) {
+            var x = this.getX() + (this.random.nextDouble() * 2.0D - 1.0D) * this.getBbWidth() * 0.5D;
+            var y = this.getY() + 0.05D + this.random.nextDouble();
+            var z = this.getZ() + (this.random.nextDouble() * 2.0D - 1.0D) * this.getBbWidth() * 0.5D;
+            this.level().addParticle(ParticleTypes.FLAME, true, x, y, z, 0, 0, 0);
+            this.level().addParticle(ParticleTypes.CAMPFIRE_COSY_SMOKE, true, x, y, z, 0, 0, 0);
         }
         CommonHelper.spawnLightSource(this, this.level().isWaterAt(this.blockPosition()));
     }

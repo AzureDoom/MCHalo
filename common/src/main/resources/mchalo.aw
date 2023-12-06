@@ -1,2 +1,2 @@
 accessWidener	v1	named
-accessible class net/minecraft/world/entity/projectile/Projectile
+accessible method net/minecraft/client/gui/screens/MenuScreens register (Lnet/minecraft/world/inventory/MenuType;Lnet/minecraft/client/gui/screens/MenuScreens$ScreenConstructor;)V

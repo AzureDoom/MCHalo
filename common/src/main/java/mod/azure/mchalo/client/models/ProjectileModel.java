@@ -16,10 +16,32 @@ public class ProjectileModel<T extends GeoEntity> extends DefaultedEntityGeoMode
     }
 
     @Override
+    public ResourceLocation getModelResource(T animatable) {
+        switch (entityType) {
+            case GRENADE -> {
+                return CommonMod.modResource("geo/item/grenade/grenade.geo.json");
+            }
+        }
+        return super.getModelResource(animatable);
+    }
+
+    @Override
+    public ResourceLocation getAnimationResource(T animatable) {
+        switch (entityType) {
+            case GRENADE -> {
+                return CommonMod.modResource("animations/item/grenade/grenade.animation.json");
+            }
+        }
+        return super.getAnimationResource(animatable);
+    }
+
+    @Override
     public ResourceLocation getTextureResource(T animatable) {
         String texture = null;
         switch (entityType) {
-            case ROCKET -> texture = "bullet";
+            case ROCKET -> {
+                return super.getTextureResource(animatable);
+            }
             case NEEEDLE -> texture = "needler/needler";
             case GRENADE -> texture = "grenade/grenade";
         }

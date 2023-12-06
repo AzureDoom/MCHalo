@@ -93,7 +93,7 @@ dependencies {
     implementation fg.deobf("curse.maven:REIPC-521393:4611912")
     implementation fg.deobf("me.shedaniel.cloth:cloth-config-forge:${cloth_version}")
     implementation fg.deobf("dev.architectury:architectury-forge:${arch_version}")
-    implementation fg.deobf('maven.modrinth:better-combat:aMCXkh0U')
+    implementation fg.deobf('maven.modrinth:better-combat:hNenqXi9')
     implementation fg.deobf("dev.kosmx.player-anim:player-animation-lib-forge:${project.player_anim_version}")
     compileOnly project(":common")
     implementation(annotationProcessor("io.github.llamalad7:mixinextras-common:0.2.1"))

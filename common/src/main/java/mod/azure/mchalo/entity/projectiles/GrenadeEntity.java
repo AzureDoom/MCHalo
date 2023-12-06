@@ -4,6 +4,7 @@ import mod.azure.azurelib.animatable.GeoEntity;
 import mod.azure.azurelib.core.animatable.instance.AnimatableInstanceCache;
 import mod.azure.azurelib.core.animation.AnimatableManager.ControllerRegistrar;
 import mod.azure.azurelib.core.animation.AnimationController;
+import mod.azure.azurelib.core.animation.RawAnimation;
 import mod.azure.azurelib.core.object.PlayState;
 import mod.azure.azurelib.network.packet.EntityPacket;
 import mod.azure.azurelib.util.AzureLibUtil;
@@ -74,7 +75,10 @@ public class GrenadeEntity extends AbstractArrow implements GeoEntity {
 
     @Override
     public void registerControllers(ControllerRegistrar controllers) {
-        controllers.add(new AnimationController<>(this, event -> PlayState.CONTINUE));
+        controllers.add(new AnimationController<>(this, event -> {
+            if (inGroundTime == 0) return event.setAndContinue(RawAnimation.begin().thenLoop("spin"));
+            return PlayState.STOP;
+        }));
     }
 
     @Override
@@ -101,8 +105,10 @@ public class GrenadeEntity extends AbstractArrow implements GeoEntity {
 
     @Override
     public void tick() {
-        if (this.tickCount >= 80) this.remove(Entity.RemovalReason.DISCARDED);
         super.tick();
+        if (this.tickCount >= 80) this.remove(Entity.RemovalReason.DISCARDED);
+        if (getDeltaMovement().x == 0) setSpinning(false);
+        if (!onGround()) setSpinning(true);
     }
 
     public SoundEvent hitSound = this.getDefaultHitGroundSoundEvent();

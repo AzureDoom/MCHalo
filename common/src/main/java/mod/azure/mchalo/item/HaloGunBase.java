@@ -1,9 +1,11 @@
 package mod.azure.mchalo.item;
 
+import mod.azure.azurelib.AzureLibMod;
 import mod.azure.azurelib.Keybindings;
 import mod.azure.azurelib.animatable.GeoItem;
 import mod.azure.azurelib.animatable.SingletonGeoAnimatable;
 import mod.azure.azurelib.animatable.client.RenderProvider;
+import mod.azure.azurelib.constant.DataTickets;
 import mod.azure.azurelib.core.animatable.instance.AnimatableInstanceCache;
 import mod.azure.azurelib.core.animation.AnimatableManager;
 import mod.azure.azurelib.core.animation.Animation;
@@ -12,35 +14,35 @@ import mod.azure.azurelib.core.animation.RawAnimation;
 import mod.azure.azurelib.core.object.PlayState;
 import mod.azure.azurelib.items.BaseGunItem;
 import mod.azure.azurelib.util.AzureLibUtil;
-import mod.azure.mchalo.CommonMod;
-import mod.azure.mchalo.client.HaloKeyBinding;
 import mod.azure.mchalo.client.render.GunRender;
 import mod.azure.mchalo.helper.CommonHelper;
 import mod.azure.mchalo.helper.ProjectileEnum;
 import mod.azure.mchalo.platform.Services;
+import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.BlockEntityWithoutLevelRenderer;
+import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvent;
+import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.Item;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.Rarity;
+import net.minecraft.world.item.*;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.List;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 public abstract class HaloGunBase extends Item implements GeoItem {
+    protected Item ammoType;
     protected final String id;
     protected final int clipSize;
-    protected Item ammoType;
     protected final float attackDamage;
     protected final SoundEvent firingSound;
     protected final SoundEvent reloadSound;
@@ -98,7 +100,7 @@ public abstract class HaloGunBase extends Item implements GeoItem {
     }
 
     @Override
-    public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand hand) {
+    public @NotNull InteractionResultHolder<ItemStack> use(@NotNull Level level, Player player, @NotNull InteractionHand hand) {
         var itemStack = player.getItemInHand(hand);
         player.startUsingItem(hand);
         return InteractionResultHolder.consume(itemStack);
@@ -118,12 +120,12 @@ public abstract class HaloGunBase extends Item implements GeoItem {
                 }
             }
             case ROCKET -> {
-                player.getCooldowns().addCooldown(this, 5);
+                player.getCooldowns().addCooldown(this, 25);
                 var rocketEntity = CommonHelper.createRocket(level, itemStack, player);
                 if (EnchantmentHelper.getItemEnchantmentLevel(mod.azure.azurelib.platform.Services.PLATFORM.getIncendairyenchament(), itemStack) > 0)
                     rocketEntity.setSecondsOnFire(100);
-                rocketEntity.shootFromRotation(player, player.getXRot(), player.getYRot(), 0.0F, 0.75F * 3.0F, 1.0F);
-                rocketEntity.moveTo(player.getX(), player.getY(0.95), player.getZ(), 0, 0);
+                rocketEntity.shootFromRotation(player, player.getXRot(), player.getYRot(), 0.0F, 2.25F, 1.0F);
+                rocketEntity.moveTo(player.getX(), player.getY(0.5), player.getZ(), 0, 0);
                 level.addFreshEntity(rocketEntity);
             }
             case SNIPER -> {
@@ -222,29 +224,30 @@ public abstract class HaloGunBase extends Item implements GeoItem {
 
     @Override
     public void inventoryTick(@NotNull ItemStack stack, Level world, @NotNull Entity entity, int slot, boolean selected) {
-        if (world.isClientSide && entity instanceof Player player && player.getMainHandItem().getItem() instanceof HaloGunBase) {
-            if (selected) {
-                if (Keybindings.RELOAD.consumeClick()) {
-                    Services.NETWORK.reload(slot);
+        if (world.isClientSide && entity instanceof Player player && player.getMainHandItem().getItem() instanceof HaloGunBase && selected) {
+            if (Keybindings.RELOAD.consumeClick()) {
+                Services.NETWORK.reload(slot);
+            }
+            if (AzureLibMod.config.useVanillaUseKey) {
+                if (Minecraft.getInstance().options.keyUse.isDown()) {
+                    Services.NETWORK.shoot(slot);
                 }
-                if (CommonMod.config.useVanillaUseKey) {
-                    if (Minecraft.getInstance().options.keyUse.isDown()) {
-                        Services.NETWORK.shoot(slot);
-                    }
-                } else {
-                    if (HaloKeyBinding.FIRE_WEAPON.isDown()) {
-                        Services.NETWORK.shoot(slot);
-                    }
+            } else {
+                if (Keybindings.FIRE_WEAPON.isDown()) {
+                    Services.NETWORK.shoot(slot);
                 }
             }
         }
     }
 
     public static void animate(Player player) {
-        if (player.getMainHandItem().getItem() instanceof HaloGunBase gunBase && !player.getCooldowns().isOnCooldown(gunBase)) {
-            gunBase.fireWeapon(player.getMainHandItem(), player.level(), player);
-            if (!player.level().isClientSide())
-                gunBase.triggerAnim(player, GeoItem.getOrAssignId(player.getMainHandItem(), (ServerLevel) player.level()), "shoot_controller", gunBase.firing);
+        if (player.getMainHandItem().getDamageValue() < (player.getMainHandItem().getMaxDamage() - 1) && player.getMainHandItem().getItem() instanceof HaloGunBase gunBase) {
+            if (!player.getCooldowns().isOnCooldown(player.getMainHandItem().getItem())) {
+                gunBase.fireWeapon(player.getMainHandItem(), player.level(), player);
+                gunBase.triggerAnim(player, GeoItem.getOrAssignId(player.getMainHandItem(), (ServerLevel) player.level()), "shoot_controller", HaloGunBase.firing);
+            }
+        } else {
+            player.level().playSound(null, player.getX(), player.getY(), player.getZ(), SoundEvents.COMPARATOR_CLICK, SoundSource.PLAYERS, 0.25F, 1.3F);
         }
     }
 
@@ -287,8 +290,13 @@ public abstract class HaloGunBase extends Item implements GeoItem {
     }
 
     @Override
-    public int getUseDuration(ItemStack stack) {
+    public int getUseDuration(@NotNull ItemStack stack) {
         return 72000;
+    }
+
+    @Override
+    public void appendHoverText(ItemStack stack, Level world, List<Component> tooltip, @NotNull TooltipFlag context) {
+        tooltip.add(Component.translatable("Ammo: " + (stack.getMaxDamage() - stack.getDamageValue() - 1) + " / " + (stack.getMaxDamage() - 1)).withStyle(ChatFormatting.ITALIC));
     }
 
     @Override
@@ -303,7 +311,15 @@ public abstract class HaloGunBase extends Item implements GeoItem {
 
     @Override
     public void registerControllers(AnimatableManager.ControllerRegistrar controllers) {
-        controllers.add(new AnimationController<>(this, "shoot_controller", event -> PlayState.CONTINUE).triggerableAnim(HaloGunBase.firing, RawAnimation.begin().then(HaloGunBase.firing, Animation.LoopType.PLAY_ONCE)).triggerableAnim("reload", RawAnimation.begin().then("reload", Animation.LoopType.PLAY_ONCE)));
+        controllers.add(new AnimationController<>(this, "shoot_controller", event -> {
+            if (event.getData(DataTickets.ITEM_RENDER_PERSPECTIVE) == ItemDisplayContext.GUI) return PlayState.STOP;
+            return PlayState.CONTINUE;
+        }).triggerableAnim(HaloGunBase.firing, RawAnimation.begin().then(HaloGunBase.firing, Animation.LoopType.PLAY_ONCE)).triggerableAnim("reload", RawAnimation.begin().then("reload", Animation.LoopType.PLAY_ONCE)));
+    }
+
+    @Override
+    public boolean isPerspectiveAware() {
+        return true;
     }
 
     @Override

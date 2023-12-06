@@ -8,9 +8,6 @@ import mod.azure.mchalo.CommonMod;
 public class HaloConfig {
 
     @Configurable
-    public boolean useVanillaUseKey = true;
-
-    @Configurable
     public int battlerifle_max_ammo = 144;
     @Configurable
     public int battlerifle_mag_size = 36;

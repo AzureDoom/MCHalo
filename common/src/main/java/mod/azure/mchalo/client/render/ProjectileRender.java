@@ -9,6 +9,7 @@ import mod.azure.azurelib.util.RenderUtils;
 import mod.azure.mchalo.CommonMod;
 import mod.azure.mchalo.client.models.ProjectileModel;
 import mod.azure.mchalo.entity.projectiles.GrenadeEntity;
+import mod.azure.mchalo.entity.projectiles.RocketEntity;
 import mod.azure.mchalo.helper.EntityEnum;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
@@ -23,7 +24,7 @@ public class ProjectileRender<T extends Entity & GeoEntity> extends GeoEntityRen
     @Override
     public void preRender(PoseStack poseStack, T animatable, BakedGeoModel model, MultiBufferSource bufferSource, VertexConsumer buffer, boolean isReRender, float partialTick, int packedLight, int packedOverlay, float red, float green, float blue, float alpha) {
         RenderUtils.faceRotation(poseStack, animatable, partialTick);
-        if (!(animatable instanceof GrenadeEntity))
+        if (!(animatable instanceof GrenadeEntity) || !(animatable instanceof RocketEntity))
             poseStack.scale(animatable.tickCount > 2 ? 0.5F : 0.0F, animatable.tickCount > 2 ? 0.5F : 0.0F, animatable.tickCount > 2 ? 0.5F : 0.0F);
         super.preRender(poseStack, animatable, model, bufferSource, buffer, isReRender, partialTick, packedLight, packedOverlay, red, green, blue, alpha);
     }

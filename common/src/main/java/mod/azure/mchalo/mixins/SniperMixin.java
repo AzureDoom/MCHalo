@@ -8,6 +8,7 @@ import mod.azure.azurelib.Keybindings;
 import mod.azure.mchalo.CommonMod;
 import mod.azure.mchalo.helper.ProjectileEnum;
 import mod.azure.mchalo.item.HaloGunBase;
+import mod.azure.mchalo.platform.Services;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Gui;
 import net.minecraft.client.renderer.GameRenderer;
@@ -20,19 +21,17 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 @Mixin(Gui.class)
 public abstract class SniperMixin {
 
-    @Unique
+
     private static final ResourceLocation sniper = CommonMod.modResource("textures/gui/sniper_scope.png");
-    @Unique
+
     private static final ResourceLocation battlerifle = CommonMod.modResource("textures/gui/sniper_scope_2x.png");
-    @Mutable
-    @Final
+
     @Shadow
     private final Minecraft minecraft;
     @Shadow
     private int screenWidth;
     @Shadow
     private int screenHeight;
-    @Unique
     private boolean scoped = true;
 
     protected SniperMixin(Minecraft minecraft) {
@@ -43,13 +42,13 @@ public abstract class SniperMixin {
     private void render(CallbackInfo info) {
         assert this.minecraft.player != null;
         var itemStack = this.minecraft.player.getInventory().getSelected();
-        if (this.minecraft.options.getCameraType().isFirstPerson() && itemStack.getItem() instanceof HaloGunBase gunBase && gunBase.getProjectileType() == ProjectileEnum.SNIPER) {
+        if (this.minecraft.options.getCameraType().isFirstPerson() && itemStack.is(Services.ITEMS_HELPER.getSniper())) {
             if (Keybindings.SCOPE.isDown()) {
                 if (this.scoped) this.scoped = false;
                 this.renderSniperOverlay(sniper);
             } else if (!this.scoped) this.scoped = true;
         }
-        if (this.minecraft.options.getCameraType().isFirstPerson() && itemStack.getItem() instanceof HaloGunBase gunBase && gunBase.getProjectileType() == ProjectileEnum.BRBULLET) {
+        if (this.minecraft.options.getCameraType().isFirstPerson() && itemStack.is(Services.ITEMS_HELPER.getBattleRifle())) {
             if (Keybindings.SCOPE.isDown()) {
                 if (this.scoped) this.scoped = false;
                 this.renderSniperOverlay(battlerifle);
@@ -57,7 +56,6 @@ public abstract class SniperMixin {
         }
     }
 
-    @Unique
     private void renderSniperOverlay(ResourceLocation identifier) {
         RenderSystem.disableDepthTest();
         RenderSystem.depthMask(false);
