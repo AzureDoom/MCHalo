@@ -110,7 +110,7 @@ if (file('key.properties').exists()) {
             }
         }
         modrinth {
-            projectId = "s4mejB0R"
+            projectId = project.modrinthID
             accessToken = releaseProp.getProperty('modrinthKey')
             minecraftVersions.add("${minecraft_version}")
             requires {
